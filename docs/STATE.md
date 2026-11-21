@@ -3,7 +3,7 @@ _Last verified: 2026-11-21 20:20 UTC (self-relay spike committed after this rewr
 
 **Thesis:** Albashi pays your freelancers in naira, and its agent can only pay the payslip you signed.
 **Milestone:** M0 · Rigged (checkpoint 2026-11-23 05:24 UTC) · **Deadline:** 2026-12-07 09:00 UTC (time left: the clock line)
-**Next action:** A short, honest README before the AskBots review (2026-11-24 14:00 UTC), then the design bar and `impeccable shape` (PLAN M0).
+**Next action:** Design bar: capture the best payroll and payslip interfaces into `internal/design/bar/`, then `impeccable shape` (PLAN M0, due 2026-11-23 05:24 UTC). README is live (verify.mjs passes from a clean clone).
 **Blocked on:** nothing. Awaiting Celo DevRel's answer on whether the self-relaying agent EOA is the scored "agent wallet" (asked 2026-11-21 18:55 UTC).
 
 ## Works (verified this session)
