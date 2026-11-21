@@ -17,7 +17,8 @@ import {
   type Movement,
 } from './lib/proof';
 
-export const revalidate = 60;
+// Rendered on every request: the rate's "read" time must be the moment Textile was actually asked.
+export const dynamic = 'force-dynamic';
 
 type Alert = {
   id: 'alert-2' | 'alert-3' | 'alert-4';
@@ -165,7 +166,7 @@ export default async function Home() {
           id="alert-5"
           declined
           href={REFUSAL.proof}
-          label={`Declined: USD₮${formatUnits2(REFUSAL.attemptedUnits)} would pass the agent's USD₮${formatUnits2(REFUSAL.capUnits)} daily cap. Refused before reaching Celo; open the captured run log`}
+          label={`Declined: USD₮${formatUnits2(REFUSAL.attemptedUnits)} would have taken the agent past its USD₮${formatUnits2(REFUSAL.capUnits)} daily cap, with USD₮${formatUnits2(REFUSAL.spentUnits)} already spent. Refused by the session before reaching Celo; open the captured run log`}
         />
       </ol>
 
@@ -195,7 +196,7 @@ export default async function Home() {
         <span className="box r-alert-5-icon declined-icon"><Cross /></span>
         <p className="box r-alert-5-sender sender">ALBASHI</p>
         <p className="box r-alert-5-body body declined">
-          DEBIT DECLINED: <span className="struck">USD₮{formatUnits2(REFUSAL.attemptedUnits)} OVER THE AGENT&apos;S CAP</span>
+          DEBIT DECLINED: <span className="struck">USD₮{formatUnits2(REFUSAL.attemptedUnits)} WOULD PASS THE DAILY CAP</span>
         </p>
         <p className="box r-alert-5-time time">{`${watDay(REFUSAL.at)} ${wat(REFUSAL.at)}`}</p>
       </div>

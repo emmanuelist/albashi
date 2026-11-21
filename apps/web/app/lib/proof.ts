@@ -102,6 +102,8 @@ export const EVIDENCE = {
 export const REFUSAL = {
   attemptedUnits: 1_500_000n,
   capUnits: 2_000_000n,
+  /** E-005 had already moved 1 USD₮ against the cap earlier in the same run. */
+  spentUnits: 1_000_000n,
   code: 'spend_limit_exceeded',
   at: new Date('2026-11-21T20:07:00Z'),
   proof: `${REPO}/docs/evidence/selfrelay-run-2026-11-21T20-07Z.json`,
