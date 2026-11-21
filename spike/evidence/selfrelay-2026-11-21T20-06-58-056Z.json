@@ -1,0 +1,169 @@
+{
+  "startedAt": "2026-11-21T20:06:58.056Z",
+  "live": true,
+  "steps": [
+    {
+      "name": "balances before",
+      "ok": true,
+      "ms": 652,
+      "out": {
+        "owner": {
+          "usdt": "2",
+          "cngn": "0",
+          "celo": "22.714470041579913287"
+        },
+        "agent": {
+          "celo": "0.5"
+        },
+        "payoutCngn": "1441.117203",
+        "raw": {
+          "oU": "2000000",
+          "oN": "0",
+          "oC": "22714470041579913287",
+          "aC": "500000000000000000",
+          "pN": "1441117203"
+        }
+      }
+    },
+    {
+      "name": "textile preview 1 USD₮ → cNGN",
+      "ok": true,
+      "ms": 1071,
+      "out": {
+        "buy": "1440569022",
+        "available": "44716077934"
+      }
+    },
+    {
+      "name": "createWallet (EIP-7702 delegation)",
+      "ok": true,
+      "ms": 6300,
+      "out": {
+        "address": "0x0EcaaFc1Bd6f7033d6eb038d8Cbc8a55f900D4B1"
+      }
+    },
+    {
+      "name": "grantSession (USD₮ cap 2/day, CELO fee cap 5/day, 1 h)",
+      "ok": true,
+      "ms": 25725,
+      "out": {
+        "publicKey": "0x04e09eb15a328da079692c6f071f36fa4f67c482e6c8d2a3b5ca1669bcdac0171068723c8cb4d4023ca9f938cd37df073967f6f3937ad334562cbd020c4877c54d",
+        "expiry": 1795295226,
+        "transactionHash": "0xb021c98e1e15892c7d864c42f0cf67710379015113192bbbadb7c9ba5dfb1b4e"
+      }
+    },
+    {
+      "name": "textile firm quote (taker = Altana wallet, owner proof)",
+      "ok": true,
+      "ms": 5275,
+      "out": {
+        "rfqId": "rfq_OpPFgAa2VPi7f4xb",
+        "takerPays": "1000000",
+        "buyAmount": "1440569022",
+        "expiresAt": "2026-11-21T20:09:36.000Z",
+        "swap": {
+          "to": "0xa9AA0a64769cBed4d3B1Ceb4Df01CdE915C235b3",
+          "data": "0x0d7a16c30000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000030000000000000000000000000000000000000000000000000000000000000002a0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000f6829d7393dae24509eb1e52ee8e572e2e271a4f0000000000000000000000000000000000000000000000000000000055dd56be0000000000000000000000000000000000000000000000000000000055dd56be0000000000000000000000000000000000000000000000000000000000000200000000000000000000000000a9aa0a64769cbed4d3b1ceb4df01cde915c235b3000000000000000000000000a601e4adae099c1c98a2186fc0a151dc4bfbba40000000000000010000000000000000000000000000000000000660cee979ed02000000000000000000000000000000000000000000000000000000006b01fa8000000000000000000000000010b9eba3a175df418a35cb8329a527691ee258c500000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000006b01fa8000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000ecaafc1bd6f7033d6eb038d8cbc8a55f900d4b1000000000000000000000000000000000000000000000000000000000000000100000000000000000000000048065fbbe25f71c9282ddf5e1cd6d6a887483d5e00000000000000000000000000000000000000000000000000000000000f4179000000000000000000000000a601e4adae099c1c98a2186fc0a151dc4bfbba400000000000000000000000000000000000000000000000000000000000000041469b5d1dd98dbd3db17848adbf00ebc41356a15b3d596f8a176f68bd96cd8c1644a2dce6ab0b9f3a0ee4b00606ab665055ebb13e87f59312437efb144ae15f471b00000000000000000000000000000000000000000000000000000000000000",
+          "value": "0",
+          "chainId": 42220
+        }
+      }
+    },
+    {
+      "name": "SELF-RELAY swap [approve, swap]",
+      "ok": true,
+      "ms": 7462,
+      "out": {
+        "label": "swap",
+        "nonce": "73038018586417648051912561953825212192186901412110368086669006275422449565696",
+        "paymentToken": "0x0000000000000000000000000000000000000000",
+        "paymentAmount": "317550833252863516",
+        "paymentRecipient": "0xaf089b4eca94a4b2f51d8f5668cff244f2c6c4bc",
+        "simulatedErr": "0x00000000",
+        "hash": "0x6272cb58f29012a94b6ed19a486c24f3e4887ca4ad2418c296d4500e4d0130c5",
+        "status": "success",
+        "from": "0x9Fb5a16af64eEC7A640f2Aa1c7c6aC6E89f0dc79",
+        "attribution": {
+          "codes": [
+            "celo_3f5cac8c49f6"
+          ],
+          "schemaId": 0
+        }
+      }
+    },
+    {
+      "name": "balances after swap",
+      "ok": true,
+      "ms": 226,
+      "out": {
+        "owner": {
+          "usdt": "2",
+          "cngn": "0",
+          "celo": "3.577362061247148329"
+        },
+        "agent": {
+          "celo": "0.5"
+        },
+        "payoutCngn": "1441.117203",
+        "raw": {
+          "oU": "2000000",
+          "oN": "0",
+          "oC": "3577362061247148329",
+          "aC": "500000000000000000",
+          "pN": "1441117203"
+        }
+      }
+    },
+    {
+      "name": "EXPECT REFUSAL: 1.5 USD₮ over the 2 USD₮/day cap (relay path, to read its reason)",
+      "ok": false,
+      "ms": 2876,
+      "err": {
+        "message": "This session key's spending limit does not cover this in CELO. Grant a new session key with a higher limit, as limits cannot be raised.",
+        "code": "spend_limit_exceeded"
+      }
+    },
+    {
+      "name": "revokeSession (owner, one tx)",
+      "ok": true,
+      "ms": 6659,
+      "out": {
+        "status": "revoked",
+        "transactionHash": "0xc4acb8a8f3e149c51fc4ed4a3314a2f4b2f388e6f665fc33cddcf60b14b9763f"
+      }
+    },
+    {
+      "name": "EXPECT REFUSAL: agent self-relays after revoke",
+      "ok": false,
+      "ms": 3660,
+      "err": {
+        "message": "Key hash 0x3e248781d59d89a57deadad23a3cfa09b08847f8cbf121bb9c0368fe26bc8323 is unknown. Try again; the debug log has the whole failure.",
+        "code": "unknown"
+      }
+    },
+    {
+      "name": "balances after",
+      "ok": true,
+      "ms": 648,
+      "out": {
+        "owner": {
+          "usdt": "1",
+          "cngn": "1440.569022",
+          "celo": "3.174468534623768371"
+        },
+        "agent": {
+          "celo": "0.4198494875"
+        },
+        "payoutCngn": "1441.117203",
+        "raw": {
+          "oU": "1000000",
+          "oN": "1440569022",
+          "oC": "3174468534623768371",
+          "aC": "419849487500000000",
+          "pN": "1441117203"
+        }
+      }
+    }
+  ],
+  "finishedAt": "2026-11-21T20:07:58.655Z"
+}

@@ -33,3 +33,9 @@ Append-only. To change a decision, add a new entry that supersedes it.
 **Context:** One builder. The spike's code was written during the build window and is the evidence for D-001..D-003.
 **Decision:** Sprint profile: work items live in docs/PLAN.md, small commits land on main. `spike/` is committed, except `.env` (keys) and the helpers that name the owner's personal wallet (`bal.mjs`, `total.mjs`, `refund.mjs`, `evidence/refund.log`), which stay local.
 **Consequences:** Spike files were checked for the three spike private keys before the first commit: none present.
+
+## D-006 · Self-relay confirmed on mainnet; owner actions stay on Altana's relay for now · 2026-11-21 · accepted · confirms D-003
+**Context:** D-003 depended on an untested recipe.
+**Decision:** Albashi's agent self-relays every payout intent (E-005: tag at the tail, `verifyTx` reads it, sent from the agent EOA). The owner's one-off actions (create wallet, grant, revoke) keep going through Altana's relay for now, untagged; revisit if the organizers count owner-side transactions.
+**Consequences:** The agent EOA needs a little CELO for gas (~0.08 CELO per payout intent). Each intent still pays Altana's quoted relay fee from the owner wallet (~0.32 CELO ≈ $0.02), on top of our gas. The product code must re-implement the hold-and-submit step cleanly (not a `fetch` interception) and must always simulate first (`execute` returns an error code instead of reverting).
+**Evidence:** E-005, E-006, E-007.

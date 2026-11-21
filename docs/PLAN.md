@@ -16,8 +16,8 @@ Deadline source: https://www.loops.house/agents-open-for-business ("Mon 7 Dec, 0
 ### M0 · Rigged (due 2026-11-23 05:24 UTC)
 - [x] Mainnet spike: an Altana session converts USD₮→cNGN on Textile and pays out; revoke stops it. Done: E-001..E-004.
 - [x] Foundation: rules, docs, clock, CI. Done when the cold-start test passes from the repo alone.
-- [ ] **Self-relay spike.** Done when a session-signed intent submitted by *our* EOA to the Orchestrator lands on mainnet and `verifyTx` returns `celo_3f5cac8c49f6` (evidence E-005). Needs the user's OK: spends ≈ $1.50 (a new session-key registration ≈ 20 CELO, plus gas and a $1 Textile swap that comes back as cNGN).
-- [ ] USD₮ cap re-test with the fee cap set wide. Done when a transfer over the USD₮ cap is refused with an error naming USD₮ (E-006). Can share the self-relay spike's run.
+- [x] **Self-relay spike.** Done 2026-11-21: E-005 (tag at the tail, sent from the agent EOA). Done when a session-signed intent submitted by *our* EOA to the Orchestrator lands on mainnet and `verifyTx` returns `celo_3f5cac8c49f6` (evidence E-005). Needs the user's OK: spends ≈ $1.50 (a new session-key registration ≈ 20 CELO, plus gas and a $1 Textile swap that comes back as cNGN).
+- [x] USD₮ cap re-test with the fee cap set wide. Done: E-007 (refused while the fee cap had room; the SDK's message names the fee token regardless). Done when a transfer over the USD₮ cap is refused with an error naming USD₮ (E-006). Can share the self-relay spike's run.
 - [x] Repo public at github.com/emmanuelist/albashi before the AskBots round on 2026-11-24 14:00 UTC. Done 2026-11-21: CI (secrets scan) green on bebb78b.
 - [ ] A hello-world `apps/web` deployed; its URL in STATE.
 - [ ] Design bar: the best payroll and payslip interfaces captured into `internal/design/bar/`; `impeccable shape` run; the direction recorded as a decision.

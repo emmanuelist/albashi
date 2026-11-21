@@ -1,0 +1,38 @@
+{
+  "startedAt": "2026-11-21T19:58:58.559Z",
+  "live": false,
+  "steps": [
+    {
+      "name": "balances before",
+      "ok": true,
+      "ms": 866,
+      "out": {
+        "owner": {
+          "usdt": "0",
+          "cngn": "0",
+          "celo": "0"
+        },
+        "agent": {
+          "celo": "0"
+        },
+        "payoutCngn": "1441.117203",
+        "raw": {
+          "oU": "0",
+          "oN": "0",
+          "oC": "0",
+          "aC": "0",
+          "pN": "1441117203"
+        }
+      }
+    },
+    {
+      "name": "textile preview 1 USD₮ → cNGN",
+      "ok": true,
+      "ms": 911,
+      "out": {
+        "buy": "1441069428",
+        "available": "44700550533"
+      }
+    }
+  ]
+}

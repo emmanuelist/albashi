@@ -28,3 +28,5 @@ spike/bal.mjs
 spike/total.mjs
 spike/refund.mjs
 spike/evidence/refund.log
+spike/evidence/refund-selfrelay.log
+spike/evidence/selfrelay-live.log
