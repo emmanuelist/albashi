@@ -93,6 +93,10 @@ a { color: inherit; text-decoration: none; }
   border-radius: calc(26 * var(--u));
   backdrop-filter: blur(var(--frost-blur)) saturate(0.85);
 }
+.card-link { position: absolute; inset: 0; border-radius: inherit; }
+.card-link:focus-visible { outline: calc(4 * var(--u)) solid #fff; outline-offset: calc(4 * var(--u)); }
+.card:has(.card-link:hover) { border-color: rgba(255, 255, 255, 0.5); }
+.alert-text > *, .r-alert-1-icon, .r-alert-1-sender, .r-alert-1-body, .r-alert-1-time { pointer-events: none; }
 .card-declined { background: var(--frost-declined); }
 
 .sender, .body, .time { font-family: var(--sms); white-space: nowrap; display: flex; align-items: center; }
@@ -107,6 +111,7 @@ a { color: inherit; text-decoration: none; }
   justify-content: flex-end;
 }
 .declined { color: var(--declined); }
+.r-alert-5-body { display: block; line-height: calc(39 * var(--u)); }
 .struck { text-decoration: line-through; text-decoration-thickness: calc(2 * var(--u)); }
 
 .app-icon {
