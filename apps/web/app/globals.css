@@ -71,9 +71,10 @@ a { color: inherit; text-decoration: none; }
   align-items: center;
   white-space: nowrap;
 }
-.brand { font-size: calc(38 * var(--u)); font-weight: 600; letter-spacing: 0.04em; }
+.brand { font-size: calc(38 * var(--u)); font-weight: 600; letter-spacing: 0.04em; gap: calc(14 * var(--u)); }
+.brand-mark { width: calc(44 * var(--u)); height: calc(44 * var(--u)); flex: none; }
 .network { font-size: calc(30 * var(--u)); gap: calc(16 * var(--u)); justify-content: flex-start; }
-.globe { width: calc(34 * var(--u)); height: calc(34 * var(--u)); flex: none; }
+.celo-mark { width: calc(30 * var(--u)); height: calc(30 * var(--u)); flex: none; }
 .nav { font-size: calc(30 * var(--u)); justify-content: space-between; }
 .net-short { display: none; }
 
@@ -140,10 +141,9 @@ a.card-in:focus-visible { outline: calc(4 * var(--u)) solid #fff; outline-offset
   place-items: center;
   border-radius: calc(22 * var(--u));
   background: linear-gradient(160deg, #2a2560, var(--navy));
-  color: var(--credit-hi);
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: calc(78 * var(--u));
+  color: var(--ink-on-photo);
 }
+.app-mark { width: 80%; height: 80%; }
 .credit-icon, .declined-icon { display: grid; place-items: center; border-radius: 50%; }
 .credit-icon {
   background: radial-gradient(circle at 40% 35%, var(--credit-hi), var(--credit-lo));
@@ -212,7 +212,7 @@ a.card-in:focus-visible { outline: calc(4 * var(--u)) solid #fff; outline-offset
   .statusbar { grid-row: 1; grid-column: 1 / -1; margin: 0 calc(-1 * var(--gutter)); position: relative; }
   .brand { grid-area: brand; position: relative; font-size: calc(15 * var(--u)); }
   .network { grid-area: net; position: relative; justify-self: end; font-size: calc(11.5 * var(--u)); gap: calc(6 * var(--u)); }
-  .globe { width: calc(13 * var(--u)); height: calc(13 * var(--u)); }
+  .celo-mark { width: calc(12 * var(--u)); height: calc(12 * var(--u)); }
 
   .rate {
     grid-area: rate;
@@ -254,7 +254,9 @@ a.card-in:focus-visible { outline: calc(4 * var(--u)) solid #fff; outline-offset
     padding: calc(11 * var(--u)) calc(13 * var(--u)) calc(12 * var(--u)) calc(11 * var(--u));
   }
   .card-icon { width: calc(36 * var(--u)); height: calc(36 * var(--u)); margin-top: calc(2 * var(--u)); }
-  .app-icon { border-radius: calc(9 * var(--u)); font-size: calc(25 * var(--u)); }
+  .app-icon { border-radius: calc(9 * var(--u)); }
+  .brand { gap: calc(6 * var(--u)); }
+  .brand-mark { width: calc(18 * var(--u)); height: calc(18 * var(--u)); }
   .credit-icon { box-shadow: inset 0 0 0 calc(2 * var(--u)) #9a5f17; }
   .declined-icon { border-width: calc(1.5 * var(--u)); }
   .card-text { gap: calc(3 * var(--u)); }

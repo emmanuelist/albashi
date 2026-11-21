@@ -19,6 +19,7 @@ import {
   type Movement,
 } from './lib/proof';
 import Sections from './sections';
+import AlbashiMark from './mark';
 
 // Rendered on every request: the rate's "read" time must be the moment Textile was actually asked.
 export const dynamic = 'force-dynamic';
@@ -176,14 +177,20 @@ export default async function Home() {
       <div className="box r-wallpaper rate-scrim" aria-hidden="true" />
 
       <header className="box r-statusbar statusbar" />
-      <p className="box r-brand brand">ALBASHI</p>
+      <p className="box r-brand brand">
+        <AlbashiMark className="brand-mark" />
+        ALBASHI
+      </p>
       <p className="box r-network network">
-        <svg viewBox="0 0 24 24" aria-hidden="true" className="globe">
-          <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="1.6" />
-          <path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18" fill="none" stroke="currentColor" strokeWidth="1.6" />
+        {/* Celo's symbol, path verbatim from celo-org/docs favicon.svg (the official mark), drawn in the text colour. */}
+        <svg viewBox="0 0 384 383" role="img" aria-label="Celo" className="celo-mark">
+          <path
+            fill="currentColor"
+            d="M383.5,0H0.5v383h383V249.3h-63.6C298,298.1,248.7,332,192.3,332c-77.8,0-140.8-63.6-140.8-140.8C51.4,114,114.5,51,192.3,51C249.8,51,299.1,86,321,135.9h62.5V0z"
+          />
         </svg>
         <span className="net-long">Celo mainnet · </span>
-        <span className="net-short">Celo · </span>
+        <span className="net-short">mainnet · </span>
         {block === null ? 'not answering' : `block ${block.toLocaleString('en-US')}`}
       </p>
       <nav className="box r-nav nav" aria-label="Albashi">
@@ -206,7 +213,7 @@ export default async function Home() {
       <ol className="alerts" aria-label="Albashi's alerts, each a real Celo mainnet record">
         <Card
           id="alert-1"
-          icon="A"
+          icon={<AlbashiMark className="app-mark" />}
           iconClass="app-icon"
           time="now"
           body={
