@@ -30,3 +30,5 @@ spike/refund.mjs
 spike/evidence/refund.log
 spike/evidence/refund-selfrelay.log
 spike/evidence/selfrelay-live.log
+.next-review/
+*.tsbuildinfo

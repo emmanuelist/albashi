@@ -44,6 +44,7 @@ session has to re-derive it or trust training data. Read before touching an inte
 - **After revoke, the relay error is "Key hash … is unknown"**, not a friendly message. Map it for the UI. (source: spike)
 - **MetaMask counts CELO twice** (native + ERC-20 view) and doesn't list Celo's cNGN; import it by address. (source: the owner's wallet, 2026-11-21)
 - **viem `getBalance` right after a mined tx can be stale on forno**; use `blockTag: 'pending'` before sweeping a balance. (source: spike refund)
+- **Next 16's CSS pipeline silently drops `backdrop-filter` when a hand-written `-webkit-backdrop-filter` sits beside it with a `var()`-based value.** Both declarations vanish from the served stylesheet and the computed value is `none` (no frost, no error). Write only the unprefixed `backdrop-filter: blur(var(--frost-blur))`; the bundler adds the prefix. Check with `getComputedStyle(el).backdropFilter`. (source: apps/web hero build, 2026-11-21)
 
 ## Environment
 | Var | Purpose | Where to get it |
