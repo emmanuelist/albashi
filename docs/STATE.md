@@ -17,7 +17,8 @@ _Last verified: 2026-11-21 19:45 UTC at the foundation commit_
 ## Deployed
 | What | Network or environment | Address / URL | Last checked |
 |---|---|---|---|
-| nothing yet | | | |
+| Public repo | GitHub | https://github.com/emmanuelist/albashi (CI: secrets scan, green) | 2026-11-21 19:45 UTC |
+| App | — | nothing deployed yet | |
 
 ## Broken or unverified
 - Attribution through Altana's relay: the tag isn't at the tail, so the indexer won't credit it (E-002; fix D-003, unverified)
