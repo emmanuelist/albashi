@@ -74,6 +74,7 @@ a { color: inherit; text-decoration: none; }
 .network { font-size: calc(30 * var(--u)); gap: calc(16 * var(--u)); justify-content: flex-start; }
 .globe { width: calc(34 * var(--u)); height: calc(34 * var(--u)); flex: none; }
 .nav { font-size: calc(30 * var(--u)); justify-content: space-between; }
+.net-short { display: none; }
 
 /* ---- the rate, at lock-screen clock scale */
 .rate {
@@ -95,32 +96,42 @@ a { color: inherit; text-decoration: none; }
   white-space: nowrap;
 }
 
-/* ---- notifications */
+/* ---- notifications. Each card holds its own icon and text; offsets are the comp's (icon 25u in, text 26u
+   after a 108u icon, time 28u from the right edge), so the desktop matches the approved capture and a phone
+   can reflow the same markup. */
 .card {
   background: var(--frost);
   border: calc(2 * var(--u)) solid var(--frost-edge);
   border-radius: calc(26 * var(--u));
   backdrop-filter: blur(var(--frost-blur)) saturate(0.85);
 }
-.card-link { position: absolute; inset: 0; border-radius: inherit; }
-.card-link:focus-visible { outline: calc(4 * var(--u)) solid #fff; outline-offset: calc(4 * var(--u)); }
-.card:has(.card-link:hover) { border-color: rgba(255, 255, 255, 0.5); }
-.alert-text > *, .r-alert-1-icon, .r-alert-1-sender, .r-alert-1-body, .r-alert-1-time { pointer-events: none; }
 .card-declined { background: var(--frost-declined); }
+.card:has(a.card-in:hover) { border-color: rgba(255, 255, 255, 0.5); }
+.card-in {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  gap: calc(26 * var(--u));
+  padding: 0 calc(28 * var(--u)) 0 calc(23 * var(--u));
+  border-radius: inherit;
+}
+a.card-in:focus-visible { outline: calc(4 * var(--u)) solid #fff; outline-offset: calc(4 * var(--u)); }
+.card-icon { flex: none; width: calc(108 * var(--u)); height: calc(108 * var(--u)); }
+.card-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: calc(8 * var(--u)); }
+.card-head { display: flex; justify-content: space-between; align-items: baseline; gap: calc(16 * var(--u)); }
 
-.sender, .body, .time { font-family: var(--sms); white-space: nowrap; display: flex; align-items: center; }
-.sender { font-size: calc(33 * var(--u)); }
-.body { font-size: calc(31 * var(--u)); line-height: 1.28; letter-spacing: -0.02em; }
-.r-alert-1-body, .r-alert-2-body, .r-alert-3-body, .r-alert-4-body { display: block; line-height: calc(37 * var(--u)); }
+.sender, .body { font-family: var(--sms); }
+.sender { font-size: calc(33 * var(--u)); line-height: calc(35 * var(--u)); white-space: nowrap; }
+.body { font-size: calc(31 * var(--u)); line-height: calc(37 * var(--u)); letter-spacing: -0.02em; white-space: nowrap; }
 .time {
   font-family: ui-sans-serif, system-ui, sans-serif;
   font-weight: 400;
   font-size: calc(32 * var(--u));
   color: #d9d1d3;
-  justify-content: flex-end;
+  white-space: nowrap;
 }
 .declined { color: var(--declined); }
-.r-alert-5-body { display: block; line-height: calc(39 * var(--u)); }
 .struck { text-decoration: line-through; text-decoration-thickness: calc(2 * var(--u)); }
 
 .app-icon {
@@ -132,11 +143,7 @@ a { color: inherit; text-decoration: none; }
   font-family: Georgia, 'Times New Roman', serif;
   font-size: calc(78 * var(--u));
 }
-.credit-icon, .declined-icon {
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-}
+.credit-icon, .declined-icon { display: grid; place-items: center; border-radius: 50%; }
 .credit-icon {
   background: radial-gradient(circle at 40% 35%, var(--credit-hi), var(--credit-lo));
   box-shadow: inset 0 0 0 calc(6 * var(--u)) #9a5f17;
@@ -151,7 +158,7 @@ a { color: inherit; text-decoration: none; }
 .credit-icon .glyph { width: 78%; height: 78%; }
 .declined-icon .glyph { width: 70%; height: 70%; }
 
-/* ---- the two lock-screen actions */
+/* ---- the two lock-screen actions: on desktop the label sits inside the disc */
 .round-action {
   border-radius: 50%;
   background: rgba(210, 200, 230, 0.34);
@@ -169,5 +176,116 @@ a { color: inherit; text-decoration: none; }
   padding: 0 calc(14 * var(--u));
   text-wrap: balance;
 }
+.round-action:focus-visible { outline: calc(4 * var(--u)) solid #fff; outline-offset: calc(6 * var(--u)); }
+.disc { display: grid; place-items: center; }
 .action-glyph { width: calc(124 * var(--u)); height: calc(124 * var(--u)); }
 .r-btn-try { font-size: calc(26 * var(--u)); }
+
+/* ---- phone: the page is the phone's lock screen at native scale. One --u is one CSS px of a 390 px-wide
+   phone, capped so a portrait tablet doesn't blow it up. */
+@media (max-width: 760px), (max-aspect-ratio: 5/6) {
+  :root { --u: min(calc(100vw / 390), 1.35px); --frost-blur: 22px; }
+  .lock {
+    aspect-ratio: auto;
+    min-height: 100svh;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: calc(46 * var(--u)) auto auto 1fr auto;
+    grid-template-areas:
+      'brand net'
+      'rate rate'
+      'line line'
+      'alerts alerts'
+      'run try';
+    align-content: start;
+    --gutter: max(16px, calc((100vw - 620px) / 2));
+    padding: 0 var(--gutter) max(20px, env(safe-area-inset-bottom));
+    max-width: 100vw;
+  }
+  .box { position: static; left: auto; top: auto; width: auto; height: auto; }
+  .wallpaper, .sky-grade { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .wallpaper { object-position: 24% 50%; }
+  .rate-scrim, .nav, .net-long { display: none; }
+  .net-short { display: inline; }
+
+  .statusbar { grid-row: 1; grid-column: 1 / -1; margin: 0 calc(-1 * var(--gutter)); position: relative; }
+  .brand { grid-area: brand; position: relative; font-size: calc(15 * var(--u)); }
+  .network { grid-area: net; position: relative; justify-self: end; font-size: calc(11.5 * var(--u)); gap: calc(6 * var(--u)); }
+  .globe { width: calc(13 * var(--u)); height: calc(13 * var(--u)); }
+
+  .rate {
+    grid-area: rate;
+    position: relative;
+    justify-self: center;
+    margin-top: calc(34 * var(--u));
+    font-size: calc(72 * var(--u));
+    transform: none;
+    letter-spacing: 0;
+  }
+  .rate-line {
+    grid-area: line;
+    position: relative;
+    justify-self: center;
+    margin-top: calc(10 * var(--u));
+    padding: calc(2 * var(--u)) calc(10 * var(--u));
+    font-size: calc(12 * var(--u));
+    white-space: normal;
+    text-align: center;
+    border-radius: 999px;
+    background: rgb(70 36 92 / 0.5);
+    box-shadow: 0 0 calc(18 * var(--u)) calc(10 * var(--u)) rgb(70 36 92 / 0.45);
+  }
+
+  .alerts {
+    grid-area: alerts;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: calc(8 * var(--u));
+    margin-top: calc(30 * var(--u));
+  }
+  .card { border-width: 1px; border-radius: calc(18 * var(--u)); }
+  .card-in {
+    position: relative;
+    inset: auto;
+    align-items: flex-start;
+    gap: calc(11 * var(--u));
+    padding: calc(11 * var(--u)) calc(13 * var(--u)) calc(12 * var(--u)) calc(11 * var(--u));
+  }
+  .card-icon { width: calc(36 * var(--u)); height: calc(36 * var(--u)); margin-top: calc(2 * var(--u)); }
+  .app-icon { border-radius: calc(9 * var(--u)); font-size: calc(25 * var(--u)); }
+  .credit-icon { box-shadow: inset 0 0 0 calc(2 * var(--u)) #9a5f17; }
+  .declined-icon { border-width: calc(1.5 * var(--u)); }
+  .card-text { gap: calc(3 * var(--u)); }
+  .sender { font-size: calc(13 * var(--u)); line-height: calc(17 * var(--u)); font-weight: 600; }
+  .time { font-size: calc(12 * var(--u)); }
+  .body { font-size: calc(13 * var(--u)); line-height: calc(18 * var(--u)); letter-spacing: 0; white-space: normal; overflow-wrap: anywhere; }
+  .struck { text-decoration-thickness: 1px; }
+  .desk-break { display: none; }
+
+  .round-action {
+    position: relative;
+    background: none;
+    border: 0;
+    backdrop-filter: none;
+    padding: 0;
+    gap: calc(7 * var(--u));
+    margin-top: calc(26 * var(--u));
+    width: calc(118 * var(--u));
+    font-size: calc(12 * var(--u));
+    line-height: 1.25;
+  }
+  .r-btn-run { grid-area: run; justify-self: start; }
+  .r-btn-try { grid-area: try; justify-self: end; font-size: calc(12 * var(--u)); }
+  .disc {
+    width: calc(54 * var(--u));
+    height: calc(54 * var(--u));
+    border-radius: 50%;
+    background: rgba(210, 200, 230, 0.3);
+    border: 1px solid var(--frost-edge);
+    backdrop-filter: blur(var(--frost-blur)) saturate(0.85);
+  }
+  .round-action:focus-visible { outline: none; }
+  .round-action:focus-visible .disc { outline: 2px solid #fff; outline-offset: 3px; }
+  .action-glyph { width: calc(28 * var(--u)); height: calc(28 * var(--u)); }
+}
