@@ -68,6 +68,32 @@ export type Movement = {
   transfers: { token: 'USDT' | 'CNGN'; from: string; to: string; units: bigint }[];
 };
 
+export type Transfer = Movement['transfers'][number];
+
+/** The USD₮ and cNGN Transfer events in a receipt's logs, in token base units. */
+export function transfersFrom(logs: Parameters<typeof parseEventLogs>[0]['logs']): Transfer[] {
+  return parseEventLogs({ abi: erc20Abi, eventName: 'Transfer', logs }).flatMap((log) => {
+    const addr = log.address.toLowerCase();
+    const token = addr === USDT.toLowerCase() ? 'USDT' : addr === CNGN.toLowerCase() ? 'CNGN' : null;
+    return token ? [{ token, from: log.args.from, to: log.args.to, units: log.args.value } as const] : [];
+  });
+}
+
+/** A Textile swap: the cNGN that arrived, and every USD₮ unit the receiving wallet paid for it (maker + fee). */
+export function summariseSwap(transfers: Transfer[]): { soldUnits: bigint; boughtUnits: bigint; wallet: string } | null {
+  const cngn = transfers.find((t) => t.token === 'CNGN');
+  if (!cngn) return null;
+  const wallet = cngn.to.toLowerCase();
+  const soldUnits = transfers.filter((t) => t.token === 'USDT' && t.from.toLowerCase() === wallet).reduce((s, t) => s + t.units, 0n);
+  return soldUnits === 0n ? null : { soldUnits, boughtUnits: cngn.units, wallet: cngn.to };
+}
+
+/** A payout: the cNGN that moved and who received it. */
+export function summarisePayout(transfers: Transfer[]): { units: bigint; to: string } | null {
+  const cngn = transfers.find((t) => t.token === 'CNGN');
+  return cngn ? { units: cngn.units, to: cngn.to } : null;
+}
+
 // A mined, successful transaction never changes, so a read that succeeded is kept for the life of the server
 // process. Failures are not cached: the next request asks Celo again.
 const movements = new Map<Hash, Movement>();
@@ -80,13 +106,7 @@ export async function readMovement(hash: Hash): Promise<Movement | null> {
     const receipt = await client.getTransactionReceipt({ hash });
     if (receipt.status !== 'success') return null;
     const block = await client.getBlock({ blockNumber: receipt.blockNumber });
-    const logs = parseEventLogs({ abi: erc20Abi, eventName: 'Transfer', logs: receipt.logs });
-    const transfers = logs.flatMap((log) => {
-      const addr = log.address.toLowerCase();
-      const token = addr === USDT.toLowerCase() ? 'USDT' : addr === CNGN.toLowerCase() ? 'CNGN' : null;
-      return token ? [{ token, from: log.args.from, to: log.args.to, units: log.args.value } as const] : [];
-    });
-    const movement = { hash, at: new Date(Number(block.timestamp) * 1000), transfers };
+    const movement = { hash, at: new Date(Number(block.timestamp) * 1000), transfers: transfersFrom(receipt.logs) };
     movements.set(hash, movement);
     return movement;
   } catch {

@@ -23,9 +23,19 @@ const smsFace = localFont({
   display: 'swap',
 });
 
+// Facts only (docs/EVIDENCE.md C-2, C-3): the thesis stays out of link previews until the pay-run contract proves it.
+const description =
+  'Payroll in naira on Celo. An agent converts USD₮ to cNGN on Textile FX and pays out from the owner’s Altana wallet, under a session the owner can revoke in one transaction.';
+
 export const metadata: Metadata = {
-  title: 'Albashi',
-  description: 'Albashi pays your freelancers in naira, and its agent can only pay the payslip you signed.',
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ??
+      (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : 'http://localhost:5180'),
+  ),
+  title: 'Albashi · payroll in naira on Celo',
+  description,
+  openGraph: { title: 'Albashi · payroll in naira on Celo', description, type: 'website', siteName: 'Albashi' },
+  twitter: { card: 'summary_large_image', title: 'Albashi · payroll in naira on Celo', description },
 };
 
 export const viewport: Viewport = { themeColor: '#2b1b4a' };

@@ -12,6 +12,8 @@ import {
   readMovement,
   readRate,
   short,
+  summarisePayout,
+  summariseSwap,
   wat,
   watDay,
   type Movement,
@@ -20,6 +22,11 @@ import Sections from './sections';
 
 // Rendered on every request: the rate's "read" time must be the moment Textile was actually asked.
 export const dynamic = 'force-dynamic';
+
+const PHONE = '(max-width: 760px), (max-aspect-ratio: 5/6)';
+const WIDE_W = [1280, 1920, 2560, 3200, 4096];
+const PORTRAIT_W = [640, 960, 1280, 1742];
+const set = (name: string, widths: number[], ext: string) => widths.map((w) => `/plates/${name}-${w}.${ext} ${w}w`).join(', ');
 
 type Alert = {
   id: 'alert-2' | 'alert-3' | 'alert-4';
@@ -31,32 +38,31 @@ type Alert = {
 };
 
 function swapAlert(id: Alert['id'], m: Movement | null, hash: string, desc: string): Alert {
-  if (!m) return unreadable(id, hash);
-  const cngn = m.transfers.find((t) => t.token === 'CNGN');
-  const owner = cngn?.to.toLowerCase();
-  const sold = m.transfers.filter((t) => t.token === 'USDT' && t.from.toLowerCase() === owner).reduce((s, t) => s + t.units, 0n);
-  if (!cngn || sold === 0n) return unreadable(id, hash);
+  const swap = m && summariseSwap(m.transfers);
+  if (!m || !swap) return unreadable(id, hash);
+  const sold = formatUnits2(swap.soldUnits);
+  const bought = formatUnits2(swap.boughtUnits);
   return {
     id,
     icon: 'fx',
-    lines: [`FX ALERT! USD₮${formatUnits2(sold)} → cNGN${formatUnits2(cngn.units)}`, `DESC: ${desc} REF: ${short(hash)}`],
+    lines: [`FX ALERT! USD₮${sold} → cNGN${bought}`, `DESC: ${desc} REF: ${short(hash)}`],
     time: `${watDay(m.at)} ${wat(m.at)}`,
     href: celoscan(hash),
-    label: `Swap of USD₮${formatUnits2(sold)} for cNGN${formatUnits2(cngn.units)} on Celo, transaction ${hash}`,
+    label: `Swap of USD₮${sold} for cNGN${bought} on Celo, transaction ${hash}`,
   };
 }
 
 function payoutAlert(id: Alert['id'], m: Movement | null, hash: string): Alert {
-  if (!m) return unreadable(id, hash);
-  const cngn = m.transfers.find((t) => t.token === 'CNGN');
-  if (!cngn) return unreadable(id, hash);
+  const payout = m && summarisePayout(m.transfers);
+  if (!m || !payout) return unreadable(id, hash);
+  const amount = formatUnits2(payout.units);
   return {
     id,
     icon: 'credit',
-    lines: [`CREDIT ALERT! AMT: cNGN${formatUnits2(cngn.units)}`, `TO: ${short(cngn.to)} REF: ${short(hash)}`],
+    lines: [`CREDIT ALERT! AMT: cNGN${amount}`, `TO: ${short(payout.to)} REF: ${short(hash)}`],
     time: `${watDay(m.at)} ${wat(m.at)}`,
     href: celoscan(hash),
-    label: `Payout of cNGN${formatUnits2(cngn.units)} to ${cngn.to}, transaction ${hash}`,
+    label: `Payout of cNGN${amount} to ${payout.to}, transaction ${hash}`,
   };
 }
 
@@ -155,8 +161,16 @@ export default async function Home() {
   return (
     <main>
       <div className="lock">
-      {/* eslint-disable-next-line @next/next/no-img-element -- the hero plate is placed at its measured box; responsive formats come in the responsive phase */}
-      <img className="box r-wallpaper wallpaper" src="/plates/wallpaper.png" alt="" fetchPriority="high" />
+      {/* The plate as AVIF/WebP at several widths; phones get a portrait crop centred on the bridge, shown
+          height-bound (about 75vh wide), hence its sizes. The media
+          query matches the phone layout's in globals.css. Each file carries its AI provenance in EXIF. */}
+      <picture>
+        <source media={PHONE} type="image/avif" srcSet={set('wallpaper-portrait', PORTRAIT_W, 'avif')} sizes="max(100vw, 75vh)" />
+        <source media={PHONE} type="image/webp" srcSet={set('wallpaper-portrait', PORTRAIT_W, 'webp')} sizes="max(100vw, 75vh)" />
+        <source type="image/avif" srcSet={set('wallpaper', WIDE_W, 'avif')} sizes="100vw" />
+        <source type="image/webp" srcSet={set('wallpaper', WIDE_W, 'webp')} sizes="100vw" />
+        <img className="box r-wallpaper wallpaper" src="/plates/wallpaper-1920.webp" alt="" fetchPriority="high" decoding="async" />
+      </picture>
       {/* Grades the regenerated plate's upper sky back to the comp's magenta-violet and darkens the band the rate line sits on. */}
       <div className="box r-wallpaper sky-grade" aria-hidden="true" />
       <div className="box r-wallpaper rate-scrim" aria-hidden="true" />

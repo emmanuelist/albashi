@@ -1,0 +1,1 @@
+Albashi: payroll in naira, paid by an agent on Celo. A credit alert for a real cNGN payout on Celo mainnet, over Lagos at dusk.
