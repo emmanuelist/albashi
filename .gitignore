@@ -32,3 +32,4 @@ spike/evidence/refund-selfrelay.log
 spike/evidence/selfrelay-live.log
 .next-review/
 *.tsbuildinfo
+.vercel/

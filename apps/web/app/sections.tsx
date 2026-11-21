@@ -10,12 +10,11 @@ import {
   REPO_URL,
   SPIKE_RUN_LOG,
   celoscan,
-  checkSelfRelay,
-  readTxTime,
   short,
   wat,
   watDay,
 } from './lib/proof';
+import { cachedSelfRelayChecks, cachedTxTime } from './lib/cached';
 
 type Ref = { label: string; href: string };
 
@@ -84,7 +83,7 @@ const PROOFS: { id: string; what: string; hash?: string; log?: string }[] = [
 
 const LIMITS = [
   'These are proofs of the parts, not the product: the pay-run contract and the owner’s app are not built yet.',
-  'The claim at the top is unproven until the pay-run contract refuses an off-payslip payment on mainnet.',
+  'The top alert’s promise, that the agent will only pay the payslip you sign, is a goal until the pay-run contract refuses an off-payslip payment on mainnet.',
   'Every run so far moved one US dollar.',
   'The owner’s own setup transactions (create wallet, grant, revoke) still go through Altana’s relay, so they carry no attribution tag.',
   'Whether freelancers can easily cash cNGN out to naira is still being checked with a real user.',
@@ -92,7 +91,7 @@ const LIMITS = [
 ];
 
 export default async function Sections() {
-  const [run, ...times] = await Promise.all([checkSelfRelay(), ...PROOFS.map((p) => (p.hash ? readTxTime(p.hash as `0x${string}`) : Promise.resolve(null)))]);
+  const [run, ...times] = await Promise.all([cachedSelfRelayChecks(), ...PROOFS.map((p) => (p.hash ? cachedTxTime(p.hash as `0x${string}`) : Promise.resolve(null)))]);
 
   return (
     <>
@@ -126,14 +125,14 @@ export default async function Sections() {
         <p className="kicker">Proof on Celo</p>
         <h2 id="proof-title" className="sheet-title">Don’t take the page’s word for it.</h2>
         <p className="sheet-lede">
-          This page just checked the payment its agent sent itself (E-005) against Celo mainnet. The same checks run from the
-          repo with no wallet and no keys.
+          This page checked the payment its agent sent itself (E-005) against Celo mainnet; the result and when it ran are
+          below. The same checks run from the repo with no wallet and no keys.
         </p>
 
         <div className="checks" role="group" aria-label="Live checks of E-005">
           <p className="checks-head">
             <span>E-005 · {short(EVIDENCE.swapSelfRelay)}</span>
-            <span>{run ? `checked ${wat(run.at)} WAT` : 'Celo did not answer'}</span>
+            <span>{run ? `checked ${watDay(run.at)} ${wat(run.at)} WAT` : 'Celo did not answer'}</span>
           </p>
           {run ? (
             <ul className="checks-list">

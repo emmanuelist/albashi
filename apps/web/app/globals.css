@@ -211,7 +211,7 @@ a.card-in:focus-visible { outline: calc(4 * var(--u)) solid #fff; outline-offset
 
   .statusbar { grid-row: 1; grid-column: 1 / -1; margin: 0 calc(-1 * var(--gutter)); position: relative; }
   .brand { grid-area: brand; position: relative; font-size: calc(15 * var(--u)); }
-  .network { grid-area: net; position: relative; justify-self: end; font-size: calc(11.5 * var(--u)); gap: calc(6 * var(--u)); }
+  .network { grid-area: net; position: relative; justify-self: end; font-size: max(12px, calc(12 * var(--u))); gap: calc(6 * var(--u)); }
   .celo-mark { width: calc(12 * var(--u)); height: calc(12 * var(--u)); }
 
   .rate {
@@ -229,7 +229,7 @@ a.card-in:focus-visible { outline: calc(4 * var(--u)) solid #fff; outline-offset
     justify-self: center;
     margin-top: calc(10 * var(--u));
     padding: calc(2 * var(--u)) calc(10 * var(--u));
-    font-size: calc(12 * var(--u));
+    font-size: max(12px, calc(12 * var(--u)));
     white-space: normal;
     text-align: center;
     border-radius: 999px;
@@ -261,7 +261,7 @@ a.card-in:focus-visible { outline: calc(4 * var(--u)) solid #fff; outline-offset
   .declined-icon { border-width: calc(1.5 * var(--u)); }
   .card-text { gap: calc(3 * var(--u)); }
   .sender { font-size: calc(13 * var(--u)); line-height: calc(17 * var(--u)); font-weight: 600; }
-  .time { font-size: calc(12 * var(--u)); }
+  .time { font-size: max(12px, calc(12 * var(--u))); }
   .body { font-size: calc(13 * var(--u)); line-height: calc(18 * var(--u)); letter-spacing: 0; white-space: normal; overflow-wrap: anywhere; }
   .struck { text-decoration-thickness: 1px; }
   .desk-break { display: none; }
@@ -275,11 +275,11 @@ a.card-in:focus-visible { outline: calc(4 * var(--u)) solid #fff; outline-offset
     gap: calc(7 * var(--u));
     margin-top: calc(26 * var(--u));
     width: calc(118 * var(--u));
-    font-size: calc(12 * var(--u));
+    font-size: max(12px, calc(12 * var(--u)));
     line-height: 1.25;
   }
   .r-btn-run { grid-area: run; justify-self: start; }
-  .r-btn-try { grid-area: try; justify-self: end; font-size: calc(12 * var(--u)); }
+  .r-btn-try { grid-area: try; justify-self: end; font-size: max(12px, calc(12 * var(--u))); }
   .disc {
     width: calc(54 * var(--u));
     height: calc(54 * var(--u));

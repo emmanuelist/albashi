@@ -9,7 +9,6 @@ import {
   celoscan,
   formatUnits2,
   readBlockNumber,
-  readMovement,
   readRate,
   short,
   summarisePayout,
@@ -18,6 +17,8 @@ import {
   watDay,
   type Movement,
 } from './lib/proof';
+import { Suspense } from 'react';
+import { cachedMovement } from './lib/cached';
 import Sections from './sections';
 import AlbashiMark from './mark';
 
@@ -145,9 +146,9 @@ export default async function Home() {
   const [rate, block, swapRelay, payout, swapSelf] = await Promise.all([
     readRate(),
     readBlockNumber(),
-    readMovement(EVIDENCE.swapViaRelay),
-    readMovement(EVIDENCE.payout),
-    readMovement(EVIDENCE.swapSelfRelay),
+    cachedMovement(EVIDENCE.swapViaRelay),
+    cachedMovement(EVIDENCE.payout),
+    cachedMovement(EVIDENCE.swapSelfRelay),
   ]);
   const now = new Date();
 
@@ -218,9 +219,11 @@ export default async function Home() {
           time="now"
           body={
             <>
-              ALBASHI PAYS YOUR FREELANCERS IN NAIRA,{' '}
+              {/* A stated goal, not a claim of fact, until the pay-run contract refuses an off-payslip payment
+                  on mainnet (docs/EVIDENCE.md C-1). Restore the thesis wording when that proof exists. */}
+              ALBASHI PAYS YOUR FREELANCERS IN NAIRA.{' '}
               <br className="desk-break" />
-              AND ITS AGENT CAN ONLY PAY THE PAYSLIP YOU SIGNED.
+              ITS AGENT WILL ONLY PAY THE PAYSLIP YOU SIGN.
             </>
           }
         />
@@ -281,7 +284,10 @@ export default async function Home() {
         <span className="action-label">Try to pay someone not on the payslip</span>
       </a>
       </div>
-      <Sections />
+      {/* Streamed: the sections below the fold never hold up the first screen. */}
+      <Suspense fallback={null}>
+        <Sections />
+      </Suspense>
     </main>
   );
 }
