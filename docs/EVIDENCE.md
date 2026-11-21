@@ -5,12 +5,12 @@ against live state before anything is published.
 ## Claims
 | # | Claim (verbatim) | Appears in | Proof | Status | Checked |
 |---|---|---|---|---|---|
-| C-1 | Albashi pays your freelancers in naira, and its agent can only pay the payslip you signed. | AGENTS.md (internal); later README h1, repo description, form, video close | none yet: needs the pay-run contract (D-002) and a mainnet refusal | unverified | 2026-11-21 |
-| C-2 | An agent acting from an Altana wallet on Celo mainnet, under a session key, converted USD₮ to cNGN on Textile FX and paid another wallet. | not published yet | E-002, E-003 | verified | 2026-11-21 |
-| C-3 | The owner revoked the agent's session in one transaction, and the agent's next action was refused. | not published yet | E-004 | verified | 2026-11-21 |
-| C-4 | The agent can't move more USD₮ than its cap. | not published yet | E-007: an over-cap USD₮ transfer was refused (`spend_limit_exceeded`) while the CELO fee cap had ample room, so the USD₮ cap was the binding limit | verified (by elimination; the SDK's message always names the fee token) | 2026-11-21 |
+| C-1 | Albashi pays your freelancers in naira, and its agent can only pay the payslip you signed. | AGENTS.md; README (labelled "What we're building", not as a fact); GitHub repo description | none yet: needs the pay-run contract (D-002) and a mainnet refusal | unverified | 2026-11-21 |
+| C-2 | An agent acting from an Altana wallet on Celo mainnet, under a session key, converted USD₮ to cNGN on Textile FX and paid another wallet. | README proof table (rows E-002, E-003) | E-002, E-003 | verified | 2026-11-21 |
+| C-3 | The owner revoked the agent's session in one transaction, and the agent's next action was refused. | README proof table (E-004) | E-004 | verified | 2026-11-21 |
+| C-4 | The agent can't move more USD₮ than its cap. | README proof table (E-007, worded as "was refused") | E-007: an over-cap USD₮ transfer was refused (`spend_limit_exceeded`) while the CELO fee cap had ample room, so the USD₮ cap was the binding limit | verified (by elimination; the SDK's message always names the fee token) | 2026-11-21 |
 | C-5 | Every Albashi transaction carries our attribution tag. | not published yet | E-005: a self-relayed agent tx ends with `celo_3f5cac8c49f6` (`verifyTx` reads it). The owner's grant and revoke still go through Altana's relay, untagged | qualified: "every payout the agent sends" until owner actions are self-relayed too | 2026-11-21 |
-| C-6 | Albashi's agent submits customers' Altana session intents itself, from one agent wallet, so each payout is tagged for attribution. | not published yet | E-005 | verified | 2026-11-21 |
+| C-6 | Albashi's agent submits customers' Altana session intents itself, from one agent wallet, so each payout is tagged for attribution. | README proof table + "Why self-relay"; `spike/verify.mjs` re-checks it read-only | E-005 | verified | 2026-11-21 |
 
 ## Proofs
 All on Celo mainnet (chain 42220). Raw transaction + receipt JSON is saved in `docs/evidence/` next to each link.
