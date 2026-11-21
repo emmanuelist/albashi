@@ -67,8 +67,14 @@ export type Movement = {
   transfers: { token: 'USDT' | 'CNGN'; from: string; to: string; units: bigint }[];
 };
 
+// A mined, successful transaction never changes, so a read that succeeded is kept for the life of the server
+// process. Failures are not cached: the next request asks Celo again.
+const movements = new Map<Hash, Movement>();
+
 /** Reads a mined transaction's receipt and block from Celo and decodes its USD₮ / cNGN transfers. */
 export async function readMovement(hash: Hash): Promise<Movement | null> {
+  const known = movements.get(hash);
+  if (known) return known;
   try {
     const receipt = await client.getTransactionReceipt({ hash });
     if (receipt.status !== 'success') return null;
@@ -79,7 +85,9 @@ export async function readMovement(hash: Hash): Promise<Movement | null> {
       const token = addr === USDT.toLowerCase() ? 'USDT' : addr === CNGN.toLowerCase() ? 'CNGN' : null;
       return token ? [{ token, from: log.args.from, to: log.args.to, units: log.args.value } as const] : [];
     });
-    return { hash, at: new Date(Number(block.timestamp) * 1000), transfers };
+    const movement = { hash, at: new Date(Number(block.timestamp) * 1000), transfers };
+    movements.set(hash, movement);
+    return movement;
   } catch {
     return null;
   }

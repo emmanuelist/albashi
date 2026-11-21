@@ -130,6 +130,7 @@ export default async function Home() {
       <img className="box r-wallpaper wallpaper" src="/plates/wallpaper.png" alt="" fetchPriority="high" />
       {/* Grades the regenerated plate's upper sky back to the comp's magenta-violet and darkens the band the rate line sits on. */}
       <div className="box r-wallpaper sky-grade" aria-hidden="true" />
+      <div className="box r-wallpaper rate-scrim" aria-hidden="true" />
 
       <header className="box r-statusbar statusbar" />
       <p className="box r-brand brand">ALBASHI</p>
