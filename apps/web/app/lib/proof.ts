@@ -2,6 +2,7 @@
 // time; nothing here is invented. When a source is down the caller gets `null` and says so on screen.
 import { createPublicClient, erc20Abi, http, parseEventLogs, type Hash } from 'viem';
 import { celo } from 'viem/chains';
+import { verifyTx } from '@celo/attribution-tags';
 
 const RPC = process.env.CELO_RPC_URL ?? 'https://forno.celo.org';
 const TEXTILE = 'https://api.textilecredit.com/v2';
@@ -116,3 +117,74 @@ export const REFUSAL = {
   at: new Date('2026-11-21T20:07:00Z'),
   proof: `${REPO}/docs/evidence/selfrelay-run-2026-11-21T20-07Z.json`,
 } as const;
+
+// ---- the README's read-only verification of E-005, run live (same checks as spike/verify.mjs)
+
+const ORCHESTRATOR = '0xaf140d0416a994aebb3fa6212b16ce6700f09751'; // Altana's (Porto) Orchestrator on Celo
+const AGENT = '0x9Fb5a16af64eEC7A640f2Aa1c7c6aC6E89f0dc79'; // the agent EOA that self-relayed E-005
+const OWNER = '0x0EcaaFc1Bd6f7033d6eb038d8Cbc8a55f900D4B1'; // the owner's Altana wallet in the spike
+export const ATTRIBUTION_CODE = 'celo_3f5cac8c49f6';
+
+export type Check = { what: string; ok: boolean; detail: string };
+export type CheckRun = { checks: Check[]; at: Date };
+
+let selfRelayRun: CheckRun | null = null; // a mined transaction can't change; keep a fully passing run
+
+export async function checkSelfRelay(): Promise<CheckRun | null> {
+  if (selfRelayRun) return selfRelayRun;
+  try {
+    const hash = EVIDENCE.swapSelfRelay;
+    const [tx, receipt, tag] = await Promise.all([
+      client.getTransaction({ hash }),
+      client.getTransactionReceipt({ hash }),
+      verifyTx({ client, hash }),
+    ]);
+    const cngnIn = parseEventLogs({ abi: erc20Abi, eventName: 'Transfer', logs: receipt.logs })
+      .filter((l) => l.address.toLowerCase() === CNGN.toLowerCase() && l.args.to.toLowerCase() === OWNER.toLowerCase())
+      .reduce((s, l) => s + l.args.value, 0n);
+    const checks: Check[] = [
+      { what: 'sent by the agent’s own wallet, not a relay', ok: tx.from.toLowerCase() === AGENT.toLowerCase(), detail: short(tx.from) },
+      { what: 'sent to Altana’s Orchestrator', ok: tx.to?.toLowerCase() === ORCHESTRATOR, detail: short(tx.to ?? '0x') },
+      { what: 'mined successfully', ok: receipt.status === 'success', detail: `block ${receipt.blockNumber.toLocaleString('en-US')}` },
+      {
+        what: `attribution tag ${ATTRIBUTION_CODE} at the end of the calldata`,
+        ok: Boolean(tag?.codes?.includes(ATTRIBUTION_CODE)),
+        detail: tag?.codes?.join(', ') ?? 'none',
+      },
+      { what: 'cNGN arrived in the owner’s Altana wallet', ok: cngnIn > 0n, detail: `${formatUnits2(cngnIn)} cNGN` },
+    ];
+    const run = { checks, at: new Date() };
+    if (checks.every((c) => c.ok)) selfRelayRun = run;
+    return run;
+  } catch {
+    return null;
+  }
+}
+
+const txTimes = new Map<Hash, Date>();
+
+/** When a mined transaction's block was produced. */
+export async function readTxTime(hash: Hash): Promise<Date | null> {
+  const known = txTimes.get(hash);
+  if (known) return known;
+  try {
+    const receipt = await client.getTransactionReceipt({ hash });
+    const block = await client.getBlock({ blockNumber: receipt.blockNumber });
+    const at = new Date(Number(block.timestamp) * 1000);
+    txTimes.set(hash, at);
+    return at;
+  } catch {
+    return null;
+  }
+}
+
+/** Owner actions on mainnet (docs/EVIDENCE.md E-001, E-004, E-006). */
+export const OWNER_TXS = {
+  grant: '0x26effe048111c592a476d9904b7b9192c08de75b6d1b485998981a0d44d6e6de',
+  revoke: '0xe43b71c664d21366a2f832d5fed97b4a0293055cc7558e66ef24565685453e08',
+  grant2: '0xb021c98e1e15892c7d864c42f0cf67710379015113192bbbadb7c9ba5dfb1b4e',
+  revoke2: '0xc4acb8a8f3e149c51fc4ed4a3314a2f4b2f388e6f665fc33cddcf60b14b9763f',
+} as const satisfies Record<string, Hash>;
+
+export const SPIKE_RUN_LOG = `${REPO}/docs/evidence/spike-run-2026-11-21T16-33Z.json`;
+export const REPO_URL = 'https://github.com/emmanuelist/albashi';

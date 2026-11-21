@@ -16,6 +16,7 @@ import {
   watDay,
   type Movement,
 } from './lib/proof';
+import Sections from './sections';
 
 // Rendered on every request: the rate's "read" time must be the moment Textile was actually asked.
 export const dynamic = 'force-dynamic';
@@ -152,7 +153,8 @@ export default async function Home() {
   ];
 
   return (
-    <main className="lock">
+    <main>
+      <div className="lock">
       {/* eslint-disable-next-line @next/next/no-img-element -- the hero plate is placed at its measured box; responsive formats come in the responsive phase */}
       <img className="box r-wallpaper wallpaper" src="/plates/wallpaper.png" alt="" fetchPriority="high" />
       {/* Grades the regenerated plate's upper sky back to the comp's magenta-violet and darkens the band the rate line sits on. */}
@@ -257,6 +259,8 @@ export default async function Home() {
         </span>
         <span className="action-label">Try to pay someone not on the payslip</span>
       </a>
+      </div>
+      <Sections />
     </main>
   );
 }
