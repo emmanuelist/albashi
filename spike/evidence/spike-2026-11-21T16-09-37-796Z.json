@@ -1,0 +1,135 @@
+{
+  "startedAt": "2026-11-21T16:09:37.796Z",
+  "live": false,
+  "steps": [
+    {
+      "name": "balances before",
+      "ok": true,
+      "ms": 842,
+      "out": {
+        "wallet": {
+          "usdt": "0",
+          "cngn": "0",
+          "celo": "0"
+        },
+        "recipient": {
+          "usdt": "0",
+          "cngn": "0"
+        },
+        "raw": {
+          "usdt": "0",
+          "cngn": "0",
+          "celoBal": "0"
+        }
+      }
+    },
+    {
+      "name": "relay fee tokens on Celo",
+      "ok": true,
+      "ms": 1191,
+      "out": {
+        "chainId": 42220,
+        "currencies": [
+          {
+            "uid": "celo",
+            "address": "0x0000000000000000000000000000000000000000",
+            "symbol": "CELO",
+            "decimals": 18,
+            "nativeRate": "1000000000000000000",
+            "isNative": true
+          },
+          {
+            "uid": "eurm",
+            "address": "0xD8763CBa276a3738E6DE85b4b3bF5FDed6D6cA73",
+            "symbol": "EURm",
+            "decimals": 18,
+            "nativeRate": "20137324642482807990",
+            "isNative": false
+          },
+          {
+            "uid": "usat",
+            "address": "0xD2ab3C9A02DBBAB236BfEC45D1d755DF4267F771",
+            "symbol": "USAT",
+            "decimals": 6,
+            "nativeRate": "19151878224697496083",
+            "isNative": false
+          },
+          {
+            "uid": "usdc",
+            "address": "0xcebA9300f2b948710d2653dD7B07f33A8B32118C",
+            "symbol": "USDC",
+            "decimals": 6,
+            "nativeRate": "19151878224697496083",
+            "isNative": false
+          },
+          {
+            "uid": "usdt",
+            "address": "0x48065fbBE25f71C9282ddf5e1cD6D6A887483D5e",
+            "symbol": "USD₮",
+            "decimals": 6,
+            "nativeRate": "19151878224697496083",
+            "isNative": false
+          }
+        ],
+        "rateTtl": 300
+      }
+    },
+    {
+      "name": "quote grantSession (CELO fees)",
+      "ok": true,
+      "ms": 6216,
+      "out": {
+        "lines": [
+          {
+            "chainId": 42220,
+            "kind": "account",
+            "payer": "0x731a878df9da4c1Dcb87bD0dF4Bfa8cf783A364F",
+            "feeToken": "0x0000000000000000000000000000000000000000",
+            "value": "10049834387865501056",
+            "needed": "10049834387865501056",
+            "neededFromRelay": false,
+            "reason": "Not enough CELO for the registration: needs about 20.099668 CELO, you have 0 CELO. Add CELO on Celo."
+          }
+        ],
+        "balances": [
+          {
+            "chainId": 42220,
+            "address": "0x731a878df9da4c1Dcb87bD0dF4Bfa8cf783A364F",
+            "token": "0x0000000000000000000000000000000000000000",
+            "symbol": "CELO",
+            "decimals": 18,
+            "balance": "0",
+            "needed": "10049834387865501056",
+            "sufficient": false
+          }
+        ],
+        "complete": false
+      }
+    },
+    {
+      "name": "textile preview 1 USD₮ → cNGN",
+      "ok": true,
+      "ms": 933,
+      "out": {
+        "data": {
+          "status": "preview",
+          "sellAmount": "1000000",
+          "buyAmount": "1441127589",
+          "feeAmount": "199",
+          "takerPays": "1000000",
+          "rateRay": "693763000327932796240430",
+          "routing": {
+            "preferenceApplied": false,
+            "restrictionApplied": false,
+            "fallbackUsed": false,
+            "targetMakerWallets": [],
+            "preferredQuotesReceived": 0,
+            "openMarketQuotesReceived": 0
+          },
+          "availableSellAmount": "45242734416"
+        }
+      }
+    }
+  ],
+  "attribution": null
+}

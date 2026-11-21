@@ -1,0 +1,11 @@
+# gitleaks: the default rules, plus three exact public values its generic-api-key rule mistakes for keys.
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Public on-chain values, not secrets: USD₮ and cNGN token contracts on Celo, and the spike's revoked session-key hash"
+regexes = [
+  '''0x48065fbBE25f71C9282ddf5e1cD6D6A887483D5e''',
+  '''0xF6829D7393dAe24509eb1E52eE8e572e2E271a4f''',
+  '''0x76551d32e14133b18bf7b00e3c0e2d0c6e1a63ff631eaff2b9af9ca9204c4638''',
+]

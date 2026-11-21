@@ -1,0 +1,160 @@
+{
+  "startedAt": "2026-11-21T16:33:05.681Z",
+  "live": false,
+  "steps": [
+    {
+      "name": "balances before",
+      "ok": true,
+      "ms": 649,
+      "out": {
+        "wallet": {
+          "usdt": "3.531607",
+          "cngn": "0",
+          "celo": "31.781069264301088481"
+        },
+        "recipient": {
+          "usdt": "0",
+          "cngn": "0"
+        },
+        "raw": {
+          "usdt": "3531607",
+          "cngn": "0",
+          "celoBal": "31781069264301088481"
+        }
+      }
+    },
+    {
+      "name": "relay fee tokens on Celo",
+      "ok": true,
+      "ms": 1296,
+      "out": {
+        "chainId": 42220,
+        "currencies": [
+          {
+            "uid": "celo",
+            "address": "0x0000000000000000000000000000000000000000",
+            "symbol": "CELO",
+            "decimals": 18,
+            "nativeRate": "1000000000000000000",
+            "isNative": true
+          },
+          {
+            "uid": "eurm",
+            "address": "0xD8763CBa276a3738E6DE85b4b3bF5FDed6D6cA73",
+            "symbol": "EURm",
+            "decimals": 18,
+            "nativeRate": "20137324642482807990",
+            "isNative": false
+          },
+          {
+            "uid": "usat",
+            "address": "0xD2ab3C9A02DBBAB236BfEC45D1d755DF4267F771",
+            "symbol": "USAT",
+            "decimals": 6,
+            "nativeRate": "19151878224697496083",
+            "isNative": false
+          },
+          {
+            "uid": "usdc",
+            "address": "0xcebA9300f2b948710d2653dD7B07f33A8B32118C",
+            "symbol": "USDC",
+            "decimals": 6,
+            "nativeRate": "19151878224697496083",
+            "isNative": false
+          },
+          {
+            "uid": "usdt",
+            "address": "0x48065fbBE25f71C9282ddf5e1cD6D6A887483D5e",
+            "symbol": "USD₮",
+            "decimals": 6,
+            "nativeRate": "19151878224697496083",
+            "isNative": false
+          }
+        ],
+        "rateTtl": 300
+      }
+    },
+    {
+      "name": "quote grantSession (CELO fees)",
+      "ok": true,
+      "ms": 4529,
+      "out": {
+        "lines": [
+          {
+            "chainId": 42220,
+            "kind": "account",
+            "payer": "0x731a878df9da4c1Dcb87bD0dF4Bfa8cf783A364F",
+            "feeToken": "0x0000000000000000000000000000000000000000",
+            "value": "20141274561826571904",
+            "needed": "21551907921015323097",
+            "neededFromRelay": false,
+            "legs": [
+              {
+                "chainId": 42220,
+                "combinedGas": "2439419"
+              }
+            ],
+            "charges": [
+              {
+                "chainId": 42220,
+                "feeToken": "0x0000000000000000000000000000000000000000",
+                "fee": "1410633359188751193",
+                "feeTokenDeficit": "0"
+              }
+            ],
+            "fee": "1410633359188751193",
+            "needs": [
+              {
+                "chainId": 42220,
+                "token": "0x0000000000000000000000000000000000000000",
+                "amount": "21551907921015323097",
+                "fromRelay": false
+              }
+            ]
+          }
+        ],
+        "balances": [
+          {
+            "chainId": 42220,
+            "address": "0x731a878df9da4c1Dcb87bD0dF4Bfa8cf783A364F",
+            "token": "0x0000000000000000000000000000000000000000",
+            "symbol": "CELO",
+            "decimals": 18,
+            "balance": "31781069264301088481",
+            "needed": "21551907921015323097",
+            "sufficient": true
+          }
+        ],
+        "complete": true
+      }
+    },
+    {
+      "name": "textile preview 1 USD₮ → cNGN",
+      "ok": true,
+      "ms": 2529,
+      "out": {
+        "data": {
+          "status": "preview",
+          "sellAmount": "1000000",
+          "buyAmount": "1441117203",
+          "feeAmount": "199",
+          "takerPays": "1000000",
+          "rateRay": "693768000214483596029905",
+          "routing": {
+            "preferenceApplied": false,
+            "restrictionApplied": false,
+            "fallbackUsed": false,
+            "targetMakerWallets": [],
+            "preferredQuotesReceived": 0,
+            "openMarketQuotesReceived": 0
+          },
+          "availableSellAmount": "45243060355"
+        }
+      }
+    }
+  ],
+  "attribution": {
+    "code": "spike_altana_test",
+    "suffix": "0x7370696b655f616c74616e615f74657374110080218021802180218021802180218021"
+  }
+}

@@ -1,0 +1,457 @@
+{
+  "startedAt": "2026-11-21T16:33:23.369Z",
+  "live": true,
+  "steps": [
+    {
+      "name": "balances before",
+      "ok": true,
+      "ms": 671,
+      "out": {
+        "wallet": {
+          "usdt": "3.531607",
+          "cngn": "0",
+          "celo": "31.781069264301088481"
+        },
+        "recipient": {
+          "usdt": "0",
+          "cngn": "0"
+        },
+        "raw": {
+          "usdt": "3531607",
+          "cngn": "0",
+          "celoBal": "31781069264301088481"
+        }
+      }
+    },
+    {
+      "name": "relay fee tokens on Celo",
+      "ok": true,
+      "ms": 1198,
+      "out": {
+        "chainId": 42220,
+        "currencies": [
+          {
+            "uid": "celo",
+            "address": "0x0000000000000000000000000000000000000000",
+            "symbol": "CELO",
+            "decimals": 18,
+            "nativeRate": "1000000000000000000",
+            "isNative": true
+          },
+          {
+            "uid": "eurm",
+            "address": "0xD8763CBa276a3738E6DE85b4b3bF5FDed6D6cA73",
+            "symbol": "EURm",
+            "decimals": 18,
+            "nativeRate": "20137324642482807990",
+            "isNative": false
+          },
+          {
+            "uid": "usat",
+            "address": "0xD2ab3C9A02DBBAB236BfEC45D1d755DF4267F771",
+            "symbol": "USAT",
+            "decimals": 6,
+            "nativeRate": "19151878224697496083",
+            "isNative": false
+          },
+          {
+            "uid": "usdc",
+            "address": "0xcebA9300f2b948710d2653dD7B07f33A8B32118C",
+            "symbol": "USDC",
+            "decimals": 6,
+            "nativeRate": "19151878224697496083",
+            "isNative": false
+          },
+          {
+            "uid": "usdt",
+            "address": "0x48065fbBE25f71C9282ddf5e1cD6D6A887483D5e",
+            "symbol": "USD₮",
+            "decimals": 6,
+            "nativeRate": "19151878224697496083",
+            "isNative": false
+          }
+        ],
+        "rateTtl": 300
+      }
+    },
+    {
+      "name": "quote grantSession (CELO fees)",
+      "ok": true,
+      "ms": 4178,
+      "out": {
+        "lines": [
+          {
+            "chainId": 42220,
+            "kind": "account",
+            "payer": "0x731a878df9da4c1Dcb87bD0dF4Bfa8cf783A364F",
+            "feeToken": "0x0000000000000000000000000000000000000000",
+            "value": "20141274561826571904",
+            "needed": "21551907921015323097",
+            "neededFromRelay": false,
+            "legs": [
+              {
+                "chainId": 42220,
+                "combinedGas": "2439419"
+              }
+            ],
+            "charges": [
+              {
+                "chainId": 42220,
+                "feeToken": "0x0000000000000000000000000000000000000000",
+                "fee": "1410633359188751193",
+                "feeTokenDeficit": "0"
+              }
+            ],
+            "fee": "1410633359188751193",
+            "needs": [
+              {
+                "chainId": 42220,
+                "token": "0x0000000000000000000000000000000000000000",
+                "amount": "21551907921015323097",
+                "fromRelay": false
+              }
+            ]
+          }
+        ],
+        "balances": [
+          {
+            "chainId": 42220,
+            "address": "0x731a878df9da4c1Dcb87bD0dF4Bfa8cf783A364F",
+            "token": "0x0000000000000000000000000000000000000000",
+            "symbol": "CELO",
+            "decimals": 18,
+            "balance": "31781069264301088481",
+            "needed": "21551907921015323097",
+            "sufficient": true
+          }
+        ],
+        "complete": true
+      }
+    },
+    {
+      "name": "textile preview 1 USD₮ → cNGN",
+      "ok": true,
+      "ms": 3914,
+      "out": {
+        "data": {
+          "status": "preview",
+          "sellAmount": "1000000",
+          "buyAmount": "1441117203",
+          "feeAmount": "199",
+          "takerPays": "1000000",
+          "rateRay": "693768000214483596029905",
+          "routing": {
+            "preferenceApplied": false,
+            "restrictionApplied": false,
+            "fallbackUsed": false,
+            "targetMakerWallets": [],
+            "preferredQuotesReceived": 0,
+            "openMarketQuotesReceived": 0
+          },
+          "availableSellAmount": "45243060355"
+        }
+      }
+    },
+    {
+      "name": "createWallet (EIP-7702 delegation)",
+      "ok": true,
+      "ms": 5913,
+      "out": {
+        "address": "0x731a878df9da4c1Dcb87bD0dF4Bfa8cf783A364F"
+      }
+    },
+    {
+      "name": "grantSession: allowlist USD₮/cNGN/reactor, cap 2 USD₮/day, 1 h expiry",
+      "ok": true,
+      "ms": 20936,
+      "out": {
+        "walletAddress": "0x731a878df9da4c1Dcb87bD0dF4Bfa8cf783A364F",
+        "signer": {
+          "type": "privateKey",
+          "address": "0x89eF95b781e382Fd0113293cCfb84c99c85F1ec4",
+          "publicKey": "0x04a93e744c9ddd5b9c41c7f898077ccd2da5194a33a6363c6b6c53bbe17f7ddeeebb8bd0e7eb0a250f6ea35d70ffafa9a698a9bc350507a822cd5272e3df2fbfb1"
+        },
+        "publicKey": "0x04a93e744c9ddd5b9c41c7f898077ccd2da5194a33a6363c6b6c53bbe17f7ddeeebb8bd0e7eb0a250f6ea35d70ffafa9a698a9bc350507a822cd5272e3df2fbfb1",
+        "permissions": {
+          "calls": [
+            {
+              "to": "0x48065fbBE25f71C9282ddf5e1cD6D6A887483D5e"
+            },
+            {
+              "to": "0xF6829D7393dAe24509eb1E52eE8e572e2E271a4f"
+            },
+            {
+              "to": "0xa9AA0a64769cBed4d3B1Ceb4Df01CdE915C235b3"
+            }
+          ],
+          "spend": [
+            {
+              "limit": "2000000",
+              "period": "day",
+              "token": "0x48065fbBE25f71C9282ddf5e1cD6D6A887483D5e"
+            },
+            {
+              "limit": "10000000000",
+              "period": "day",
+              "token": "0xF6829D7393dAe24509eb1E52eE8e572e2E271a4f"
+            },
+            {
+              "limit": "1000000000000000000",
+              "period": "day"
+            }
+          ]
+        },
+        "expiry": 1795282405,
+        "keyId": "0x3519ac7a993ea63206830bc543da2dd103d502e84de7a5e49da797fcb139c4b2",
+        "keyHash": "0x76551d32e14133b18bf7b00e3c0e2d0c6e1a63ff631eaff2b9af9ca9204c4638",
+        "status": "granted",
+        "legs": [
+          {
+            "chainId": 42220,
+            "kind": "account",
+            "status": "CONFIRMED",
+            "transactionHash": "0x26effe048111c592a476d9904b7b9192c08de75b6d1b485998981a0d44d6e6de",
+            "blockNumber": "83378067"
+          },
+          {
+            "chainId": 42220,
+            "kind": "registry",
+            "status": "CONFIRMED",
+            "via": "bundled",
+            "transactionHash": "0x26effe048111c592a476d9904b7b9192c08de75b6d1b485998981a0d44d6e6de",
+            "blockNumber": "83378067"
+          }
+        ],
+        "cacheSync": {},
+        "registration": {},
+        "transactionHash": "0x26effe048111c592a476d9904b7b9192c08de75b6d1b485998981a0d44d6e6de"
+      }
+    },
+    {
+      "name": "textile firm quote (taker = Altana wallet)",
+      "ok": true,
+      "ms": 6551,
+      "out": {
+        "rfqId": "rfq_kAN-2ZeqZGK5Nrw4",
+        "sell": "1000000",
+        "buy": "1441117203",
+        "fee": "199",
+        "expiresAt": "2026-11-21T16:36:06.000Z",
+        "transactions": {
+          "approval": {
+            "to": "0x48065fbBE25f71C9282ddf5e1cD6D6A887483D5e",
+            "data": "0x095ea7b3000000000000000000000000a9aa0a64769cbed4d3b1ceb4df01cde915c235b300000000000000000000000000000000000000000000000000000000000f4240",
+            "value": "0",
+            "chainId": 42220
+          },
+          "swap": {
+            "to": "0xa9AA0a64769cBed4d3B1Ceb4Df01CdE915C235b3",
+            "data": "0x0d7a16c30000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000030000000000000000000000000000000000000000000000000000000000000002a0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000f6829d7393dae24509eb1e52ee8e572e2e271a4f0000000000000000000000000000000000000000000000000000000055e5b4130000000000000000000000000000000000000000000000000000000055e5b4130000000000000000000000000000000000000000000000000000000000000200000000000000000000000000a9aa0a64769cbed4d3b1ceb4df01cde915c235b3000000000000000000000000f0d95682c1d70f8e8821451df191293ed2908639000000000000010000000000000000000000000000000000000660cbedf13720000000000000000000000000000000000000000000000000000000006b01c87600000000000000000000000010b9eba3a175df418a35cb8329a527691ee258c500000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000006b01c8760000000000000000000000000000000000000000000000000000000000000001000000000000000000000000731a878df9da4c1dcb87bd0df4bfa8cf783a364f000000000000000000000000000000000000000000000000000000000000000100000000000000000000000048065fbbe25f71c9282ddf5e1cd6d6a887483d5e00000000000000000000000000000000000000000000000000000000000f4179000000000000000000000000f0d95682c1d70f8e8821451df191293ed2908639000000000000000000000000000000000000000000000000000000000000004101b0929adf3bfd4982aa851ca0b450b96508c73680844d2f28a97c8a28a3e2025dc05bb62655453d06fc3258c27867c125732906b46a086c8d0fc1283d9d2c811b00000000000000000000000000000000000000000000000000000000000000",
+            "value": "0",
+            "chainId": 42220
+          }
+        }
+      }
+    },
+    {
+      "name": "execute [approve, swap] with the session key",
+      "ok": true,
+      "ms": 7474,
+      "out": {
+        "callsId": "0x90d98b04bedb39176920a674f4e608c23f11cf819666f07b222e61541d6f8cdc",
+        "status": "CONFIRMED",
+        "feeToken": "0x0000000000000000000000000000000000000000",
+        "statusCode": 200,
+        "transactionHash": "0x2226464a8499c60bbf80bb96e8f8432b938f976f84ca2148fbed4b8cb059f95d"
+      }
+    },
+    {
+      "name": "balances after swap",
+      "ok": true,
+      "ms": 527,
+      "out": {
+        "wallet": {
+          "usdt": "2.531607",
+          "cngn": "1441.117203",
+          "celo": "12.612086846842805011"
+        },
+        "recipient": {
+          "usdt": "0",
+          "cngn": "0"
+        },
+        "raw": {
+          "usdt": "2531607",
+          "cngn": "1441117203",
+          "celoBal": "12612086846842805011"
+        }
+      }
+    },
+    {
+      "name": "execute cNGN transfer to recipient (session)",
+      "ok": true,
+      "ms": 6755,
+      "out": {
+        "callsId": "0xabd4fa38be7665a0d0f11d2098e6ced68dc9894fcc4b30f3988b7d3af7f294d3",
+        "status": "CONFIRMED",
+        "feeToken": "0x0000000000000000000000000000000000000000",
+        "statusCode": 200,
+        "transactionHash": "0x37c107dbe9efcfa20ffe56d179045c2ac29dae9cd16d16f094bcf3c4355513db"
+      }
+    },
+    {
+      "name": "EXPECT REFUSAL: 1.5 USD₮ transfer would exceed the 2 USD₮/day cap",
+      "ok": false,
+      "ms": 2543,
+      "err": {
+        "message": "This session key's spending limit does not cover this in CELO. Grant a new session key with a higher limit, as limits cannot be raised.",
+        "code": "spend_limit_exceeded"
+      }
+    },
+    {
+      "name": "EXPECT REFUSAL: call to a contract outside the allowlist",
+      "ok": false,
+      "ms": 2403,
+      "err": {
+        "message": "This session key is not allowed to make this call. Grant a new session key that allows it, as permissions cannot be widened.",
+        "code": "call_not_permitted"
+      }
+    },
+    {
+      "name": "revokeSession (owner, one tx)",
+      "ok": true,
+      "ms": 8979,
+      "out": {
+        "keyId": "0x3519ac7a993ea63206830bc543da2dd103d502e84de7a5e49da797fcb139c4b2",
+        "status": "revoked",
+        "legs": [
+          {
+            "chainId": 42220,
+            "kind": "account",
+            "status": "CONFIRMED",
+            "transactionHash": "0xe43b71c664d21366a2f832d5fed97b4a0293055cc7558e66ef24565685453e08",
+            "blockNumber": "83378113"
+          },
+          {
+            "chainId": 42220,
+            "kind": "registry",
+            "status": "CONFIRMED",
+            "via": "bundled",
+            "transactionHash": "0xe43b71c664d21366a2f832d5fed97b4a0293055cc7558e66ef24565685453e08",
+            "blockNumber": "83378113"
+          }
+        ],
+        "cacheSync": {},
+        "transactionHash": "0xe43b71c664d21366a2f832d5fed97b4a0293055cc7558e66ef24565685453e08",
+        "statusCode": 200,
+        "callsId": "0x1da7770363932e7ba17e1e8698ff758a842ec585df9e046e24a78cd2ea812939"
+      }
+    },
+    {
+      "name": "EXPECT REFUSAL: agent acts after revoke",
+      "ok": false,
+      "ms": 3127,
+      "err": {
+        "message": "Key hash 0x76551d32e14133b18bf7b00e3c0e2d0c6e1a63ff631eaff2b9af9ca9204c4638 is unknown. Try again; the debug log has the whole failure.",
+        "code": "unknown"
+      }
+    },
+    {
+      "name": "attribution on swap tx 0x2226464a8499c60bbf80bb96e8f8432b938f976f84ca2148fbed4b8cb059f95d",
+      "ok": true,
+      "ms": 866,
+      "out": {
+        "from": "0xde3136c489b3371de8180d4c94c0238150e2c5b4",
+        "to": "0xaf140d0416a994aebb3fa6212b16ce6700f09751",
+        "status": "success",
+        "gasUsed": "396454",
+        "outerSuffix": null,
+        "innerSuffixPresent": true,
+        "tailDecoded": null
+      }
+    },
+    {
+      "name": "attribution on pay tx 0x37c107dbe9efcfa20ffe56d179045c2ac29dae9cd16d16f094bcf3c4355513db",
+      "ok": true,
+      "ms": 624,
+      "out": {
+        "from": "0x53187eab26dad0e82598d4f7ac9c349665fb2faa",
+        "to": "0xaf140d0416a994aebb3fa6212b16ce6700f09751",
+        "status": "success",
+        "gasUsed": "229600",
+        "outerSuffix": null,
+        "innerSuffixPresent": true,
+        "tailDecoded": null
+      }
+    },
+    {
+      "name": "attribution on grant tx 0x26effe048111c592a476d9904b7b9192c08de75b6d1b485998981a0d44d6e6de",
+      "ok": true,
+      "ms": 646,
+      "out": {
+        "from": "0x0b479179781640c1c62fe845dcaab1689cb4985c",
+        "to": "0xaf140d0416a994aebb3fa6212b16ce6700f09751",
+        "status": "success",
+        "gasUsed": "1314857",
+        "outerSuffix": null,
+        "innerSuffixPresent": false,
+        "tailDecoded": null
+      }
+    },
+    {
+      "name": "attribution on revoke tx 0xe43b71c664d21366a2f832d5fed97b4a0293055cc7558e66ef24565685453e08",
+      "ok": true,
+      "ms": 617,
+      "out": {
+        "from": "0xde3136c489b3371de8180d4c94c0238150e2c5b4",
+        "to": "0xaf140d0416a994aebb3fa6212b16ce6700f09751",
+        "status": "success",
+        "gasUsed": "154343",
+        "outerSuffix": null,
+        "innerSuffixPresent": false,
+        "tailDecoded": null
+      }
+    },
+    {
+      "name": "balances after",
+      "ok": true,
+      "ms": 198,
+      "out": {
+        "wallet": {
+          "usdt": "2.531607",
+          "cngn": "0",
+          "celo": "12.427577121186330455"
+        },
+        "recipient": {
+          "usdt": "0",
+          "cngn": "1441.117203"
+        },
+        "raw": {
+          "usdt": "2531607",
+          "cngn": "0",
+          "celoBal": "12427577121186330455"
+        }
+      }
+    }
+  ],
+  "attribution": {
+    "code": "spike_altana_test",
+    "suffix": "0x7370696b655f616c74616e615f74657374110080218021802180218021802180218021"
+  },
+  "session": {
+    "publicKey": "0x04a93e744c9ddd5b9c41c7f898077ccd2da5194a33a6363c6b6c53bbe17f7ddeeebb8bd0e7eb0a250f6ea35d70ffafa9a698a9bc350507a822cd5272e3df2fbfb1",
+    "expiry": 1795282405,
+    "transactionHash": "0x26effe048111c592a476d9904b7b9192c08de75b6d1b485998981a0d44d6e6de"
+  },
+  "proofAttempts": [
+    {
+      "via": "session-1271",
+      "status": 401,
+      "reason": "proof_of_control_invalid"
+    },
+    {
+      "via": "admin-ecdsa",
+      "status": 200
+    }
+  ],
+  "finishedAt": "2026-11-21T16:34:41.552Z"
+}

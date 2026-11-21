@@ -1,0 +1,30 @@
+# secrets: keys live only in .env files, never in git
+.env
+.env.*
+!.env.example
+*.key
+
+# strategy, research and drafts stay private
+internal/
+
+# dependencies and build output
+node_modules/
+.next/
+out/
+dist/
+build/
+contracts/out/
+contracts/cache/
+coverage/
+
+# tool scratch
+.playwright-mcp/
+.DS_Store
+*.log
+!spike/evidence/*.log
+
+# the spike's personal helpers (they name the owner's own wallet): kept locally, not published
+spike/bal.mjs
+spike/total.mjs
+spike/refund.mjs
+spike/evidence/refund.log

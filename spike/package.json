@@ -1,0 +1,13 @@
+{
+  "name": "spike-altana-textile",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@altananetwork/sdk": "1.1.0",
+    "@celo/attribution-tags": "0.5.0",
+    "viem": "2.57.20"
+  }
+}
