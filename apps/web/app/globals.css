@@ -8,13 +8,14 @@
   --ink-quiet: #d1c3c8;
   --credit-hi: #e9b65a;
   --credit-lo: #a8691c;
-  --declined: #c1c0c0;
+  --declined: #d4d2d6;
   --night: #2b1b4a;
   --navy: #1c1e3e;
   --frost-blur: calc(64 * var(--u));
-  --frost: rgba(205, 192, 196, 0.3);
+  /* Smoked glass dark enough that white 13 px alert text keeps 4.5:1 over the brightest part of the sunset. */
+  --frost: rgba(62, 48, 66, 0.5);
   --frost-edge: rgba(255, 255, 255, 0.26);
-  --frost-declined: rgba(185, 176, 180, 0.36);
+  --frost-declined: rgba(52, 48, 56, 0.6);
   --sms: var(--face-sms), ui-monospace, 'SFMono-Regular', Menlo, monospace;
   --display: var(--face-rate), ui-sans-serif, system-ui, sans-serif;
 }
@@ -293,22 +294,26 @@ a.card-in:focus-visible { outline: calc(4 * var(--u)) solid #fff; outline-offset
 /* ---- below the first viewport. Ordinary flow and rem sizes: these sections are read, not composed.
    Mono marks anything that is a record (numbers, refs, checks); Inter carries the prose. */
 .sheet, .foot {
-  --sheet-ink: #f1edf3;
-  --sheet-quiet: #b9b0c4;
-  --sheet-rule: rgba(255, 255, 255, 0.12);
+  /* Calm on purpose: a long dark read, so a near-neutral violet ground (saturation ~0.2, not the sky's 0.47),
+     body text around 11:1 rather than 15:1 to avoid halation, and a softened gold so it doesn't shimmer
+     against the violet at small sizes. */
+  --sheet-ink: #d9d3df;
+  --sheet-quiet: #a49dae;
+  --sheet-gold: #d8b274;
+  --sheet-rule: rgba(255, 255, 255, 0.1);
   max-width: 920px;
   margin: 0 auto;
   padding: clamp(56px, 8vw, 104px) 24px 0;
   color: var(--sheet-ink);
   font-family: var(--display);
 }
-main { background: linear-gradient(180deg, #1a1838 0, var(--night) 900px, #1b1233 100%); }
+main { background: linear-gradient(180deg, #1a1838 0, #1d1b2e 700px, #191826 100%); }
 .kicker {
   font-family: var(--sms);
   font-size: 0.8125rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--credit-hi);
+  color: var(--sheet-gold);
 }
 .sheet-title {
   margin: 0.6rem 0 0;
@@ -320,8 +325,8 @@ main { background: linear-gradient(180deg, #1a1838 0, var(--night) 900px, #1b123
   text-wrap: balance;
 }
 .sheet-lede { margin: 1.1rem 0 0; max-width: 60ch; font-size: 1.0625rem; line-height: 1.6; color: var(--sheet-quiet); }
-.sheet a { color: var(--sheet-ink); text-decoration: underline; text-decoration-color: rgba(233, 182, 90, 0.6); text-underline-offset: 0.2em; }
-.sheet a:hover { text-decoration-color: var(--credit-hi); }
+.sheet a { color: var(--sheet-ink); text-decoration: underline; text-decoration-color: rgba(216, 178, 116, 0.5); text-underline-offset: 0.2em; }
+.sheet a:hover { text-decoration-color: var(--sheet-gold); }
 .sheet a:focus-visible, .foot a:focus-visible { outline: 2px solid #fff; outline-offset: 3px; border-radius: 2px; }
 
 .steps { margin-top: 2.5rem; border-top: 1px solid var(--sheet-rule); }
@@ -339,7 +344,7 @@ main { background: linear-gradient(180deg, #1a1838 0, var(--night) 900px, #1b123
 .status + .status { margin-top: 0.35rem; }
 .ref { white-space: nowrap; }
 .status-label { display: inline-block; margin-right: 0.6rem; text-transform: uppercase; letter-spacing: 0.08em; }
-.status-proven .status-label { color: var(--credit-hi); }
+.status-proven .status-label { color: var(--sheet-gold); }
 .status-pending { color: var(--sheet-quiet); }
 .status-pending .status-label { color: var(--sheet-quiet); border-bottom: 1px dashed var(--sheet-quiet); }
 
@@ -372,7 +377,7 @@ main { background: linear-gradient(180deg, #1a1838 0, var(--night) 900px, #1b123
   align-items: baseline;
 }
 .verdict { font-weight: 600; letter-spacing: 0.04em; }
-.pass .verdict { color: var(--credit-hi); }
+.pass .verdict { color: var(--sheet-gold); }
 .fail .verdict { color: #ff9a8a; }
 .check-detail { color: var(--sheet-quiet); text-align: right; overflow-wrap: anywhere; }
 .checks-down { margin: 0; padding: 1rem 1.25rem; line-height: 1.6; }
