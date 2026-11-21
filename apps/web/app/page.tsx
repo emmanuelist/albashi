@@ -9,7 +9,6 @@ import {
   celoscan,
   formatUnits2,
   readBlockNumber,
-  readRate,
   short,
   summarisePayout,
   summariseSwap,
@@ -18,11 +17,12 @@ import {
   type Movement,
 } from './lib/proof';
 import { Suspense } from 'react';
-import { cachedMovement } from './lib/cached';
+import { cachedMovement, cachedRate } from './lib/cached';
 import Sections from './sections';
 import AlbashiMark from './mark';
 
-// Rendered on every request: the rate's "read" time must be the moment Textile was actually asked.
+// Rendered on every request. The rate may be up to 30 s old, and its "read" time is always the moment Textile
+// was actually asked (lib/cached.ts).
 export const dynamic = 'force-dynamic';
 
 const PHONE = '(max-width: 760px), (max-aspect-ratio: 5/6)';
@@ -144,7 +144,7 @@ function Card({ id, icon, iconClass, body, time, href, label, declined }: CardPr
 
 export default async function Home() {
   const [rate, block, swapRelay, payout, swapSelf] = await Promise.all([
-    readRate(),
+    cachedRate(),
     readBlockNumber(),
     cachedMovement(EVIDENCE.swapViaRelay),
     cachedMovement(EVIDENCE.payout),
