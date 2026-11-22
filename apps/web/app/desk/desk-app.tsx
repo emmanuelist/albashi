@@ -67,8 +67,8 @@ function Counterfoil({ s }: { s: SlipState }) {
       return (
         <div className="foil foil-declined">
           <span className="stamp stamp-declined stamp-land"><Cross className="ic" />DECLINED</span>
-          <span className="foil-note">{s.sentence}</span>
-          <span className="foil-meta">{s.note}</span>
+          <span className="foil-note" title={s.sentence}>{s.sentence}</span>
+          <span className="foil-meta mono">{s.note}</span>
         </div>
       );
     case 'signed':
@@ -170,7 +170,8 @@ export default function DeskApp(props: DeskProps) {
   const [drafting, setDrafting] = useState(false);
   const [lines, setLines] = useState<DraftLine[]>([{ to: '', amount: '' }]);
   const [floor, setFloor] = useState('');
-  const [rate, setRate] = useState(props.rate);
+  const [polledRate, setPolledRate] = useState<DeskProps['rate']>(null);
+  const rate = (drafting && polledRate) || props.rate;
   const [phase, setPhase] = useState<'edit' | 'signing' | 'running' | 'done'>('edit');
   const [stages, setStages] = useState<Stage[]>([]);
   const [outcome, setOutcome] = useState<null | { status: string; sentence?: string; hash?: Hex; minedAt?: number; paid?: { line: number; to: Address; amount: string }[] }>(null);
@@ -183,7 +184,7 @@ export default function DeskApp(props: DeskProps) {
   useEffect(() => {
     if (!drafting) return;
     let alive = true;
-    const pull = () => fetch('/api/rate').then((r) => (r.ok ? r.json() : null)).then((j) => { if (alive && j) setRate({ buyUnits: j.buyUnits, readAt: j.readAt }); }).catch(() => {});
+    const pull = () => fetch('/api/rate').then((r) => (r.ok ? r.json() : null)).then((j) => { if (alive && j) setPolledRate({ buyUnits: j.buyUnits, readAt: j.readAt }); }).catch(() => {});
     pull();
     const t = setInterval(pull, 30_000);
     return () => { alive = false; clearInterval(t); };
@@ -413,7 +414,7 @@ export default function DeskApp(props: DeskProps) {
         <div className="dk-wallet">
           {account ? (
             <span className={`chip${isOwner ? ' chip-owner' : ' chip-warn'}`}>
-              <Wallet className="ic" />{short(account)} · {isOwner ? (chainOk ? 'owner' : 'switch to Celo') : 'not the owner'}
+              <Wallet className="ic" /><span className="mono">{short(account)}</span> · {isOwner ? (chainOk ? 'owner' : 'switch to Celo') : 'not the owner'}
             </span>
           ) : (
             <button type="button" className="btn btn-quiet" onClick={connect} disabled={connecting}>
@@ -587,7 +588,7 @@ export default function DeskApp(props: DeskProps) {
               </>
             ) : <p className="meta">Celo didn’t answer; the float can’t be read right now.</p>}
           </section>
-          <p className="read-at">Read from Celo at <span className="mono">{wat(new Date(props.readAt))}</span> WAT · owner <a href={celoscanAddr(props.owner)} target="_blank" rel="noreferrer">{short(props.owner)}</a></p>
+          <p className="read-at">Read from Celo at <span className="mono">{wat(new Date(props.readAt))}</span> WAT · owner <a className="mono" href={celoscanAddr(props.owner)} target="_blank" rel="noreferrer">{short(props.owner)}</a></p>
         </aside>
       </div>
     </>
