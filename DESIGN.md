@@ -205,7 +205,7 @@ A low-saturation night palette with one warm metal accent; state is carried by w
 - **Reading Gold** (`sheet-gold`): a softened gold used only in the proof page's long reading sections (PASS verdicts, proven status labels, link underlines) so small gold text does not shimmer on violet.
 
 ### Neutral
-- **Dusk Violet** (`dusk-violet`), **Night** (`dusk-night`), **Navy** (`dusk-navy`): the desk ground is a 172deg gradient from violet through night (34%) to navy, fixed to the first 1200px over a navy fill. Night is the proof page's body and theme colour; the reading sections sit on a darker gradient (`#1a1838` to `#191826`).
+- **Dusk Violet** (`dusk-violet`), **Night** (`dusk-night`), **Navy** (`dusk-navy`): the desk ground is flat Navy: the violet-to-navy dusk lives only in the proof page's photograph and its sky grade, so the working screen carries no gradient (decided 2026-11-22, user's UI rule against reflexive purple/blue gradients). Night is the proof page's body and theme colour; the reading sections sit on a darker gradient (`#1a1838` to `#191826`).
 - **Frost Panel** and **Deep Frost** (`frost-panel`, `frost-panel-deep`): desk slips and side panels, and the reconciliation strip and public-check panel respectively.
 - **Alert Frost** (`frost-alert`): the proof page's notification cards, tuned so 13px white text keeps 4.5:1 over the brightest sunset. **Declined Frost** (`frost-declined`) is its greyer, more opaque sibling, used by both declined alerts and declined slips.
 - **Frost Edge**, **Hairline**, **Strong Hairline**: 1px white-alpha borders. Edge on frosted alert cards and lock-screen discs; hairline on desk panels, dividers and slip borders; strong hairline on buttons, chips and inputs.

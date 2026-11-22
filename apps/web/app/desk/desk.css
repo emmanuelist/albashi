@@ -1,8 +1,7 @@
 /* The owner desk: the lock screen's world at desk scale. Same tokens as the proof page (globals.css :root):
-   dusk violet into navy, frosted slips, Plex Mono for every figure and reference, Inter for words, gold only for
+   a flat night-navy ground, frosted slips, Plex Mono for every figure and reference, Inter for words, gold only for
    PAID and the primary action, grey with a strike and words for declined. Standard controls throughout. */
 .desk {
-  --dk-ground: linear-gradient(172deg, #35204f 0%, var(--night) 34%, var(--navy) 100%);
   --dk-panel: rgba(46, 36, 66, 0.62);
   --dk-panel-2: rgba(30, 26, 52, 0.72);
   --dk-line: rgba(255, 255, 255, 0.14);
@@ -15,8 +14,8 @@
   --dk-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
   --dk-r: 14px;
   min-height: 100dvh;
-  background: var(--navy) var(--dk-ground) no-repeat;
-  background-size: 100% 1200px;
+  /* One flat night-navy: the dusk gradient belongs to the proof page's photograph; a working screen stays calm. */
+  background: var(--navy);
   color: var(--ink-on-photo);
   font: 400 16px/1.5 var(--display);
   font-variant-numeric: tabular-nums;
@@ -77,7 +76,7 @@
 .slip { display: grid; grid-template-columns: minmax(0, 1fr) 290px; border: 1px solid var(--dk-line); border-radius: var(--dk-r); overflow: hidden; background: var(--dk-panel); }
 .advice { display: grid; gap: 4px; padding: 18px 22px; min-width: 0; container-type: inline-size; }
 /* an address never breaks mid-string: where the full one doesn't fit on a line, the slip shows the short form (the full one is the link's title) */
-@container (max-width: 600px) { .payee-long { display: none; } .payee-short { display: inline; } }
+@container (max-width: 400px) { .advice .payee-long { display: none; } .advice .payee-short { display: inline; } }
 .advice-head { font-size: 13px; color: var(--dk-quiet); }
 .payee { font: 400 15px/1.4 var(--sms); text-decoration: none !important; color: #ece6f0 !important; overflow-wrap: anywhere; }
 .payee:hover { color: #fff !important; }
