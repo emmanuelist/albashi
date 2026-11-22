@@ -4,6 +4,7 @@ _Last verified: 2026-11-22 07:45 UTC (PayRun v2 mainnet run and refusal)_
 **Thesis:** Albashi pays your freelancers in naira, and its agent can only pay the payslip you signed.
 **Milestone:** M0 · Rigged (checkpoint 2026-11-23 05:24 UTC), with M1's contract and agent items already done · **Deadline:** 2026-12-07 09:00 UTC (time left: the clock line)
 **Next action:** M1 "Owner desk in `apps/web`" (docs/PLAN.md): the owner signs a payslip in the browser and the agent runs it. Before that: the proof page and README can now carry E-010/E-011 (claims check first), and PayRun v2's source should be verified on the explorer.
+**Agent wallet on file (Loops House):** `0x1Bce3F6267983dfAb58CED6261EF05a28E168ce8` (D-011). ERC-8004 identity not registered yet.
 **Blocked on:** nothing. Awaiting Celo DevRel's answer on whether the self-relaying agent EOA is the scored "agent wallet" (asked 2026-11-21 18:55 UTC).
 
 ## Works (verified this session)
