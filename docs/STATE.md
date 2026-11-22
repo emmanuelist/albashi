@@ -24,7 +24,7 @@ _Last verified: 2026-11-22 07:45 UTC (PayRun v2 mainnet run and refusal)_
 | PayRun v2 | Celo mainnet | `0xfa8d963525d5F28427B897A0C761C744A43e59Af` (source not yet verified on the explorer) | 2026-11-22 07:40 UTC: 8,169 B; float 0.459972 = totalFloat = USD₮ held |
 | PayRun v1 (retired; never send it USD₮) | Celo mainnet | `0x3Ef8f9A0dA701cE46b022b14E87315701D4bfeF7` | 2026-11-22: allowance 0, session permission removed |
 | Public repo | GitHub | https://github.com/emmanuelist/albashi (CI: secrets scan) | 2026-11-21 19:45 UTC |
-| Proof page (apps/web) | Vercel, project albashi | https://albashi.vercel.app | 2026-11-22 00:58 UTC (not re-checked this session) |
+| Proof page (apps/web) | Vercel, project albashi | https://albashi.vercel.app | 2026-11-22 09:00 UTC: home 200; `/.well-known/agent-registration.json` 200 JSON, agent 10095 matches the registry |
 
 ## Broken or unverified
 - The proof page and README don't show E-010/E-011 yet; the page's top alert still states the thesis as a goal
