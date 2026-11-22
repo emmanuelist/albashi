@@ -97,7 +97,7 @@ export type RunStage =
 
 export type RunOutcome =
   | { status: 'refused'; stage: 'payrun' | 'agent'; error: string; sentence: string }
-  | { status: 'paid' | 'reverted'; hash: Hex; quote: { takerPays: bigint; buyAmount: bigint }; events: RunEvents };
+  | { status: 'paid' | 'reverted'; hash: Hex; minedAt: number; quote: { takerPays: bigint; buyAmount: bigint }; events: RunEvents };
 
 /** Runs a signed payslip. Every refusal is a sentence; a sent run is reported from its mined receipt. */
 export async function runPayslip(args: {
@@ -144,9 +144,12 @@ export async function runPayslip(args: {
   const sent = await selfRelay({ pub, agent: args.agent, session: args.session, sessionPrivateKey: args.sessionPrivateKey, calls: [call], feeToken: NATIVE, send: true });
   report({ stage: 'sent', hash: sent.hash! });
   const receipt = await pub.waitForTransactionReceipt({ hash: sent.hash! });
+  const block = await pub.getBlock({ blockNumber: receipt.blockNumber });
   return {
     status: receipt.status === 'success' ? 'paid' : 'reverted',
     hash: sent.hash!,
+    /** Unix seconds of the block the run was mined in: the time each counterfoil is stamped with. */
+    minedAt: Number(block.timestamp),
     quote: { takerPays: quote.takerPays, buyAmount: quote.buyAmount },
     events: runEvents(receipt.logs, payRun),
   };

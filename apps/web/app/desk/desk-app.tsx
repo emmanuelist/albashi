@@ -45,7 +45,7 @@ export type DeskProps = {
 };
 
 type SlipState =
-  | { kind: 'paid'; at: Date; hash: Hex; fresh?: boolean }
+  | { kind: 'paid'; at: Date; hash: Hex; amount: bigint; fresh?: boolean }
   | { kind: 'declined'; sentence: string; note: string }
   | { kind: 'draft' }
   | { kind: 'signed' }
@@ -59,7 +59,8 @@ function Counterfoil({ s }: { s: SlipState }) {
       return (
         <div className="foil foil-paid">
           <span className={`stamp${s.fresh ? ' stamp-land' : ''}`}><Check className="ic" />PAID {wat(s.at)}</span>
-          <a className="ref" href={celoscanTx(s.hash)} target="_blank" rel="noreferrer">PayRun · {short(s.hash)}<Out className="ic-s" /></a>
+          <span className="foil-note"><span className="mono">₦{money(s.amount)}</span> paid by PayRun</span>
+          <a className="ref" href={`${celoscanTx(s.hash)}#eventlog`} target="_blank" rel="noreferrer">Paid event · <span className="mono">{short(s.hash)}</span><Out className="ic-s" /></a>
         </div>
       );
     case 'declined':
@@ -75,7 +76,7 @@ function Counterfoil({ s }: { s: SlipState }) {
     case 'waiting':
       return <div className="foil foil-quiet foil-busy"><span className="foil-word">Running</span><span className="foil-meta">stamped when PayRun pays this line</span></div>;
     case 'demo':
-      return <div className="foil foil-quiet"><span className="foil-word">Signed</span><span className="foil-meta">demo payslip · can never pay</span></div>;
+      return <div className="foil foil-quiet"><span className="foil-word">Signed</span><span className="foil-meta">demo payslip, can never pay</span></div>;
     case 'unpaid':
       return <div className="foil foil-quiet"><span className="foil-word">Not paid</span><span className="foil-meta">no Paid event for this line</span></div>;
     default:
@@ -163,6 +164,7 @@ export default function DeskApp(props: DeskProps) {
   const [account, setAccount] = useState<Address | null>(null);
   const [chainOk, setChainOk] = useState(true);
   const [walletMsg, setWalletMsg] = useState<string | null>(null);
+  const [connecting, setConnecting] = useState(false);
   const isOwner = account !== null && account.toLowerCase() === props.owner.toLowerCase();
 
   const [drafting, setDrafting] = useState(false);
@@ -171,8 +173,8 @@ export default function DeskApp(props: DeskProps) {
   const [rate, setRate] = useState(props.rate);
   const [phase, setPhase] = useState<'edit' | 'signing' | 'running' | 'done'>('edit');
   const [stages, setStages] = useState<Stage[]>([]);
-  const [outcome, setOutcome] = useState<null | { status: string; sentence?: string; hash?: Hex; paid?: { line: number; to: Address; amount: string }[] }>(null);
-  const [stamped, setStamped] = useState(0);
+  const [outcome, setOutcome] = useState<null | { status: string; sentence?: string; hash?: Hex; minedAt?: number; paid?: { line: number; to: Address; amount: string }[] }>(null);
+  const [stamped, setStamped] = useState<number[]>([]);
   const [signedSlip, setSignedSlip] = useState<Payslip | null>(null);
   const [fund, setFund] = useState('');
   const [funding, setFunding] = useState<string | null>(null);
@@ -196,6 +198,17 @@ export default function DeskApp(props: DeskProps) {
     }
   }, [drafting, rate]);
 
+  // Live like the chain: re-read the runs, rate, float and session every 30 s while the page is in view.
+  useEffect(() => {
+    const t = setInterval(() => { if (document.visibilityState === 'visible' && phase !== 'running' && phase !== 'signing') router.refresh(); }, 30_000);
+    return () => clearInterval(t);
+  }, [router, phase]);
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 15_000);
+    return () => clearInterval(t);
+  }, []);
+
   useEffect(() => {
     const w = eth();
     if (!w?.on) return;
@@ -210,6 +223,7 @@ export default function DeskApp(props: DeskProps) {
     setWalletMsg(null);
     const w = eth();
     if (!w) { setWalletMsg('No wallet in this browser. Open the desk in a browser with MetaMask to sign as the owner.'); return; }
+    setConnecting(true);
     try {
       const accs = (await w.request({ method: 'eth_requestAccounts' })) as string[];
       setAccount(accs[0] ? getAddress(accs[0]) : null);
@@ -224,6 +238,8 @@ export default function DeskApp(props: DeskProps) {
       setChainOk(Number(await w.request({ method: 'eth_chainId' })) === celo.id);
     } catch (e) {
       setWalletMsg(walletError(e));
+    } finally {
+      setConnecting(false);
     }
   }
 
@@ -240,7 +256,8 @@ export default function DeskApp(props: DeskProps) {
   }
 
   // ---- the draft payslip, as base units
-  const session = props.ownerState?.session ?? null;
+  const serverSession = props.ownerState?.session ?? null;
+  const session = serverSession ? { ...serverSession, live: Date.parse(serverSession.expiry) > now } : null;
   const float = props.ownerState ? BigInt(props.ownerState.float) : null;
   const parsed = lines.map((l) => ({ to: isAddress(l.to.trim()) ? getAddress(l.to.trim()) : null, amount: parseNaira(l.amount) }));
   const owed = parsed.reduce((s, l) => s + (l.amount ?? 0n), 0n);
@@ -250,10 +267,10 @@ export default function DeskApp(props: DeskProps) {
   const maxUsdtIn = minRate ? (owed * 10n ** 6n + minRate - 1n) / minRate : 0n;
   const estUsdt = liveRate ? (owed * 10n ** 6n + liveRate - 1n) / liveRate : null;
   const problems: string[] = [];
-  parsed.forEach((l, i) => {
-    if (lines[i]!.to.trim() && !l.to) problems.push(`Line ${i + 1}: that isn’t a Celo address.`);
-    if (lines[i]!.amount.trim() && !l.amount) problems.push(`Line ${i + 1}: enter naira, up to two decimals.`);
-  });
+  const fieldErr = parsed.map((l, i) => ({
+    to: lines[i]!.to.trim() && !l.to ? 'That isn’t a Celo address (0x and 40 hex characters).' : null,
+    amount: lines[i]!.amount.trim() && !l.amount ? 'Enter naira, up to two decimals.' : null,
+  }));
   const complete = parsed.every((l) => l.to && l.amount);
   if (complete && liveRate && owed * 10n ** 6n < liveRate * 10n ** 6n) problems.push('Textile quotes from about US$1 per run: the payslip must total at least one dollar of naira.');
   if (minRate && liveRate && minRate > liveRate) problems.push('Your floor is above today’s rate, so no quote would clear it.');
@@ -263,12 +280,12 @@ export default function DeskApp(props: DeskProps) {
   else if (!chainOk) blockers.push('Switch your wallet to Celo.');
   if (!session) blockers.push('The agent holds no session on this wallet.');
   else if (!session.live) blockers.push(`The agent’s session ended ${watDay(new Date(session.expiry))} ${wat(new Date(session.expiry))} WAT. The owner renews it before the next run.`);
-  const canSign = complete && problems.length === 0 && blockers.length === 0 && !!minRate && phase === 'edit';
+  const canSign = complete && fieldErr.every((f) => !f.to && !f.amount) && problems.length === 0 && blockers.length === 0 && !!minRate && phase === 'edit';
 
   async function signAndRun() {
     const w = eth();
     if (!w || !account || !minRate) return;
-    setOutcome(null); setStages([]); setStamped(0); setPhase('signing');
+    setOutcome(null); setStages([]); setStamped([]); setPhase('signing');
     const payslip: Payslip = {
       owner: props.owner,
       lines: parsed.map((l) => ({ to: l.to!, amount: l.amount! })),
@@ -319,13 +336,13 @@ export default function DeskApp(props: DeskProps) {
           if (ev.stage === 'sent') setStages((s) => [...s, { key: 'sent', text: `The agent sent the run from its own wallet, tagged ${ATTRIBUTION_CODE}.`, href: celoscanTx(ev.hash) }]);
           if (ev.stage === 'done') {
             const o = ev.outcome;
-            setOutcome({ status: o.status, sentence: o.sentence, hash: o.hash, paid: o.events?.paid });
+            setOutcome({ status: o.status, sentence: o.sentence, hash: o.hash, minedAt: o.minedAt, paid: o.events?.paid });
             setPhase('done');
             if (o.status === 'paid') {
-              const n = o.events?.paid?.length ?? 0;
-              // Every Paid event is already confirmed; the stamps land one after another in line order.
-              for (let i = 1; i <= n; i++) setTimeout(() => setStamped(i), 240 * i);
-              setTimeout(() => router.refresh(), 240 * n + 600);
+              // Each stamp is one confirmed Paid event, for the line that event names; they land in line order.
+              const lines: number[] = (o.events?.paid ?? []).map((p: { line: string | number }) => Number(p.line)).sort((a: number, b: number) => a - b);
+              lines.forEach((ln, k) => setTimeout(() => setStamped((x) => [...x, ln]), 240 * (k + 1)));
+              setTimeout(() => router.refresh(), 240 * lines.length + 600);
             }
           }
         }
@@ -364,7 +381,7 @@ export default function DeskApp(props: DeskProps) {
     const signed = last.lines ?? last.paid.map((p) => ({ to: p.to, amount: p.amount }));
     return signed.map((l, i) => {
       const p = last.paid.find((x) => x.line === i);
-      return { to: l.to, amount: BigInt(l.amount), state: (p ? { kind: 'paid', at: new Date(last.at), hash: last.hash } : { kind: 'unpaid' }) as SlipState };
+      return { to: l.to, amount: BigInt(l.amount), state: (p ? { kind: 'paid', at: new Date(last.at), hash: last.hash, amount: BigInt(p.amount) } : { kind: 'unpaid' }) as SlipState };
     });
   }, [last]);
   const signedTotal = lastLines.reduce((s, l) => s + l.amount, 0n);
@@ -374,7 +391,10 @@ export default function DeskApp(props: DeskProps) {
     if (phase === 'edit') return { kind: 'draft' };
     if (phase === 'signing') return { kind: 'draft' };
     if (phase === 'running') return { kind: 'waiting' };
-    if (outcome?.status === 'paid' && outcome.hash && i < stamped) return { kind: 'paid', at: new Date(), hash: outcome.hash, fresh: true };
+    const ev = outcome?.paid?.find((p) => Number(p.line) === i);
+    if (outcome?.status === 'paid' && outcome.hash && outcome.minedAt && ev && stamped.includes(i)) {
+      return { kind: 'paid', at: new Date(outcome.minedAt * 1000), hash: outcome.hash, amount: BigInt(ev.amount), fresh: true };
+    }
     if (outcome?.status === 'paid') return { kind: 'waiting' };
     return { kind: 'signed' };
   });
@@ -396,7 +416,9 @@ export default function DeskApp(props: DeskProps) {
               <Wallet className="ic" />{short(account)} · {isOwner ? (chainOk ? 'owner' : 'switch to Celo') : 'not the owner'}
             </span>
           ) : (
-            <button type="button" className="btn btn-quiet" onClick={connect}><Wallet className="ic" />Connect<span className="wl-long">owner wallet</span></button>
+            <button type="button" className="btn btn-quiet" onClick={connect} disabled={connecting}>
+              <Wallet className="ic" />{connecting ? 'Confirm in your wallet…' : <><span className="wl-long">Read-only · connect the owner wallet</span><span className="wl-short">Connect</span></>}
+            </button>
           )}
         </div>
       </header>
@@ -405,7 +427,7 @@ export default function DeskApp(props: DeskProps) {
 
       <div className="dk-grid">
         <div className="dk-main">
-          {drafting && (
+          {drafting && isOwner && (
             <section className="book draft-book" aria-label="New payslip">
               <div className="book-head">
                 <h1 className="book-title">New payslip</h1>
@@ -418,19 +440,21 @@ export default function DeskApp(props: DeskProps) {
                     <label className="fld">
                       <span className="sr">Line {i + 1} payee address</span>
                       <input className="in in-mono" placeholder="0x… payee on Celo" value={l.to} spellCheck={false} autoComplete="off" disabled={phase !== 'edit'}
-                        aria-invalid={!!l.to.trim() && !parsed[i]!.to} onChange={(e) => setLines((x) => x.map((y, j) => (j === i ? { ...y, to: e.target.value } : y)))} />
+                        aria-invalid={!!fieldErr[i]!.to} aria-describedby={fieldErr[i]!.to ? `to-err-${i}` : undefined} onChange={(e) => setLines((x) => x.map((y, j) => (j === i ? { ...y, to: e.target.value } : y)))} />
+                      {fieldErr[i]!.to && <span className="fld-err" id={`to-err-${i}`}>{fieldErr[i]!.to}</span>}
                     </label>
                     <div className="amt-row">
                       <label className="fld fld-amt">
                         <span className="sr">Line {i + 1} amount in naira</span>
                         <span className="naira" aria-hidden="true">₦</span>
                         <input className="in in-amt" inputMode="decimal" placeholder="0.00" value={l.amount} disabled={phase !== 'edit'}
-                          aria-invalid={!!l.amount.trim() && !parsed[i]!.amount} onChange={(e) => setLines((x) => x.map((y, j) => (j === i ? { ...y, amount: e.target.value } : y)))} />
+                          aria-invalid={!!fieldErr[i]!.amount} aria-describedby={fieldErr[i]!.amount ? `amt-err-${i}` : undefined} onChange={(e) => setLines((x) => x.map((y, j) => (j === i ? { ...y, amount: e.target.value } : y)))} />
                       </label>
                       {lines.length > 1 && phase === 'edit' && (
                         <button type="button" className="btn btn-icon" aria-label={`Remove line ${i + 1}`} onClick={() => setLines((x) => x.filter((_, j) => j !== i))}><Minus className="ic" /></button>
                       )}
                     </div>
+                    {fieldErr[i]!.amount && <span className="fld-err" id={`amt-err-${i}`}>{fieldErr[i]!.amount}</span>}
                   </Slip>
                 ))}
               </ol>
@@ -442,12 +466,12 @@ export default function DeskApp(props: DeskProps) {
                 <label className="fld">
                   <span className="lbl">Lowest rate you accept</span>
                   <span className="in-wrap"><span className="naira" aria-hidden="true">₦</span><input className="in in-amt" inputMode="decimal" value={floor} disabled={phase !== 'edit'} onChange={(e) => setFloor(e.target.value)} /><span className="unit">per USD₮</span></span>
-                  <span className="hint">{rate ? `Textile now: ₦${money(BigInt(rate.buyUnits))}, read ${wat(new Date(rate.readAt))} WAT` : 'Textile isn’t quoting right now'}</span>
+                  <span className="hint">{rate ? <>Textile now: <span className="mono">₦{money(BigInt(rate.buyUnits))}</span>, read <span className="mono">{wat(new Date(rate.readAt))}</span> WAT</> : 'Textile isn’t quoting right now'}</span>
                 </label>
                 <dl className="terms-figs">
-                  <div><dt>Pays out</dt><dd>₦{money(owed)}</dd></div>
-                  <div><dt>Costs about</dt><dd>{estUsdt !== null ? `USD₮${money(estUsdt)}` : '–'}</dd></div>
-                  <div><dt>Most it may spend</dt><dd>USD₮{money(maxUsdtIn)}</dd></div>
+                  <div><dt>Pays out</dt><dd className="mono">₦{money(owed)}</dd></div>
+                  <div><dt>Costs about</dt><dd className="mono">{estUsdt !== null ? `USD₮${money(estUsdt)}` : '–'}</dd></div>
+                  <div><dt>Most it may spend</dt><dd className="mono">USD₮{money(maxUsdtIn)}</dd></div>
                   <div><dt>Valid for</dt><dd>1 hour after signing</dd></div>
                 </dl>
               </div>
@@ -487,8 +511,11 @@ export default function DeskApp(props: DeskProps) {
               <>
                 <div className="book-head">
                   <h1 id="last-run" className="book-title">{drafting ? 'Last pay run' : 'Pay run'}, {watDay(new Date(last.at))} {wat(new Date(last.at))} WAT</h1>
-                  {!drafting && <button type="button" className="btn btn-primary" onClick={() => setDrafting(true)}><Plus className="ic" />New payslip</button>}
+                  {!drafting && (isOwner
+                    ? <button type="button" className="btn btn-primary" onClick={() => setDrafting(true)}><Plus className="ic" />New payslip</button>
+                    : <button type="button" className="btn btn-quiet" onClick={connect} disabled={connecting}><Wallet className="ic" />Connect the owner wallet to write</button>)}
                 </div>
+                <p className="book-sub">Each slip is a line the owner signed; each counterfoil is PayRun’s own record of paying it on Celo.</p>
                 <dl className="recon" aria-label="Signed against paid">
                   <div><dt>Signed</dt><dd>₦{money(signedTotal)}</dd></div>
                   <div><dt>Paid by PayRun</dt><dd>₦{money(BigInt(last.cngnPaid))}</dd></div>
@@ -505,7 +532,9 @@ export default function DeskApp(props: DeskProps) {
               <div className="empty">
                 <h1 className="book-title">No pay runs yet</h1>
                 <p>When the owner signs a payslip and the agent runs it, each line appears here with PayRun’s stamp.</p>
-                <button type="button" className="btn btn-primary" onClick={() => setDrafting(true)}><Plus className="ic" />New payslip</button>
+                {isOwner
+                  ? <button type="button" className="btn btn-primary" onClick={() => setDrafting(true)}><Plus className="ic" />New payslip</button>
+                  : <button type="button" className="btn btn-quiet" onClick={connect} disabled={connecting}><Wallet className="ic" />Connect the owner wallet to write</button>}
               </div>
             )}
           </section>
@@ -558,7 +587,7 @@ export default function DeskApp(props: DeskProps) {
               </>
             ) : <p className="meta">Celo didn’t answer; the float can’t be read right now.</p>}
           </section>
-          <p className="read-at">Read from Celo at {wat(new Date(props.readAt))} WAT · owner <a href={celoscanAddr(props.owner)} target="_blank" rel="noreferrer">{short(props.owner)}</a></p>
+          <p className="read-at">Read from Celo at <span className="mono">{wat(new Date(props.readAt))}</span> WAT · owner <a href={celoscanAddr(props.owner)} target="_blank" rel="noreferrer">{short(props.owner)}</a></p>
         </aside>
       </div>
     </>
