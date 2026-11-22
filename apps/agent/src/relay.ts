@@ -23,6 +23,7 @@ import {
   padHex,
   type Address,
   type Hex,
+  type Account,
   type PublicClient,
   type Transport,
   type WalletClient,
@@ -38,6 +39,10 @@ import { toDataSuffix } from '@celo/attribution-tags';
 export const ORCHESTRATOR: Address = '0xaf140d0416a994aebb3fa6212b16ce6700f09751';
 export const ATTRIBUTION_CODE = 'celo_3f5cac8c49f6';
 const ZERO: Address = '0x0000000000000000000000000000000000000000';
+
+/** Albashi runs on Celo only; Celo clients carry Celo's own transaction formatters. */
+export type CeloPublicClient = PublicClient<Transport, typeof celo>;
+export type CeloWalletClient = WalletClient<Transport, typeof celo, Account>;
 
 // ---------------------------------------------------------------- the relay transport
 
@@ -140,7 +145,7 @@ const GET_NONCE_ABI = [
 ] as const;
 
 /** The next nonce on the session key's lane, read from the wallet. */
-export async function nextLaneNonce(pub: PublicClient, wallet: Address, sessionKeyAddress: Address): Promise<bigint> {
+export async function nextLaneNonce(pub: CeloPublicClient, wallet: Address, sessionKeyAddress: Address): Promise<bigint> {
   const lane = laneForKeyHash(secp256k1KeyHash(sessionKeyAddress));
   const next = await pub.readContract({ address: wallet, abi: GET_NONCE_ABI, functionName: 'getNonce', args: [lane], blockTag: 'pending' });
   return laneNonce(lane, next & ((1n << 64n) - 1n));
@@ -254,8 +259,8 @@ export class SimulationRefused extends Error {
  * instead of reverting, so a non-zero simulation result stops everything before a transaction exists.
  */
 export async function selfRelay(args: {
-  pub: PublicClient;
-  agent: WalletClient;
+  pub: CeloPublicClient;
+  agent: CeloWalletClient;
   relay?: ReturnType<typeof relayClient>;
   session: Session;
   sessionPrivateKey: Hex;
@@ -280,8 +285,7 @@ export async function selfRelay(args: {
   const intent = intentFrom(prepared.context, signature);
   const data = taggedExecuteCalldata(intent);
 
-  const agentAddress = args.agent.account?.address;
-  if (!agentAddress) throw new Error('the agent wallet client has no account');
+  const agentAddress = args.agent.account.address;
   const sim = await args.pub.call({ account: agentAddress, to: ORCHESTRATOR, data });
   const simulatedErr = decodeFunctionResult({ abi: EXECUTE_ABI, functionName: 'execute', data: sim.data ?? '0x' });
   const result: SelfRelayResult = { nonce: intent.nonce, paymentToken: intent.paymentToken, paymentAmount: intent.paymentAmount, simulatedErr };
@@ -289,7 +293,7 @@ export async function selfRelay(args: {
   if (!args.send) return result;
 
   const gas = await args.pub.estimateGas({ account: agentAddress, to: ORCHESTRATOR, data });
-  const hash = await args.agent.sendTransaction({ account: args.agent.account!, chain: celo, to: ORCHESTRATOR, data, gas: (gas * 13n) / 10n });
+  const hash = await args.agent.sendTransaction({ account: args.agent.account, chain: celo, to: ORCHESTRATOR, data, gas: (gas * 13n) / 10n });
   const receipt = await args.pub.waitForTransactionReceipt({ hash });
   return { ...result, hash, status: receipt.status };
 }
