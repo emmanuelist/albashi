@@ -43,3 +43,28 @@ jobs:
       - run: forge lint --deny warnings
       - run: forge build --sizes
       - run: forge test -vv # the mainnet fork checks are opt-in (CELO_FORK=1), so CI needs no RPC
+  agent:
+    # The apps/* gate from AGENTS.md for the agent, plus a check that its PayRun ABI matches the contract.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with: { submodules: recursive }
+      - uses: foundry-rs/foundry-toolchain@v1
+        with: { version: v1.8.3 }
+      - run: forge build
+        working-directory: contracts
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 26
+          cache: npm
+          cache-dependency-path: apps/agent/package-lock.json
+      - run: npm ci
+        working-directory: apps/agent
+      - run: npm run abi && git diff --exit-code src/abi.ts # the committed ABI is the contract's
+        working-directory: apps/agent
+      - run: npm run lint
+        working-directory: apps/agent
+      - run: npm run typecheck
+        working-directory: apps/agent
+      - run: npm test
+        working-directory: apps/agent

@@ -1,0 +1,28 @@
+{
+  "name": "@albashi/agent",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=26"
+  },
+  "scripts": {
+    "abi": "node scripts/abi.mjs",
+    "lint": "eslint . --max-warnings 0",
+    "typecheck": "tsc --noEmit -p .",
+    "test": "node --test 'test/**/*.test.ts'",
+    "build": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "@altananetwork/sdk": "1.1.0",
+    "@celo/attribution-tags": "0.5.0",
+    "porto": "0.2.37",
+    "viem": "2.57.20"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.5",
+    "@types/node": "26.6.6",
+    "eslint": "9.39.5",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.73.0"
+  }
+}
