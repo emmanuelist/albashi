@@ -107,7 +107,8 @@
 .slips.compact .payee-long { display: none; }
 .slips.compact .payee-short { display: inline; }
 .slips.compact .foil-paid .foil-note { display: none; }
-.slips.compact .slip-declined .foil-note { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+/* a refusal is rare and is the thesis: its counterfoil takes a second line so PayRun's words stay readable */
+.slips.compact .slip-declined .foil { grid-auto-flow: row; justify-items: start; }
 
 /* the stamp lands when PayRun's Paid event for that line has been read */
 .stamp-land { animation: dk-stamp 0.38s cubic-bezier(0.16, 1, 0.3, 1) both; }
