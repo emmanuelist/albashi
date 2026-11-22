@@ -484,7 +484,7 @@ export default function DeskApp(props: DeskProps) {
                 </dl>
               </div>
 
-              {(problems.length > 0 || blockers.length > 0) && (
+              {phase === 'edit' && (problems.length > 0 || blockers.length > 0) && (
                 <ul className="notes" role="status">
                   {[...problems, ...blockers].map((p) => <li key={p}>{p}</li>)}
                 </ul>

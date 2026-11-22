@@ -161,12 +161,18 @@ export async function runPayslip(args: {
   }
   report({ stage: 'sent', hash: sent.hash! });
   const receipt = await pub.waitForTransactionReceipt({ hash: sent.hash! });
-  const block = await pub.getBlock({ blockNumber: receipt.blockNumber });
+  // A public node can serve the receipt before the block itself (seen on forno, 2026-11-22: a mined run was
+  // reported as an error). The run is already confirmed, so the block's time is retried, never allowed to fail it.
+  let minedAt = 0;
+  for (let i = 0; i < 8 && !minedAt; i++) {
+    minedAt = await pub.getBlock({ blockNumber: receipt.blockNumber }).then((b) => Number(b.timestamp), () => 0);
+    if (!minedAt) await new Promise((res) => setTimeout(res, 1500));
+  }
   return {
     status: receipt.status === 'success' ? 'paid' : 'reverted',
     hash: sent.hash!,
-    /** Unix seconds of the block the run was mined in: the time each counterfoil is stamped with. */
-    minedAt: Number(block.timestamp),
+    /** Unix seconds of the block the run was mined in (0 if the node never served it): the counterfoils' time. */
+    minedAt,
     quote: { takerPays: quote.takerPays, buyAmount: quote.buyAmount },
     events: runEvents(receipt.logs, payRun),
   };

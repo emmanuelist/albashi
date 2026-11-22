@@ -1,0 +1,102 @@
+{
+  "label": "E-016-desk-run",
+  "hash": "0x7b5e0bb86b691472947a463461e92d0235c74256eaac8ae7d1b0e42af3251b94",
+  "from": "0x1bce3f6267983dfab58ced6261ef05a28e168ce8",
+  "to": "0xaf140d0416a994aebb3fa6212b16ce6700f09751",
+  "status": "success",
+  "blockNumber": "83482979",
+  "time": "2026-11-22T21:42:17.000Z",
+  "attribution": {
+    "codes": [
+      "celo_3f5cac8c49f6"
+    ],
+    "schemaId": 0
+  },
+  "ran": {
+    "digest": "0x283f2a449361b14d076b6eaff122af43387d4e572addc62b94993b769a881321",
+    "owner": "0x0EcaaFc1Bd6f7033d6eb038d8Cbc8a55f900D4B1",
+    "usdtSpent": "1074829",
+    "cngnReceived": "1550000000",
+    "cngnPaid": "1550000000",
+    "lines": "2"
+  },
+  "paid": [
+    {
+      "line": "0",
+      "to": "0xBAa4A23304101524f849935C5038073fF1cAE33b",
+      "amount": "750000000"
+    },
+    {
+      "line": "1",
+      "to": "0x57f0A680179e239Ed8E60f732651840E080458E8",
+      "amount": "800000000"
+    }
+  ],
+  "payslip": {
+    "owner": "0x0EcaaFc1Bd6f7033d6eb038d8Cbc8a55f900D4B1",
+    "lines": [
+      {
+        "to": "0xBAa4A23304101524f849935C5038073fF1cAE33b",
+        "amount": "750000000"
+      },
+      {
+        "to": "0x57f0A680179e239Ed8E60f732651840E080458E8",
+        "amount": "800000000"
+      }
+    ],
+    "maxUsdtIn": "1085686",
+    "minRate": "1427670000",
+    "deadline": "1795387307",
+    "salt": "0xf79ab979d3d0b5b2e4b3f728f26fe6f382ac0eff913843433a3523547e9db384"
+  },
+  "transfers": [
+    {
+      "token": "0xf6829d7393dae24509eb1e52ee8e572e2e271a4f",
+      "from": "0xF0d95682c1d70f8e8821451DF191293Ed2908639",
+      "to": "0xfa8d963525d5F28427B897A0C761C744A43e59Af",
+      "value": "46483151"
+    },
+    {
+      "token": "0xf6829d7393dae24509eb1e52ee8e572e2e271a4f",
+      "from": "0xa601E4AdAE099c1C98a2186Fc0A151DC4BFBBA40",
+      "to": "0xfa8d963525d5F28427B897A0C761C744A43e59Af",
+      "value": "1503516849"
+    },
+    {
+      "token": "0x48065fbbe25f71c9282ddf5e1cd6d6a887483d5e",
+      "from": "0xfa8d963525d5F28427B897A0C761C744A43e59Af",
+      "to": "0xF0d95682c1d70f8e8821451DF191293Ed2908639",
+      "value": "32205"
+    },
+    {
+      "token": "0x48065fbbe25f71c9282ddf5e1cd6d6a887483d5e",
+      "from": "0xfa8d963525d5F28427B897A0C761C744A43e59Af",
+      "to": "0x51727A09b55d56BF8f3CBe61f460327330aECbA4",
+      "value": "6"
+    },
+    {
+      "token": "0x48065fbbe25f71c9282ddf5e1cd6d6a887483d5e",
+      "from": "0xfa8d963525d5F28427B897A0C761C744A43e59Af",
+      "to": "0xa601E4AdAE099c1C98a2186Fc0A151DC4BFBBA40",
+      "value": "1042410"
+    },
+    {
+      "token": "0x48065fbbe25f71c9282ddf5e1cd6d6a887483d5e",
+      "from": "0xfa8d963525d5F28427B897A0C761C744A43e59Af",
+      "to": "0x51727A09b55d56BF8f3CBe61f460327330aECbA4",
+      "value": "208"
+    },
+    {
+      "token": "0xf6829d7393dae24509eb1e52ee8e572e2e271a4f",
+      "from": "0xfa8d963525d5F28427B897A0C761C744A43e59Af",
+      "to": "0xBAa4A23304101524f849935C5038073fF1cAE33b",
+      "value": "750000000"
+    },
+    {
+      "token": "0xf6829d7393dae24509eb1e52ee8e572e2e271a4f",
+      "from": "0xfa8d963525d5F28427B897A0C761C744A43e59Af",
+      "to": "0x57f0A680179e239Ed8E60f732651840E080458E8",
+      "value": "800000000"
+    }
+  ]
+}

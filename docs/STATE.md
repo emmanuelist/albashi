@@ -3,7 +3,7 @@ _Last verified: 2026-11-22 07:45 UTC (PayRun v2 mainnet run and refusal)_
 
 **Thesis:** Albashi pays your freelancers in naira, and its agent can only pay the payslip you signed.
 **Milestone:** M0 · Rigged (checkpoint 2026-11-23 05:24 UTC), with M1's contract and agent items already done · **Deadline:** 2026-12-07 09:00 UTC (time left: the clock line)
-**Next action:** a live run from the deployed desk (M1 "Owner desk" is built; its done-when needs a run started from albashi.vercel.app/desk). Needs, with the user's OK: Vercel env vars AGENT_KEY, SESSION_KEY, SESSION_JSON; the session renewed (it ended 22 Nov 09:26 UTC; ~0.09 CELO); ~0.2 USD₮ more for the float (a ₦1,500 run needs ~1.04, the owner holds 0.89 in total).
+**Next action:** push + `vercel --prod` (desk fixes since the run: fee-cap pre-check, Orchestrator errors as sentences, block-time retry, layout); then M1's last item, one real person paid (needs the named agency); report the MetaMask/Blockaid phishing warning on albashi.vercel.app.
 **Agent wallet on file (Loops House):** `0x1Bce3F6267983dfAb58CED6261EF05a28E168ce8` (D-011). ERC-8004: agent 10095, registered from it (E-013); the event's checker sees its tag (E-012).
 **Blocked on:** nothing. Awaiting Celo DevRel's answer on whether the self-relaying agent EOA is the scored "agent wallet" (asked 2026-11-21 18:55 UTC).
 
@@ -17,8 +17,10 @@ _Last verified: 2026-11-22 07:45 UTC (PayRun v2 mainnet run and refusal)_
 | The owner's own transactions (approve, deposit, permission removal) tagged | `verifyTx` on each | E-009, E-011 |
 | The session's call permissions on chain: `PayRun.run` on v2 + Porto's Orchestrator default | `canExecutePackedInfos` read after removing v1 | E-011 |
 | Contract gate: fmt, lint (deny warnings), build (8,169 B), 33 tests; agent gate: lint, typecheck, 17 tests | local runs, commit 4b2144c | — |
-| Owner desk /desk (not deployed yet): last run as signed slips stamped from PayRun's Paid events; agent limits and float from chain; owner-only editor → EIP-712 signature → /api/run streaming PayRun's verdict, the quote, the sent tx | rendered locally at 1440 and 390 px against mainnet; finish review: 11 of 11 fixes resolved over three passes, the last (compact declined wrap) applied after | commits cb06b36..c747248 |
+| Owner desk /desk (deployed; first run from it E-016): last run as signed slips stamped from PayRun's Paid events; agent limits and float from chain; owner-only editor → EIP-712 signature → /api/run streaming PayRun's verdict, the quote, the sent tx | rendered locally at 1440 and 390 px against mainnet; finish review: 11 of 11 fixes resolved over three passes, the last (compact declined wrap) applied after | commits cb06b36..c747248 |
 | Public refusal check /api/try: PayRun refuses the owner's signed demo payslip with a stranger added (NotSigned), free eth_call | live tests (CELO_LIVE=1) and local route | docs/evidence/demo-payslip.json |
+
+| **A pay run started from the deployed desk**: signed in MetaMask, run by the agent route on Vercel, tagged; ₦750 + ₦800 paid exactly | on-chain read and verifyTx | E-016 |
 
 ## Deployed
 | What | Network or environment | Address / URL | Last checked |
@@ -33,7 +35,8 @@ _Last verified: 2026-11-22 07:45 UTC (PayRun v2 mainnet run and refusal)_
 - The refusal is a simulation against mainnet, not a mined reverted transaction (Altana's relay won't price one)
 - Porto's default "any function on the Orchestrator" session permission: not audited by us
 - The session grant still goes through Altana's relay, untagged (C-5 qualified)
-- One run's relay fee (0.667 CELO) nearly fills the SDK's default 1 CELO/day fee cap: a real agency's session needs a wider one
+- Relay fee per run ~0.67–0.74 CELO; the session's fee cap is now 3 CELO/day (E-015)
+- MetaMask (likely Blockaid) shows a phishing warning on albashi.vercel.app; not on MetaMask's public list (checked); unreported yet
 - No real person paid yet (our own test wallets only); cNGN cash-out for recipients unverified
 
 ## Claims not yet verified
