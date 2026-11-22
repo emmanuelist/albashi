@@ -62,6 +62,9 @@ session has to re-derive it or trust training data. Read before touching an inte
 - **viem `getBalance` right after a mined tx can be stale on forno**; use `blockTag: 'pending'` before sweeping a balance. (source: spike refund)
 - **Next 16's CSS pipeline silently drops `backdrop-filter` when a hand-written `-webkit-backdrop-filter` sits beside it with a `var()`-based value.** Both declarations vanish from the served stylesheet and the computed value is `none` (no frost, no error). Write only the unprefixed `backdrop-filter: blur(var(--frost-blur))`; the bundler adds the prefix. Check with `getComputedStyle(el).backdropFilter`. (source: apps/web hero build, 2026-11-21)
 
+- **Vercel git builds use the project's Root Directory, not where you ran the CLI.** CLI deploys from apps/web worked; the first GitHub build used Root Directory "." and preset "Other", produced nothing in ~1s and served 404 on every route while reporting success. Set Root Directory `apps/web` + Next.js. Check a deploy by its routes, not its status. (source: 2026-11-22 22:11 UTC incident)
+- **forno caps eth_getLogs at a few thousand blocks** (5,000 works, 10,000 is refused): read history in chunks and cache finished ones. A receipt can arrive before its block (getBlock fails): retry. (source: desk build, 2026-11-22)
+
 ## Environment
 | Var | Purpose | Where to get it |
 |---|---|---|

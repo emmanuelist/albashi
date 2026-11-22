@@ -71,3 +71,14 @@ Append-only. To change a decision, add a new entry that supersedes it.
 **Decision:** The agent wallet on file is `0x1Bce3F6267983dfAb58CED6261EF05a28E168ce8` (saved by the user in the playground, 2026-11-22). It is never a spike wallet. ERC-8004 and Self Agent ID are registered from this same address.
 **Consequences:** It can't be changed later without losing the score, so the agent key stays as it is. Its tagged transactions so far are E-008 (PayRun v2 deploy) and E-010 (the pay run). The owner's own tagged transactions (E-009, E-011) come from the owner's wallet and aren't credited here. Still open: whether the Altana track separately credits a team-owned Altana wallet (asked of Celo DevRel and Altana).
 **Evidence:** the playground's "Agent wallet on file" panel (screenshot shared by the user, 2026-11-22).
+
+## D-012 · The owner desk: pay advice with counterfoils, read-only for anyone, writing for the owner · 2026-11-22 · accepted
+**Context:** M1 needs the owner to sign a payslip in the browser and the run to show from chain; judges arrive without a wallet. Three structures were dealt and shown (counterfoils, register, rate board); the user locked counterfoils.
+**Decision:** /desk renders the last run as slips (what was signed) with counterfoils stamped from PayRun's Paid events; anyone can read it and ask PayRun live to pay a stranger (/api/try, the owner's demo payslip with a 0.000001 USD₮ budget); writing, signing and funding unlock only for the owner's wallet. The agent runs from a Vercel route with its keys in the deployment env (user's choice). The desk ground is flat navy; the dusk gradient stays on the proof page's photograph (user's UI rule).
+**Consequences:** The agent's keys live on Vercel; the route can only run payslips the owner signed, for owners whose session it holds. A run costs ~0.74 CELO of Altana relay fee; the session's fee cap was raised to 3 CELO/day (E-015). DESIGN.md records the system.
+**Evidence:** E-016; .impeccable/surfaces/apps-web-app-desk-page-tsx.md; finish review (11 of 11 fixes).
+
+## D-013 · Production deploys from git (main → Vercel, root apps/web) · 2026-11-22 · accepted
+**Context:** Deploys were manual `vercel --prod` runs from apps/web. The first git-triggered build served a 404 site because the project's Root Directory was "." with framework "Other".
+**Decision:** The Vercel project builds from GitHub with Root Directory `apps/web` and the Next.js preset; every push to main deploys production.
+**Consequences:** Every commit to main is a production deploy: keep main green. Docs-only commits also rebuild unless an Ignored Build Step is set.
