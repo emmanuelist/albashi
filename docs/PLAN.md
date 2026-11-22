@@ -31,7 +31,7 @@ Deadline source: https://www.loops.house/agents-open-for-business ("Mon 7 Dec, 0
 - [ ] **Owner desk in `apps/web`:** the owner writes and signs a payslip in the browser, the agent runs it, and the page shows that run from chain. The payslip/run component renders real data and is chosen from three variants (`impeccable generate 3`). Done when a run started from the deployed page lands on mainnet, tagged.
 - [ ] **One real person paid** in cNGN (M1's exit says a real person, not our test wallets). Needs the named agency (ops item above) or one freelancer the user knows.
 - [ ] **PayRun v2 source verified** on Celo's explorer (Blockscout/Celoscan), so judges can read what pays.
-- [ ] **Proof page and README:** state the thesis as true where C-1 allows, and add the E-010 run and E-011 refusal as alerts. Done when the claims check passes on the deployed page.
+- [x] **Proof page and README:** state the thesis as true where C-1 allows, and add the E-010 run and E-011 refusal as alerts. Done 2026-11-22: deployed, served from chain reads (commit 9b3c907).
 
 ### M2 · Core claim
 - [ ] (placeholder)
