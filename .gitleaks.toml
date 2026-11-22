@@ -6,8 +6,8 @@ useDefault = true
 [allowlist]
 description = "Public on-chain values, not secrets: USD₮ and cNGN token contracts on Celo, the spike's revoked session-key hash, and the agent's session-key hash (stored on chain in the owner account)"
 regexes = [
-  '''0x48065fbBE25f71C9282ddf5e1cD6D6A887483D5e''',
-  '''0xF6829D7393dAe24509eb1E52eE8e572e2E271a4f''',
+  '''(?i)0x48065fbBE25f71C9282ddf5e1cD6D6A887483D5e''',
+  '''(?i)0xF6829D7393dAe24509eb1E52eE8e572e2E271a4f''',
   '''0x76551d32e14133b18bf7b00e3c0e2d0c6e1a63ff631eaff2b9af9ca9204c4638''',
   '''0x655198e5d3b27ac148df494a3b87f73f2aeba50bcfaa838c9c126e7216df4750''',
 ]
