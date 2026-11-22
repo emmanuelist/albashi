@@ -1,0 +1,33 @@
+{
+  "label": "E-015-fee-cap-raised",
+  "hash": "0xf18922feece3195b4030dc937e4b987e0086ea0e03bbeb6e142c1ef8915ee28f",
+  "status": "success",
+  "gasUsed": "53883",
+  "effectiveGasPrice": "202500000000",
+  "attribution": {
+    "codes": [
+      "celo_3f5cac8c49f6"
+    ],
+    "schemaId": 0
+  },
+  "caps": [
+    {
+      "token": "0x48065fbBE25f71C9282ddf5e1cD6D6A887483D5e",
+      "period": 2,
+      "limit": "1500000",
+      "spent": "0",
+      "lastUpdated": "0",
+      "currentSpent": "0",
+      "current": "1795305600"
+    },
+    {
+      "token": "0x0000000000000000000000000000000000000000",
+      "period": 2,
+      "limit": "3000000000000000000",
+      "spent": "667229954848972819",
+      "lastUpdated": "1795305600",
+      "currentSpent": "667229954848972819",
+      "current": "1795305600"
+    }
+  ]
+}
