@@ -10,7 +10,9 @@ import { payslipFromRunTx, runEvents } from '../agent/runner.ts';
 import type { Payslip } from '../agent/payslip.ts';
 import { PAYRUN, USDT } from './proof.ts';
 
-const client = createPublicClient({ chain: celo, transport: http(process.env.CELO_RPC_URL ?? 'https://forno.celo.org', { timeout: 10_000 }) });
+// forno occasionally drops a request from a serverless region; viem retries each call (3 tries, backing off) so one
+// hiccup in ten chunked reads doesn't hide the whole history.
+const client = createPublicClient({ chain: celo, transport: http(process.env.CELO_RPC_URL ?? 'https://forno.celo.org', { timeout: 10_000, retryCount: 3, retryDelay: 400 }) });
 
 /** The demo agency's owner wallet (docs/STATE.md) and the agent's session key on it (E-009, E-011). */
 export const DESK_OWNER: Address = '0x0EcaaFc1Bd6f7033d6eb038d8Cbc8a55f900D4B1';
@@ -103,8 +105,8 @@ export async function readRuns(owner: Address = DESK_OWNER): Promise<Run[] | nul
     const starts: bigint[] = [];
     for (let b = PAYRUN_DEPLOY_BLOCK; b <= latest; b += CHUNK) starts.push(b);
     const hashes: Hash[] = [];
-    for (let i = 0; i < starts.length; i += 8) {
-      const batch = await Promise.all(starts.slice(i, i + 8).map((b) => (b + CHUNK - 1n < latest ? finishedChunk(owner, b.toString()) : ranInChunk(owner, b, latest))));
+    for (let i = 0; i < starts.length; i += 4) {
+      const batch = await Promise.all(starts.slice(i, i + 4).map((b) => (b + CHUNK - 1n < latest ? finishedChunk(owner, b.toString()) : ranInChunk(owner, b, latest))));
       hashes.push(...batch.flat());
     }
     const unique = [...new Set(hashes)].reverse();
