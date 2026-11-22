@@ -3,7 +3,7 @@ _Last verified: 2026-11-22 07:45 UTC (PayRun v2 mainnet run and refusal)_
 
 **Thesis:** Albashi pays your freelancers in naira, and its agent can only pay the payslip you signed.
 **Milestone:** M0 · Rigged (checkpoint 2026-11-23 05:24 UTC), with M1's contract and agent items already done · **Deadline:** 2026-12-07 09:00 UTC (time left: the clock line)
-**Next action:** M1 "Owner desk in `apps/web`" (docs/PLAN.md): the owner signs a payslip in the browser and the agent runs it.
+**Next action:** a live run from the deployed desk (M1 "Owner desk" is built; its done-when needs a run started from albashi.vercel.app/desk). Needs, with the user's OK: Vercel env vars AGENT_KEY, SESSION_KEY, SESSION_JSON; the session renewed (it ended 22 Nov 09:26 UTC; ~0.09 CELO); ~0.2 USD₮ more for the float (a ₦1,500 run needs ~1.04, the owner holds 0.89 in total).
 **Agent wallet on file (Loops House):** `0x1Bce3F6267983dfAb58CED6261EF05a28E168ce8` (D-011). ERC-8004: agent 10095, registered from it (E-013); the event's checker sees its tag (E-012).
 **Blocked on:** nothing. Awaiting Celo DevRel's answer on whether the self-relaying agent EOA is the scored "agent wallet" (asked 2026-11-21 18:55 UTC).
 
@@ -17,6 +17,8 @@ _Last verified: 2026-11-22 07:45 UTC (PayRun v2 mainnet run and refusal)_
 | The owner's own transactions (approve, deposit, permission removal) tagged | `verifyTx` on each | E-009, E-011 |
 | The session's call permissions on chain: `PayRun.run` on v2 + Porto's Orchestrator default | `canExecutePackedInfos` read after removing v1 | E-011 |
 | Contract gate: fmt, lint (deny warnings), build (8,169 B), 33 tests; agent gate: lint, typecheck, 17 tests | local runs, commit 4b2144c | — |
+| Owner desk /desk (not deployed yet): last run as signed slips stamped from PayRun's Paid events; agent limits and float from chain; owner-only editor → EIP-712 signature → /api/run streaming PayRun's verdict, the quote, the sent tx | rendered locally at 1440 and 390 px against mainnet; finish review: 11 of 11 fixes resolved over three passes, the last (compact declined wrap) applied after | commits cb06b36..c747248 |
+| Public refusal check /api/try: PayRun refuses the owner's signed demo payslip with a stranger added (NotSigned), free eth_call | live tests (CELO_LIVE=1) and local route | docs/evidence/demo-payslip.json |
 
 ## Deployed
 | What | Network or environment | Address / URL | Last checked |
