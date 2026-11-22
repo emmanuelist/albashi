@@ -281,6 +281,13 @@ export default function DeskApp(props: DeskProps) {
   else if (!chainOk) blockers.push('Switch your wallet to Celo.');
   if (!session) blockers.push('The agent holds no session on this wallet.');
   else if (!session.live) blockers.push(`The agent’s session ended ${watDay(new Date(session.expiry))} ${wat(new Date(session.expiry))} WAT. The owner renews it before the next run.`);
+  // The session's relay-fee cap on the owner's wallet (native CELO, per day). A run's fee was 0.667 CELO on
+  // 2026-11-22 (docs/CONTEXT.md); refuse up front when less than that is left, rather than after signing.
+  const feeCap = session?.caps.find((c) => c.token === '0x0000000000000000000000000000000000000000');
+  const RUN_FEE = 700_000_000_000_000_000n;
+  if (feeCap && BigInt(feeCap.limit) - BigInt(feeCap.spentToday) < RUN_FEE) {
+    blockers.push(`The agent’s relay-fee allowance has ${money((BigInt(feeCap.limit) - BigInt(feeCap.spentToday)) / 10n ** 12n)} CELO left today; a run’s fee is about 0.67 CELO. It resets at 01:00 WAT, or the owner raises it.`);
+  }
   const canSign = complete && fieldErr.every((f) => !f.to && !f.amount) && problems.length === 0 && blockers.length === 0 && !!minRate && phase === 'edit';
 
   async function signAndRun() {

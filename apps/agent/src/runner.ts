@@ -10,7 +10,7 @@ import type { Session } from '@altananetwork/sdk';
 import { payRunAbi } from './abi.ts';
 import { owed, type Payslip } from './payslip.ts';
 import { buildRunCall, RunRefused } from './payrun.ts';
-import { EXECUTE_ABI, INTENT, selfRelay, type CeloPublicClient, type CeloWalletClient } from './relay.ts';
+import { EXECUTE_ABI, INTENT, selfRelay, SimulationRefused, type CeloPublicClient, type CeloWalletClient } from './relay.ts';
 import { firmQuote, preview, signTakerProof, type FirmQuote } from './textile.ts';
 
 const NATIVE: Address = '0x0000000000000000000000000000000000000000';
@@ -23,6 +23,15 @@ const REFUSALS: Record<string, string> = {
   AlreadyUsed: 'This payslip has already run or was cancelled; each payslip runs once.',
   NotSigned: 'The owner did not sign this payslip: a line, an amount or a limit differs from what was signed.',
   OverBudget: 'The run would spend more USD₮ than the payslip allows.',
+};
+
+/** Altana's Orchestrator returns an error code instead of reverting; the ones a pay run can meet, in words. */
+export const ORCHESTRATOR_ERRORS: Record<string, string> = {
+  '0x9054c912': 'The agent’s relay-fee allowance on the owner’s wallet is used up for today (ExceededSpendLimit). Nothing was sent; it resets at 00:00 UTC, or the owner raises it.',
+  '0x907e849a': 'The run would pass a spend limit on the owner’s wallet (ExceededSpendLimit). Nothing was sent.',
+  '0xf78c1b53': 'The agent’s session doesn’t permit this call (UnauthorizedCall). Nothing was sent.',
+  '0xe57b6304': 'The agent’s session key isn’t on the owner’s wallet any more: revoked or never granted (KeyDoesNotExist). Nothing was sent.',
+  '0xabab8fc9': 'The owner’s wallet couldn’t pay the relay fee (PaymentError). Nothing was sent.',
 };
 
 export type Verdict =
@@ -141,7 +150,15 @@ export async function runPayslip(args: {
     if (e instanceof RunRefused) return { status: 'refused', stage: 'agent', error: 'QuoteRefused', sentence: e.problems.join(' ') };
     throw e;
   }
-  const sent = await selfRelay({ pub, agent: args.agent, session: args.session, sessionPrivateKey: args.sessionPrivateKey, calls: [call], feeToken: NATIVE, send: true });
+  let sent;
+  try {
+    sent = await selfRelay({ pub, agent: args.agent, session: args.session, sessionPrivateKey: args.sessionPrivateKey, calls: [call], feeToken: NATIVE, send: true });
+  } catch (e) {
+    if (e instanceof SimulationRefused) {
+      return { status: 'refused', stage: 'agent', error: e.simulatedErr, sentence: ORCHESTRATOR_ERRORS[e.simulatedErr] ?? `Altana’s Orchestrator refused the run in simulation (${e.simulatedErr}). Nothing was sent.` };
+    }
+    throw e;
+  }
   report({ stage: 'sent', hash: sent.hash! });
   const receipt = await pub.waitForTransactionReceipt({ hash: sent.hash! });
   const block = await pub.getBlock({ blockNumber: receipt.blockNumber });
