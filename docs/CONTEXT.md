@@ -30,6 +30,10 @@ session has to re-derive it or trust training data. Read before touching an inte
 | ERC-8004 Identity Registry | `0x8004A169FB4a3325136EB29fA0ceB6D2e539a432` | docs.celo.org/build/agents/8004 | doc only |
 | ERC-8004 Reputation Registry | `0x8004BAa17C55a88189AE136b182e5fdA19dE9b63` | docs.celo.org/build/agents/8004 | doc only |
 
+## Agent economy rails (verified 2026-11-22)
+- **x402 on Celo:** facilitator API `https://api.x402.celo.org` (`/verify`, `/settle`, `/supported`; only `/settle` needs an `X-API-Key` from the x402.celo.org dashboard). Live config (`/api/config`) lists USD₮ and cNGN (our addresses) as mainnet payment assets. Fee: gas + 0.3% of the payment. Seller packages `@x402/express` / `@x402/hono`, `@x402/core`, `@x402/evm`. Facilitator-side ERC-8021 tagging of settlements is not live. (source: docs.celo.org x402 page; `curl /api/config`)
+- **Self Agent ID:** SelfAgentRegistry on mainnet `0xaC3DF9ABf80d0F5c020C06B04Cced27763355944` (has code). Soulbound per-agent NFT backed by a ZK proof of a human; mainnet needs a real passport or ID in the Self app. Register with `@selfxyz/agent-sdk`. Separate from the reference ERC-8004 registry; an agent can be in both. (source: docs.celo.org self-agent-id page; `eth_getCode`)
+
 ## Traps
 - **Altana relay buries the attribution tag.** The tag appended to inner calls lands inside the calldata; `verifyTx` returns null on the outer tx (E-002). Fix: self-relay (D-003). (source: spike, INDEXERS.md)
 - **Textile proof of control from an Altana wallet:** the owner key's plain EIP-712 `TakerControl` signature is accepted (under EIP-7702 the wallet address is the owner EOA); the session key's ERC-1271 signature is rejected (`proof_of_control_invalid`). One proof covers the wallet for ~12 h, or use a partner API key (no proof). (source: spike)
