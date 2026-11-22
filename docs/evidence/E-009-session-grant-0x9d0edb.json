@@ -1,0 +1,36 @@
+{
+  "label": "E-009-session-grant",
+  "hash": "0x9d0edbbcab1024890e2898f89e35615a5971a99234d602e878a6f86ac0af1335",
+  "chainId": 42220,
+  "blockNumber": "83431678",
+  "time": "2026-11-22T07:27:16.000Z",
+  "from": "0x53187eab26dad0e82598d4f7ac9c349665fb2faa",
+  "to": "0xaf140d0416a994aebb3fa6212b16ce6700f09751",
+  "status": "success",
+  "gasUsed": "171890",
+  "effectiveGasPrice": "200001099983",
+  "contractAddress": null,
+  "inputTail": "0000000000000000000000000000000000000000000000000000000000000000",
+  "logs": [
+    {
+      "address": "0x0ecaafc1bd6f7033d6eb038d8cbc8a55f900d4b1",
+      "topic0": "0x3d3a48be5a98628ecf98a6201185102da78bbab8f63a4b2d6b9eef354f5131f5"
+    },
+    {
+      "address": "0x0ecaafc1bd6f7033d6eb038d8cbc8a55f900d4b1",
+      "topic0": "0x7eb91b8ac56c0864a4e4f5598082d140d04bed1a4dd62a41d605be2430c494e1"
+    },
+    {
+      "address": "0x0ecaafc1bd6f7033d6eb038d8cbc8a55f900d4b1",
+      "topic0": "0x68c781b0acb659616fc73da877ee77ae95c51ce973b6c7a762c8692058351b4a"
+    },
+    {
+      "address": "0x0ecaafc1bd6f7033d6eb038d8cbc8a55f900d4b1",
+      "topic0": "0x7eb91b8ac56c0864a4e4f5598082d140d04bed1a4dd62a41d605be2430c494e1"
+    },
+    {
+      "address": "0xaf140d0416a994aebb3fa6212b16ce6700f09751",
+      "topic0": "0x23a3c1343409f01965611c9c4c8b99e36d7b09ca22516507d5486ce0584379b8"
+    }
+  ]
+}

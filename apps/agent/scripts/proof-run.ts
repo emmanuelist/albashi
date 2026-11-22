@@ -10,7 +10,7 @@
 // Evidence (no keys) goes to docs/evidence/proof-run-<time>.json.
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import {
-  concat, createPublicClient, createWalletClient, decodeErrorResult, encodeAbiParameters, encodeFunctionData, erc20Abi,
+  BaseError, concat, createPublicClient, createWalletClient, decodeErrorResult, encodeAbiParameters, encodeFunctionData, erc20Abi,
   formatUnits, getContractAddress, http, keccak256, parseEther, toHex, type Address, type Hex,
 } from 'viem';
 import { celo } from 'viem/chains';
@@ -70,14 +70,29 @@ async function step<T>(name: string, fn: () => Promise<T>): Promise<T | undefine
     console.log(`✓ ${name}`, out === undefined ? '' : json(out).slice(0, 700));
     return out;
   } catch (e) {
-    const err = e as { shortMessage?: string; message?: string; name?: string };
-    ev.steps.push({ name, ok: false, ms: Date.now() - t, err: { name: err.name, message: err.shortMessage ?? err.message } });
+    const err = e as { shortMessage?: string; message?: string; name?: string; body?: unknown };
+    ev.steps.push({ name, ok: false, ms: Date.now() - t, err: { name: err.name, message: err.shortMessage ?? err.message, body: err.body } });
     console.log(`✗ ${name}: ${(err.shortMessage ?? err.message ?? String(e)).slice(0, 500)}`);
     return undefined;
   } finally {
     save();
   }
 }
+
+// forno is load-balanced, and a node can lag a receipt by a few seconds (seen at both PayRun deploys, 2026-11-22):
+// a read straight after a write retries until it sees the write.
+async function settled<T>(read: () => Promise<T>, done: (v: T) => boolean = (v) => v !== null && v !== undefined): Promise<T> {
+  for (let i = 0; ; i++) {
+    try {
+      const v = await read();
+      if (done(v) || i >= 9) return v;
+    } catch (e) {
+      if (i >= 9) throw e;
+    }
+    await new Promise((res) => setTimeout(res, 1500));
+  }
+}
+const floatOf = (a: Address) => settled(() => pub.readContract({ address: payRun!, abi: payRunAbi, functionName: 'float', args: [a], blockTag: 'pending' }));
 
 const balances = async () => {
   const erc = (t: Address, a: Address) => pub.readContract({ address: t, abi: erc20Abi, functionName: 'balanceOf', args: [a], blockTag: 'pending' });
@@ -87,9 +102,7 @@ const balances = async () => {
     pub.getBalance({ address: agent.address, blockTag: 'pending' }),
     erc(CNGN, recipientA),
     erc(CNGN, recipientB),
-    payRun
-      ? pub.readContract({ address: payRun, abi: payRunAbi, functionName: 'float', args: [owner.address], blockTag: 'pending' })
-      : Promise.resolve(0n),
+    payRun ? floatOf(owner.address) : Promise.resolve(0n),
   ]);
   return {
     owner: { address: owner.address, usdt: formatUnits(oU, 6), celo: formatUnits(oC, 18), usdtFloatInPayRun: formatUnits(oF, 6) },
@@ -163,22 +176,26 @@ if (before.raw.oU + before.raw.oF < FLOAT_TARGET || before.raw.oC < ownerNeeds |
   process.exit(1);
 }
 
+// 0. Gas for the agent, from the owner test wallet: an internal transfer of our own CELO, untagged (AGENTS.md rule 4).
+if (before.raw.aC < parseEther('0.45') && before.raw.oC > ownerNeeds + parseEther('0.3')) {
+  const plain = createWalletClient({ account: owner, chain: celo, transport });
+  await step('owner test wallet → agent: 0.3 CELO for gas (internal, untagged)', async () => {
+    const hash = await plain.sendTransaction({ to: agent.address, value: parseEther('0.3') });
+    const receipt = await pub.waitForTransactionReceipt({ hash });
+    if (receipt.status !== 'success') throw new Error(`top-up failed: ${hash}`);
+    return { hash, agentCelo: formatUnits(await settled(() => pub.getBalance({ address: agent.address, blockTag: 'pending' }), (v) => v > before.raw.aC), 18) };
+  });
+}
+
 // 1. Deploy PayRun from the agent, tagged.
 if (!payRun) {
   const deployed = await step('deploy PayRun (agent, tagged)', async () => {
     const hash = await agentWallet.sendTransaction({ data: creation });
     const receipt = await pub.waitForTransactionReceipt({ hash });
     if (receipt.status !== 'success' || !receipt.contractAddress) throw new Error(`deploy failed: ${hash}`);
-    const attribution = await verifyTx({ client: pub, hash });
-    // forno's 'latest' can lag a fresh receipt (2026-11-22 deploy): read at 'pending', retrying briefly.
-    let takerSigner: Address | undefined;
-    for (let i = 0; i < 10 && !takerSigner; i++) {
-      try {
-        takerSigner = await pub.readContract({ address: receipt.contractAddress, abi: payRunAbi, functionName: 'TAKER_SIGNER', blockTag: 'pending' });
-      } catch {
-        await new Promise((r) => setTimeout(r, 1500));
-      }
-    }
+    const attribution = await settled(() => verifyTx({ client: pub, hash }));
+    const takerSigner = await settled(() =>
+      pub.readContract({ address: receipt.contractAddress!, abi: payRunAbi, functionName: 'TAKER_SIGNER', blockTag: 'pending' }));
     return { hash, address: receipt.contractAddress, takerSigner, attribution };
   });
   if (!deployed) process.exit(1);
@@ -201,14 +218,14 @@ const ownerTx = async (call: { to: Address; data: Hex }) => {
   const hash = await ownerWallet.sendTransaction({ to: call.to, data: call.data });
   const receipt = await pub.waitForTransactionReceipt({ hash });
   if (receipt.status !== 'success') throw new Error(`owner transaction failed: ${hash}`);
-  return { hash, gasUsed: receipt.gasUsed, attribution: await verifyTx({ client: pub, hash }) };
+  return { hash, gasUsed: receipt.gasUsed, attribution: await settled(() => verifyTx({ client: pub, hash })) };
 };
 const v1Allowance = await pub.readContract({ address: USDT, abi: erc20Abi, functionName: 'allowance', args: [owner.address, PAYRUN_V1], blockTag: 'pending' });
 if (v1Allowance > 0n) {
   await step('owner: zero the USD₮ allowance to PayRun v1 (tagged)', async () =>
     ownerTx({ to: USDT, data: encodeFunctionData({ abi: erc20Abi, functionName: 'approve', args: [PAYRUN_V1, 0n] }) }));
 }
-const floatNow = await pub.readContract({ address: payRun, abi: payRunAbi, functionName: 'float', args: [owner.address], blockTag: 'pending' });
+const floatNow = await floatOf(owner.address);
 if (floatNow >= FLOAT_TARGET) {
   ev.steps.push({ name: 'owner float already funded; deposit skipped', ok: true, out: { float: floatNow } });
   save();
@@ -218,7 +235,7 @@ if (floatNow >= FLOAT_TARGET) {
   if (!funded) process.exit(1);
   await step('owner: deposit it as the float (tagged)', async () => {
     const out = await ownerTx(deposit);
-    const float = await pub.readContract({ address: payRun!, abi: payRunAbi, functionName: 'float', args: [owner.address], blockTag: 'pending' });
+    const float = await settled(() => floatOf(owner.address), (v) => v >= FLOAT_TARGET);
     return { ...out, float };
   });
 }
@@ -258,13 +275,26 @@ ev.steps.push({ name: 'owner signs the payslip', ok: true, out: { payslip, owed:
 save();
 
 // 6-7. Firm quote with PayRun as the taker, then the agent self-relays PayRun.run.
-const quote = await step('Textile firm quote (taker = PayRun, agent proof via EIP-1271)', async () =>
-  firmQuote({ taker: payRun!, buyUnits: owed(payslip), takerProof: await signTakerProof(agent, payRun!) }));
+// Textile holds the taker's balance against its open firm quotes, a little past their stated expiry (seen
+// 2026-11-22: a second quote was refused insufficient_funds until the first had lapsed). So retry for a few minutes.
+const quote = await step('Textile firm quote (taker = PayRun, agent proof via EIP-1271)', async () => {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      // A fresh taker proof each time: Textile rejects one issued a few minutes earlier (proof_of_control_stale).
+      const takerProof = await signTakerProof(agent, payRun!);
+      return { ...(await firmQuote({ taker: payRun!, buyUnits: owed(payslip), takerProof })), attempt };
+    } catch (e) {
+      const reason = (e as { body?: { error?: { details?: { reason?: string } } } }).body?.error?.details?.reason;
+      if (reason !== 'insufficient_funds' || attempt >= 16) throw e;
+      await new Promise((res) => setTimeout(res, 15_000));
+    }
+  }
+});
 if (!quote) process.exit(1);
 const runCall = buildRunCall({ payRun, payslip, ownerSignature, quote, nowSeconds: BigInt(Math.floor(Date.now() / 1000)) });
 await step('agent: self-relay PayRun.run (tagged)', async () => {
   const r = await selfRelay({ pub, agent: agentWallet, session: session!, sessionPrivateKey, calls: [runCall], feeToken: NATIVE_TOKEN, send: true });
-  const attribution = r.hash ? await verifyTx({ client: pub, hash: r.hash }) : null;
+  const attribution = r.hash ? await settled(() => verifyTx({ client: pub, hash: r.hash! })) : null;
   return { ...r, attribution };
 });
 await step('balances after the run', balances);
@@ -282,9 +312,9 @@ await step('EXPECT REFUSAL: PayRun.run with a recipient the owner did not sign (
     await pub.call({ account: owner.address, to: payRun, data: tamperedCall.data });
     return { UNEXPECTED: 'the call did not revert' };
   } catch (e) {
-    const data = (e as { cause?: { data?: Hex }; data?: Hex }).cause?.data ?? (e as { data?: Hex }).data;
-    const decoded = data ? decodeErrorResult({ abi: payRunAbi, data }) : undefined;
-    return { refused: true, error: decoded?.errorName, stranger };
+    const found = e instanceof BaseError ? (e.walk((x) => typeof (x as { data?: unknown }).data === 'string') as { data?: Hex } | null) : null;
+    const decoded = found?.data ? decodeErrorResult({ abi: payRunAbi, data: found.data }) : undefined;
+    return { refused: true, revertData: found?.data, error: decoded?.errorName, stranger };
   }
 });
 await step('EXPECT REFUSAL: the agent sends it anyway through the session (on-chain record)', async () => {
@@ -292,6 +322,9 @@ await step('EXPECT REFUSAL: the agent sends it anyway through the session (on-ch
     return await selfRelay({ pub, agent: agentWallet, session: session!, sessionPrivateKey, calls: [tamperedCall], feeToken: NATIVE_TOKEN, send: true });
   } catch (e) {
     if (e instanceof SimulationRefused) return { refusedInSimulation: true, simulatedErr: e.simulatedErr };
+    // Altana's relay simulates every intent before it will price it, and refuses one whose calls revert.
+    const m = (e as Error).message ?? '';
+    if (/error occurred while executing calls/i.test(m)) return { refusedByAltanaRelay: true, nothingSigned: true, message: m.slice(0, 200) };
     throw e;
   }
 });

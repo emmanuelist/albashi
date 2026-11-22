@@ -1,0 +1,15 @@
+{
+  "label": "E-008-payrun-v2-deploy",
+  "hash": "0xdd89af91bb759511f1e1dcbd87f2187428e801220ff24352844d679bc2d9e040",
+  "chainId": 42220,
+  "blockNumber": "83431605",
+  "time": "2026-11-22T07:26:03.000Z",
+  "from": "0x1bce3f6267983dfab58ced6261ef05a28e168ce8",
+  "to": null,
+  "status": "success",
+  "gasUsed": "1814434",
+  "effectiveGasPrice": "202500000000",
+  "contractAddress": "0xfa8d963525d5f28427b897a0c761c744a43e59af",
+  "inputTail": "6f5f336635636163386334396636110080218021802180218021802180218021",
+  "logs": []
+}

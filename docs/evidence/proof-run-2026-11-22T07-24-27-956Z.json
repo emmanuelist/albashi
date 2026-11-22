@@ -1,0 +1,63 @@
+{
+  "startedAt": "2026-11-22T07:24:27.956Z",
+  "live": false,
+  "steps": [
+    {
+      "name": "balances before",
+      "ok": true,
+      "ms": 952,
+      "out": {
+        "owner": {
+          "address": "0x0EcaaFc1Bd6f7033d6eb038d8Cbc8a55f900D4B1",
+          "usdt": "1.934526",
+          "celo": "2.103840079905262775",
+          "usdtFloatInPayRun": "0"
+        },
+        "agent": {
+          "address": "0x1Bce3F6267983dfAb58CED6261EF05a28E168ce8",
+          "celo": "0.6821837425"
+        },
+        "recipients": {
+          "0xBAa4A23304101524f849935C5038073fF1cAE33b": "0",
+          "0x57f0A680179e239Ed8E60f732651840E080458E8": "0"
+        },
+        "raw": {
+          "oU": "1934526",
+          "oC": "2103840079905262775",
+          "aC": "682183742500000000",
+          "rA": "0",
+          "rB": "0",
+          "oF": "0"
+        }
+      }
+    },
+    {
+      "name": "Textile preview: cNGN for 1 USD₮",
+      "ok": true,
+      "ms": 1405,
+      "out": "1441969372"
+    },
+    {
+      "name": "simulate the PayRun deploy (tagged)",
+      "ok": true,
+      "ms": 935,
+      "out": {
+        "runtimeBytes": 8169,
+        "gas": "1830002",
+        "creationHash": "0xb3f82c47f1dc8eee10cc1a958174c4cde24ac31226e5a16cf7c62a0a441c3874"
+      }
+    },
+    {
+      "name": "quote the grant: session that may call only PayRun.run at 0xfa8d963525d5F28427B897A0C761C744A43e59Af",
+      "ok": true,
+      "ms": 6038,
+      "out": {
+        "complete": true,
+        "lines": [
+          "chain 42220 account: fee 0.1864782328058047 CELO"
+        ],
+        "neededCelo": "0.1864782328058047"
+      }
+    }
+  ]
+}

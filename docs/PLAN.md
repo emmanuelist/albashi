@@ -25,7 +25,13 @@ Deadline source: https://www.loops.house/agents-open-for-business ("Mon 7 Dec, 0
 - [ ] **ops · named user.** A named agency (name, number of freelancers, pay cadence) commits to a real pay run before 2026-11-27, and one of its freelancers says how they'd cash out cNGN. Owner: the user.
 
 ### M1 · Walking skeleton
-- [ ] (placeholder: itemised when M0 closes)
+- [x] **Pay-run contract** with failure-path tests: a recipient not on the payslip, an amount over it, a rate below the floor, an expired, cancelled or replayed payslip, a call that isn't a reactor fill, one owner spending another's float. Done 2026-11-22: PayRun v2 (D-010), 33 tests + 3 mainnet fork checks; deployed E-008.
+- [x] **Agent path in product code:** Textile firm quote with PayRun as the taker, a clean prepare → sign → simulate → submit self-relay (no SDK interception), tagged. Done 2026-11-22: E-010 (`apps/agent/src/relay.ts`, `scripts/proof-run.ts`).
+- [x] **First mainnet pay run and refusal, to our own test wallets.** Done 2026-11-22: E-010 (₦700 + ₦800, exactly the signed lines), E-011 (`NotSigned`).
+- [ ] **Owner desk in `apps/web`:** the owner writes and signs a payslip in the browser, the agent runs it, and the page shows that run from chain. The payslip/run component renders real data and is chosen from three variants (`impeccable generate 3`). Done when a run started from the deployed page lands on mainnet, tagged.
+- [ ] **One real person paid** in cNGN (M1's exit says a real person, not our test wallets). Needs the named agency (ops item above) or one freelancer the user knows.
+- [ ] **PayRun v2 source verified** on Celo's explorer (Blockscout/Celoscan), so judges can read what pays.
+- [ ] **Proof page and README:** state the thesis as true where C-1 allows, and add the E-010 run and E-011 refusal as alerts. Done when the claims check passes on the deployed page.
 
 ### M2 · Core claim
 - [ ] (placeholder)

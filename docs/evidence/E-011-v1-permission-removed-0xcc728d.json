@@ -1,0 +1,18 @@
+{
+  "label": "E-011-v1-permission-removed",
+  "hash": "0xcc728dda8c025a00f3250bcd083bf68a3255a892a106dc96624e4881584b0371",
+  "status": "success",
+  "gasUsed": "50334",
+  "effectiveGasPrice": "202500000000",
+  "attribution": {
+    "codes": [
+      "celo_3f5cac8c49f6"
+    ],
+    "schemaId": 0
+  },
+  "keyHash": "0x655198e5d3b27ac148df494a3b87f73f2aeba50bcfaa838c9c126e7216df4750",
+  "canExecutePackedInfosAfter": [
+    "0xaf140d0416a994aebb3fa6212b16ce6700f09751000000000000000032323232",
+    "0xfa8d963525d5f28427b897a0c761c744a43e59af0000000000000000ac219ae6"
+  ]
+}

@@ -1,35 +1,41 @@
 # State
-_Last verified: 2026-11-22 01:00 UTC (proof page deployed; full rewrite at the next handoff)_
+_Last verified: 2026-11-22 07:45 UTC (PayRun v2 mainnet run and refusal)_
 
 **Thesis:** Albashi pays your freelancers in naira, and its agent can only pay the payslip you signed.
-**Milestone:** M0 · Rigged (checkpoint 2026-11-23 05:24 UTC) · **Deadline:** 2026-12-07 09:00 UTC (time left: the clock line)
-**Next action:** M0 items done except the two ops items (user). Next: itemise M1 and start the pay-run contract (Foundry) with failure-path tests. Proof page live at https://albashi.vercel.app.
+**Milestone:** M0 · Rigged (checkpoint 2026-11-23 05:24 UTC), with M1's contract and agent items already done · **Deadline:** 2026-12-07 09:00 UTC (time left: the clock line)
+**Next action:** M1 "Owner desk in `apps/web`" (docs/PLAN.md): the owner signs a payslip in the browser and the agent runs it. Before that: the proof page and README can now carry E-010/E-011 (claims check first), and PayRun v2's source should be verified on the explorer.
 **Blocked on:** nothing. Awaiting Celo DevRel's answer on whether the self-relaying agent EOA is the scored "agent wallet" (asked 2026-11-21 18:55 UTC).
 
 ## Works (verified this session)
 | Capability | Verified by | Evidence |
 |---|---|---|
-| Altana session on Celo mainnet: grant with allowlist, caps and expiry | two live runs | E-001, E-006 |
-| Agent swaps USD₮ → cNGN on Textile from the owner's Altana wallet | live runs | E-002, E-005 |
-| Agent pays cNGN to another wallet | first run | E-003 |
-| **Self-relay:** the agent EOA submits the session intent itself; our tag sits at the tail; `verifyTx` reads `celo_3f5cac8c49f6` | `spike/selfrelay.mjs --live` | E-005 |
-| USD₮ cap refuses an over-cap transfer | same run (by elimination: fee cap had room) | E-007 |
-| Revoke in one tx stops the agent; off-allowlist calls refused | both runs | E-004, E-007 |
+| PayRun v2 on Celo mainnet: pays a signed payslip exactly, from the owner's float, at no less than the signed rate | live run: ₦700 + ₦800 paid, 1.040028 USD₮ spent, rate 1,442.27 ≥ floor 1,427.85 | E-008, E-010 |
+| PayRun refuses a payslip the owner didn't sign (one extra recipient) | `NotSigned` against mainnet state, and Altana's relay refused to price it | E-011 |
+| Textile firm-quotes PayRun as the taker (EIP-1271 proof by the agent; float meets proof of funds) | live run | E-010 |
+| Clean self-relay in product code (`apps/agent/src/relay.ts`): prepare → sign → simulate → submit, tagged | live run, `verifyTx` → `celo_3f5cac8c49f6` | E-010 |
+| The owner's own transactions (approve, deposit, permission removal) tagged | `verifyTx` on each | E-009, E-011 |
+| The session's call permissions on chain: `PayRun.run` on v2 + Porto's Orchestrator default | `canExecutePackedInfos` read after removing v1 | E-011 |
+| Contract gate: fmt, lint (deny warnings), build (8,169 B), 33 tests; agent gate: lint, typecheck, 17 tests | local runs, commit 4b2144c | — |
 
 ## Deployed
 | What | Network or environment | Address / URL | Last checked |
 |---|---|---|---|
+| PayRun v2 | Celo mainnet | `0xfa8d963525d5F28427B897A0C761C744A43e59Af` (source not yet verified on the explorer) | 2026-11-22 07:40 UTC: 8,169 B; float 0.459972 = totalFloat = USD₮ held |
+| PayRun v1 (retired; never send it USD₮) | Celo mainnet | `0x3Ef8f9A0dA701cE46b022b14E87315701D4bfeF7` | 2026-11-22: allowance 0, session permission removed |
 | Public repo | GitHub | https://github.com/emmanuelist/albashi (CI: secrets scan) | 2026-11-21 19:45 UTC |
-| Proof page (apps/web) | Vercel, project albashi | https://albashi.vercel.app | 2026-11-22 00:58 UTC: 200, live rate and block, 5 PASS checks, UI audit 26/26 |
+| Proof page (apps/web) | Vercel, project albashi | https://albashi.vercel.app | 2026-11-22 00:58 UTC (not re-checked this session) |
 
 ## Broken or unverified
-- The pay-run contract doesn't exist yet, so the thesis (C-1) is unverified
-- The owner's grant and revoke still go through Altana's relay, untagged (C-5 qualified)
-- Self-relay in product code: the spike intercepts the SDK's last relay request; M1 needs a clean prepare → sign → submit path
-- cNGN cash-out for recipients: unverified (ask a real freelancer)
+- The proof page and README don't show E-010/E-011 yet; the page's top alert still states the thesis as a goal
+- PayRun is not audited; its source is not verified on the explorer
+- The refusal is a simulation against mainnet, not a mined reverted transaction (Altana's relay won't price one)
+- Porto's default "any function on the Orchestrator" session permission: not audited by us
+- The session grant still goes through Altana's relay, untagged (C-5 qualified)
+- One run's relay fee (0.667 CELO) nearly fills the SDK's default 1 CELO/day fee cap: a real agency's session needs a wider one
+- No real person paid yet (our own test wallets only); cNGN cash-out for recipients unverified
 
 ## Claims not yet verified
-- C-1 the thesis: needs the pay-run contract (D-002) and a mainnet refusal of an off-payslip payment
+- C-5 "every Albashi transaction carries our tag": true only for transactions Albashi sends itself
 
 ## Open questions
 - Is the self-relaying agent EOA the event's "one agent wallet", with customer-wallet activity credited to us? (Celo DevRel, asked)

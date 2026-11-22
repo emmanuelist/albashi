@@ -1,0 +1,116 @@
+{
+  "startedAt": "2026-11-22T07:30:31.037Z",
+  "live": true,
+  "steps": [
+    {
+      "name": "balances before",
+      "ok": true,
+      "ms": 2673,
+      "out": {
+        "owner": {
+          "address": "0x0EcaaFc1Bd6f7033d6eb038d8Cbc8a55f900D4B1",
+          "usdt": "0.434526",
+          "celo": "1.672124077939259162",
+          "usdtFloatInPayRun": "1.5"
+        },
+        "agent": {
+          "address": "0x1Bce3F6267983dfAb58CED6261EF05a28E168ce8",
+          "celo": "0.6147608575"
+        },
+        "recipients": {
+          "0xBAa4A23304101524f849935C5038073fF1cAE33b": "0",
+          "0x57f0A680179e239Ed8E60f732651840E080458E8": "0"
+        },
+        "raw": {
+          "oU": "434526",
+          "oC": "1672124077939259162",
+          "aC": "614760857500000000",
+          "rA": "0",
+          "rB": "0",
+          "oF": "1500000"
+        }
+      }
+    },
+    {
+      "name": "Textile preview: cNGN for 1 USD₮",
+      "ok": true,
+      "ms": 1770,
+      "out": "1442268909"
+    },
+    {
+      "name": "simulate the PayRun deploy (tagged)",
+      "ok": true,
+      "ms": 890,
+      "out": {
+        "runtimeBytes": 8169,
+        "gas": "1830002",
+        "creationHash": "0xb3f82c47f1dc8eee10cc1a958174c4cde24ac31226e5a16cf7c62a0a441c3874"
+      }
+    },
+    {
+      "name": "owner wallet already set up (EIP-7702 delegation present); createWallet skipped",
+      "ok": true,
+      "out": {
+        "code": "0xef0100c0f16888f4198f53892c53af859f673e23f26fa3"
+      }
+    },
+    {
+      "name": "owner float already funded; deposit skipped",
+      "ok": true,
+      "out": {
+        "float": "1500000"
+      }
+    },
+    {
+      "name": "live PayRun-only session reused; grant skipped",
+      "ok": true,
+      "out": {
+        "publicKey": "0x0423ea832eed0d23b6b74a211efda79d092019d8102886b541b5fc3d370b5d797d9f568c5d20d63262c9202d5af742a406b234b236b770fb79235e4d02d5484af5",
+        "expiry": 1795339616
+      }
+    },
+    {
+      "name": "owner signs the payslip",
+      "ok": true,
+      "out": {
+        "payslip": {
+          "owner": "0x0EcaaFc1Bd6f7033d6eb038d8Cbc8a55f900D4B1",
+          "lines": [
+            {
+              "to": "0xBAa4A23304101524f849935C5038073fF1cAE33b",
+              "amount": "700000000"
+            },
+            {
+              "to": "0x57f0A680179e239Ed8E60f732651840E080458E8",
+              "amount": "800000000"
+            }
+          ],
+          "maxUsdtIn": "1500000",
+          "minRate": "1427846219",
+          "deadline": "1795336236",
+          "salt": "0x4d395d230f8f3a42fec456b37f95b61d956357fbdfe51165927d74ddcddd2927"
+        },
+        "owed": "1500000000"
+      }
+    },
+    {
+      "name": "Textile firm quote (taker = PayRun, agent proof via EIP-1271)",
+      "ok": false,
+      "ms": 73562,
+      "err": {
+        "name": "Error",
+        "message": "Textile request failed (401): {\"error\":{\"code\":\"unauthorized\",\"message\":\"The wallet signature has expired — sign a fresh quote request\",\"request_id\":\"req_8b1e9094-9f6a-47f4-9e8f-7e4ca6a379f7\",\"details\":{\"reason\":\"proof_of_control_stale\"}}}",
+        "body": {
+          "error": {
+            "code": "unauthorized",
+            "message": "The wallet signature has expired — sign a fresh quote request",
+            "request_id": "req_8b1e9094-9f6a-47f4-9e8f-7e4ca6a379f7",
+            "details": {
+              "reason": "proof_of_control_stale"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,137 @@
+{
+  "label": "E-010-payrun-run",
+  "hash": "0xaaabd2dfa98b955f8e5edb3b9eabe1b7b0d750d4983bdb3152a30f5815b89bfc",
+  "chainId": 42220,
+  "blockNumber": "83432021",
+  "time": "2026-11-22T07:32:59.000Z",
+  "from": "0x1bce3f6267983dfab58ced6261ef05a28e168ce8",
+  "to": "0xaf140d0416a994aebb3fa6212b16ce6700f09751",
+  "status": "success",
+  "gasUsed": "486920",
+  "effectiveGasPrice": "202500000000",
+  "contractAddress": null,
+  "inputTail": "6f5f336635636163386334396636110080218021802180218021802180218021",
+  "logs": [
+    {
+      "address": "0x48065fbbe25f71c9282ddf5e1cd6d6a887483d5e",
+      "event": "Approval",
+      "args": {
+        "owner": "0xfa8d963525d5F28427B897A0C761C744A43e59Af",
+        "spender": "0xa9AA0a64769cBed4d3B1Ceb4Df01CdE915C235b3",
+        "value": "1040028"
+      }
+    },
+    {
+      "address": "0xf6829d7393dae24509eb1e52ee8e572e2e271a4f",
+      "event": "Transfer",
+      "args": {
+        "from": "0xa601E4AdAE099c1C98a2186Fc0A151DC4BFBBA40",
+        "to": "0xfa8d963525d5F28427B897A0C761C744A43e59Af",
+        "value": "1500000000"
+      }
+    },
+    {
+      "address": "0x48065fbbe25f71c9282ddf5e1cd6d6a887483d5e",
+      "event": "Transfer",
+      "args": {
+        "from": "0xfa8d963525d5F28427B897A0C761C744A43e59Af",
+        "to": "0xa601E4AdAE099c1C98a2186Fc0A151DC4BFBBA40",
+        "value": "1039821"
+      }
+    },
+    {
+      "address": "0x48065fbbe25f71c9282ddf5e1cd6d6a887483d5e",
+      "event": "Approval",
+      "args": {
+        "owner": "0xfa8d963525d5F28427B897A0C761C744A43e59Af",
+        "spender": "0xa9AA0a64769cBed4d3B1Ceb4Df01CdE915C235b3",
+        "value": "207"
+      }
+    },
+    {
+      "address": "0x48065fbbe25f71c9282ddf5e1cd6d6a887483d5e",
+      "event": "Transfer",
+      "args": {
+        "from": "0xfa8d963525d5F28427B897A0C761C744A43e59Af",
+        "to": "0x51727A09b55d56BF8f3CBe61f460327330aECbA4",
+        "value": "207"
+      }
+    },
+    {
+      "address": "0x48065fbbe25f71c9282ddf5e1cd6d6a887483d5e",
+      "event": "Approval",
+      "args": {
+        "owner": "0xfa8d963525d5F28427B897A0C761C744A43e59Af",
+        "spender": "0xa9AA0a64769cBed4d3B1Ceb4Df01CdE915C235b3",
+        "value": "0"
+      }
+    },
+    {
+      "address": "0xa9aa0a64769cbed4d3b1ceb4df01cde915c235b3",
+      "topic0": "0x78ad7ec0e9f89e74012afa58738b6b661c024cb0fd185ee2f616c0a28924bd66"
+    },
+    {
+      "address": "0x48065fbbe25f71c9282ddf5e1cd6d6a887483d5e",
+      "event": "Approval",
+      "args": {
+        "owner": "0xfa8d963525d5F28427B897A0C761C744A43e59Af",
+        "spender": "0xa9AA0a64769cBed4d3B1Ceb4Df01CdE915C235b3",
+        "value": "0"
+      }
+    },
+    {
+      "address": "0xfa8d963525d5f28427b897a0c761c744a43e59af",
+      "event": "Ran",
+      "args": {
+        "digest": "0x3a91e58d05a0ee91d9a0ffdbd52752383e73a54363c33fb62fc6a2a512ee1a2e",
+        "owner": "0x0EcaaFc1Bd6f7033d6eb038d8Cbc8a55f900D4B1",
+        "usdtSpent": "1040028",
+        "cngnReceived": "1500000000",
+        "cngnPaid": "1500000000",
+        "lines": "2"
+      }
+    },
+    {
+      "address": "0xfa8d963525d5f28427b897a0c761c744a43e59af",
+      "event": "Paid",
+      "args": {
+        "digest": "0x3a91e58d05a0ee91d9a0ffdbd52752383e73a54363c33fb62fc6a2a512ee1a2e",
+        "line": "0",
+        "to": "0xBAa4A23304101524f849935C5038073fF1cAE33b",
+        "amount": "700000000"
+      }
+    },
+    {
+      "address": "0xf6829d7393dae24509eb1e52ee8e572e2e271a4f",
+      "event": "Transfer",
+      "args": {
+        "from": "0xfa8d963525d5F28427B897A0C761C744A43e59Af",
+        "to": "0xBAa4A23304101524f849935C5038073fF1cAE33b",
+        "value": "700000000"
+      }
+    },
+    {
+      "address": "0xfa8d963525d5f28427b897a0c761c744a43e59af",
+      "event": "Paid",
+      "args": {
+        "digest": "0x3a91e58d05a0ee91d9a0ffdbd52752383e73a54363c33fb62fc6a2a512ee1a2e",
+        "line": "1",
+        "to": "0x57f0A680179e239Ed8E60f732651840E080458E8",
+        "amount": "800000000"
+      }
+    },
+    {
+      "address": "0xf6829d7393dae24509eb1e52ee8e572e2e271a4f",
+      "event": "Transfer",
+      "args": {
+        "from": "0xfa8d963525d5F28427B897A0C761C744A43e59Af",
+        "to": "0x57f0A680179e239Ed8E60f732651840E080458E8",
+        "value": "800000000"
+      }
+    },
+    {
+      "address": "0xaf140d0416a994aebb3fa6212b16ce6700f09751",
+      "topic0": "0x23a3c1343409f01965611c9c4c8b99e36d7b09ca22516507d5486ce0584379b8"
+    }
+  ]
+}
