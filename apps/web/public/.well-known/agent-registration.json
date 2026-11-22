@@ -1,0 +1,15 @@
+{
+  "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
+  "name": "Albashi",
+  "description": "Albashi is a payroll agent on Celo that pays freelancers in naira (cNGN). The owner signs a payslip: who gets paid, how much cNGN each, the most USD₮ to spend, the lowest naira rate accepted, and a deadline. The agent acts from the owner's Altana wallet under a session whose only permitted call is PayRun.run on 0xfa8d963525d5F28427B897A0C761C744A43e59Af. PayRun fills a Textile FX quote, checks the rate it got against the signed floor, and pays exactly the signed lines; a payslip the owner did not sign is refused. Every transaction the agent sends carries the attribution tag celo_3f5cac8c49f6. Not audited.",
+  "image": "https://albashi.vercel.app/icon.png",
+  "services": [
+    { "name": "web", "endpoint": "https://albashi.vercel.app/" },
+    { "name": "agentWallet", "endpoint": "eip155:42220:0x1Bce3F6267983dfAb58CED6261EF05a28E168ce8" }
+  ],
+  "x402Support": false,
+  "active": true,
+  "registrations": [
+    { "agentId": 10095, "agentRegistry": "eip155:42220:0x8004A169FB4a3325136EB29fA0ceB6D2e539a432" }
+  ]
+}

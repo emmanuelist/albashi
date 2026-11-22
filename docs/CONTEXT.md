@@ -29,7 +29,7 @@ session has to re-derive it or trust training data. Read before touching an inte
 | Altana KeyStoreController (Celo) | `0x47bA5fc2A5b0CcB24BA3fAC9D4B59400eE9fd1D6` | event page | not yet read on-chain |
 | **Albashi PayRun v2** (ours) | `0xfa8d963525d5F28427B897A0C761C744A43e59Af` | deployed by the agent 2026-11-22 (E-008) | 8,169 runtime bytes on forno; `TAKER_SIGNER` = agent; USD₮ held = `totalFloat` after the first run |
 | Albashi PayRun v1 (ours, retired) | `0x3Ef8f9A0dA701cE46b022b14E87315701D4bfeF7` | deployed 2026-11-22 | never funded; has no withdraw, so never send it USD₮; owner allowance zeroed and session permission removed (E-009, E-011) |
-| ERC-8004 Identity Registry | `0x8004A169FB4a3325136EB29fA0ceB6D2e539a432` | docs.celo.org/build/agents/8004 | doc only |
+| ERC-8004 Identity Registry | `0x8004A169FB4a3325136EB29fA0ceB6D2e539a432` | docs.celo.org/build/agents/8004 | ERC-1967 proxy → `IdentityRegistryUpgradeable` `0x7274…9c02`, verified on Celo Blockscout; `register(string agentURI)` mints to the sender and sets `agentWallet` = sender. Albashi is agent 10095 (E-013) |
 | ERC-8004 Reputation Registry | `0x8004BAa17C55a88189AE136b182e5fdA19dE9b63` | docs.celo.org/build/agents/8004 | doc only |
 
 ## Agent economy rails (verified 2026-11-22)

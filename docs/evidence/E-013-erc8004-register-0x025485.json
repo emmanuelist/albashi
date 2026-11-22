@@ -1,0 +1,18 @@
+{
+  "label": "E-013-erc8004-register",
+  "hash": "0x025485429c8ddd3d78f4bc117f349ac935209868fb7f59455c8086ea8d179318",
+  "status": "success",
+  "blockNumber": "83433228",
+  "gasUsed": "178514",
+  "effectiveGasPrice": "202500000000",
+  "registry": "0x8004A169FB4a3325136EB29fA0ceB6D2e539a432",
+  "agentId": "10095",
+  "owner": "0x1Bce3F6267983dfAb58CED6261EF05a28E168ce8",
+  "tokenURI": "https://albashi.vercel.app/.well-known/agent-registration.json",
+  "attribution": {
+    "codes": [
+      "celo_3f5cac8c49f6"
+    ],
+    "schemaId": 0
+  }
+}
