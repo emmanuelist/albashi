@@ -1,10 +1,10 @@
 // Unit tests for the page's money and time formatting and its receipt parsing. The receipts are the raw
-// mainnet captures in docs/evidence/ (E-002, E-003, E-005), so these run offline against real data.
+// mainnet captures in docs/evidence/ (E-002, E-003, E-005, E-010), so these run offline against real data.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { formatUnits2, summarisePayout, summariseSwap, transfersFrom, wat, watDay, short } from '../app/lib/proof.ts';
+import { PAYRUN, formatUnits2, summariseLines, summarisePayout, summariseSwap, transfersFrom, wat, watDay, short } from '../app/lib/proof.ts';
 
 const evidence = (name: string) => {
   const path = fileURLToPath(new URL(`../../../docs/evidence/${name}`, import.meta.url));
@@ -13,6 +13,7 @@ const evidence = (name: string) => {
 const E002 = evidence('E-002-0x2226464a8499c60bbf80bb96e8f8432b938f976f84ca2148fbed4b8cb059f95d.json');
 const E003 = evidence('E-003-0x37c107dbe9efcfa20ffe56d179045c2ac29dae9cd16d16f094bcf3c4355513db.json');
 const E005 = evidence('E-005-0x6272cb58f29012a94b6ed19a486c24f3e4887ca4ad2418c296d4500e4d0130c5.json');
+const E010 = evidence('E-010-0xaaabd2dfa98b955f8e5edb3b9eabe1b7b0d750d4983bdb3152a30f5815b89bfc.json');
 
 test('formatUnits2 rounds 6-decimal base units to two places, half up, with grouping', () => {
   assert.equal(formatUnits2(1_441_117_203n), '1,441.12');
@@ -67,4 +68,21 @@ test('a receipt with no token transfers yields nothing rather than a guess', () 
   assert.deepEqual(transfersFrom([]), []);
   assert.equal(summariseSwap([]), null);
   assert.equal(summarisePayout([]), null);
+});
+
+test('E-010: the pay run swapped 1.040028 USD₮ (maker + fee) for exactly the ₦1,500 the payslip owed', () => {
+  const swap = summariseSwap(transfersFrom(E010.receipt.logs));
+  assert.ok(swap);
+  assert.equal(swap.wallet.toLowerCase(), PAYRUN.toLowerCase(), 'the pay-run contract was the taker');
+  assert.equal(swap.soldUnits, 1_040_028n);
+  assert.equal(swap.boughtUnits, 1_500_000_000n);
+});
+
+test('E-010: the signed lines were paid out of the pay-run contract, in order, and nothing else', () => {
+  const lines = summariseLines(transfersFrom(E010.receipt.logs));
+  assert.deepEqual(lines.map((l) => [short(l.to), l.units]), [
+    ['0xBAa4…E33b', 700_000_000n],
+    ['0x57f0…58E8', 800_000_000n],
+  ]);
+  assert.deepEqual(summariseLines(transfersFrom(E003.receipt.logs)), [], 'a plain payout is not a pay run');
 });

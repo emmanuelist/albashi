@@ -88,6 +88,16 @@ export function summariseSwap(transfers: Transfer[]): { soldUnits: bigint; bough
   return soldUnits === 0n ? null : { soldUnits, boughtUnits: cngn.units, wallet: cngn.to };
 }
 
+/** Albashi's pay-run contract on Celo (PayRun v2, docs/EVIDENCE.md E-008). */
+export const PAYRUN = '0xfa8d963525d5F28427B897A0C761C744A43e59Af' as const;
+
+/** A pay run's payslip lines as paid: each cNGN transfer out of the pay-run contract, in order. */
+export function summariseLines(transfers: Transfer[], payRun: string = PAYRUN): { units: bigint; to: string }[] {
+  return transfers
+    .filter((t) => t.token === 'CNGN' && t.from.toLowerCase() === payRun.toLowerCase())
+    .map((t) => ({ units: t.units, to: t.to }));
+}
+
 /** A payout: the cNGN that moved and who received it. */
 export function summarisePayout(transfers: Transfer[]): { units: bigint; to: string } | null {
   const cngn = transfers.find((t) => t.token === 'CNGN');
@@ -122,6 +132,16 @@ export const EVIDENCE = {
   payout: '0x37c107dbe9efcfa20ffe56d179045c2ac29dae9cd16d16f094bcf3c4355513db',
   /** E-005: the agent's own wallet submitted the swap and tagged it celo_3f5cac8c49f6. */
   swapSelfRelay: '0x6272cb58f29012a94b6ed19a486c24f3e4887ca4ad2418c296d4500e4d0130c5',
+  /** E-008: the agent deployed PayRun v2, tagged. */
+  payRunDeploy: '0xdd89af91bb759511f1e1dcbd87f2187428e801220ff24352844d679bc2d9e040',
+  /** E-009: the owner deposited its USD₮ float into PayRun, from its own key, tagged. */
+  floatDeposit: '0x42ae21fe0bbc8650067fd95c6f76693dad1b5f6cbeb7eb6848a0aa1dfb979628',
+  /** E-009: the owner re-granted the agent's session to call only PayRun.run. */
+  payRunGrant: '0x9d0edbbcab1024890e2898f89e35615a5971a99234d602e878a6f86ac0af1335',
+  /** E-010: PayRun ran a signed payslip: one Textile swap, then each signed line paid in cNGN. Self-relayed, tagged. */
+  payRun: '0xaaabd2dfa98b955f8e5edb3b9eabe1b7b0d750d4983bdb3152a30f5815b89bfc',
+  /** E-013: the agent registered its ERC-8004 identity (agent 10095), tagged. */
+  erc8004: '0x025485429c8ddd3d78f4bc117f349ac935209868fb7f59455c8086ea8d179318',
 } as const satisfies Record<string, Hash>;
 
 /**
@@ -136,6 +156,18 @@ export const REFUSAL = {
   code: 'spend_limit_exceeded',
   at: new Date('2026-11-21T20:07:00Z'),
   proof: `${REPO}/docs/evidence/selfrelay-run-2026-11-21T20-07Z.json`,
+} as const;
+
+/**
+ * E-011: the same owner signature on the E-010 payslip plus one recipient the owner never signed. PayRun refused it
+ * (`NotSigned`) against mainnet state, and Altana's relay refused to price the intent, so nothing was signed or sent.
+ * The captured run log is the proof (its last steps, 07:33 UTC).
+ */
+export const PAYSLIP_REFUSAL = {
+  attemptedUnits: 10_000_000n,
+  error: 'NotSigned',
+  at: new Date('2026-11-22T07:33:00Z'),
+  proof: `${REPO}/docs/evidence/proof-run-2026-11-22T07-32-07-970Z.json`,
 } as const;
 
 // ---- the README's read-only verification of E-005, run live (same checks as spike/verify.mjs)

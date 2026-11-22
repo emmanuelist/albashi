@@ -3,11 +3,11 @@
 [![ci](https://github.com/emmanuelist/albashi/actions/workflows/ci.yml/badge.svg)](https://github.com/emmanuelist/albashi/actions/workflows/ci.yml)
 · Celo mainnet · built for [Agents Open for Business](https://www.loops.house/agents-open-for-business) (Stablecoin Corridors · Altana Agent Wallets)
 
-**What we're building:** Albashi pays your freelancers in naira, and its agent can only pay the payslip you signed.
+**Albashi pays your freelancers in naira, and its agent can only pay the payslip you signed.** Proven on Celo mainnet with one pay run (E-010) and its refusal of an unsigned payee (E-011); the limits are [below](#limits).
 
-*Albashi* is Hausa for salary. A small agency is paid by its clients in dollars and pays its people in naira. Albashi's agent does the payroll on Celo. It converts USD₮ to cNGN at a firm Textile FX quote and pays each person, acting from the owner's own Altana wallet under a session key the owner can revoke in one transaction. The hard part is the limit. A session key can be scoped to *contracts*, not *recipients*, so an agent allowed to move cNGN could pay anyone within its cap. Albashi's answer is a pay-run contract: the owner signs the payslip (who, how much, the lowest rate they'll accept), the agent's session may call only that contract and Textile, and the contract pays only what was signed.
+*Albashi* is Hausa for salary. A small agency is paid by its clients in dollars and pays its people in naira. Albashi's agent does the payroll on Celo. It converts USD₮ to cNGN at a firm Textile FX quote and pays each person, acting from the owner's own Altana wallet under a session key the owner can revoke in one transaction. The hard part is the limit. A session key can be scoped to *contracts*, not *recipients*, so an agent allowed to move cNGN could pay anyone within its cap. Albashi's answer is a pay-run contract: the owner signs the payslip (who, how much, the lowest rate they'll accept), the agent's session may call only that contract, and the contract fills the Textile quote itself, checks the rate, and pays only what was signed.
 
-**Status, 21 Nov 2026:** the mainnet spikes below are done. The pay-run contract and the app are not built yet. The plan and its dates are in [docs/PLAN.md](docs/PLAN.md), and the current state is in [docs/STATE.md](docs/STATE.md).
+**Status, 22 Nov 2026:** the pay-run contract is live on Celo mainnet and has run its first payslip. The owner's app is not built yet: that payslip was signed by a script. Albashi's agent is ERC-8004 agent 10095. The plan and its dates are in [docs/PLAN.md](docs/PLAN.md), and the current state is in [docs/STATE.md](docs/STATE.md).
 
 ## Proof: what already works on Celo mainnet
 
@@ -15,6 +15,11 @@ Every row links to the transaction, and a raw copy of each transaction and its r
 
 | What happened | Transaction | Evidence |
 |---|---|---|
+| **The pay run.** The owner signed a payslip: ₦700 and ₦800 to two wallets, at most 1.5 USD₮, at least ₦1,427.85 per USD₮. The agent sent it through its session, tagged. The pay-run contract filled a Textile FX quote as the taker (1.040028 USD₮ → ₦1,500, i.e. ₦1,442.27 per USD₮) and paid exactly the two signed lines | [0xaaab…9bfc](https://celoscan.io/tx/0xaaabd2dfa98b955f8e5edb3b9eabe1b7b0d750d4983bdb3152a30f5815b89bfc) | E-010 |
+| **The refusal.** The same signature on that payslip plus one payee the owner never signed: the pay-run contract refused it (`NotSigned`), and Altana's relay would not sign the intent, so nothing was sent | (refused before sending; [run log](docs/evidence/proof-run-2026-11-22T07-32-07-970Z.json)) | E-011 |
+| The agent deployed the pay-run contract, tagged: [`0xfa8d…59Af`](https://celoscan.io/address/0xfa8d963525d5F28427B897A0C761C744A43e59Af) | [0xdd89…e040](https://celoscan.io/tx/0xdd89af91bb759511f1e1dcbd87f2187428e801220ff24352844d679bc2d9e040) | E-008 |
+| The owner deposited a 1.5 USD₮ float into it from its own key, tagged, and granted the agent a session whose only call is the pay-run contract's `run` | [deposit](https://celoscan.io/tx/0x42ae21fe0bbc8650067fd95c6f76693dad1b5f6cbeb7eb6848a0aa1dfb979628) · [grant](https://celoscan.io/tx/0x9d0edbbcab1024890e2898f89e35615a5971a99234d602e878a6f86ac0af1335) | E-009 |
+| The agent registered its ERC-8004 identity (agent 10095), tagged; registration file at [/.well-known/agent-registration.json](https://albashi.vercel.app/.well-known/agent-registration.json) | [0x0254…9318](https://celoscan.io/tx/0x025485429c8ddd3d78f4bc117f349ac935209868fb7f59455c8086ea8d179318) | E-013 |
 | An agent acting from an Altana wallet, under a session key, swapped 1 USD₮ for 1,441.12 cNGN on Textile FX | [0x2226…f95d](https://celoscan.io/tx/0x2226464a8499c60bbf80bb96e8f8432b938f976f84ca2148fbed4b8cb059f95d) | E-002 |
 | The agent paid that cNGN to another wallet | [0x37c1…13db](https://celoscan.io/tx/0x37c107dbe9efcfa20ffe56d179045c2ac29dae9cd16d16f094bcf3c4355513db) | E-003 |
 | The owner revoked the session in one transaction, and the agent's next action was refused. A call outside the session's allowlist was refused too | [0xe43b…3e08](https://celoscan.io/tx/0xe43b71c664d21366a2f832d5fed97b4a0293055cc7558e66ef24565685453e08) | E-004 |
@@ -41,13 +46,14 @@ PASS  attribution tag celo_3f5cac8c49f6 at the end of the calldata  ({"codes":["
 PASS  cNGN arrived in the owner's Altana wallet  (1440.569022 cNGN)
 ```
 
-## How a pay run will work
+## How a pay run works
 
 ```text
-owner ── signs payslip (recipients, amounts, minimum cNGN per USD₮) ──► pay-run contract
-owner ── grants a session: may call only the pay-run contract + Textile, capped, expiring ──► Altana wallet
-agent ── Textile RFQ: firm USD₮→cNGN quote for the run ──► swap, inside the session
-agent ── pay-run contract pays each signed line, refuses anything else ──► freelancers' wallets
+owner ── deposits a USD₮ float that only its signed payslips can spend ──► pay-run contract
+owner ── signs payslip (recipients, amounts, USD₮ budget, minimum cNGN per USD₮, deadline)
+owner ── grants a session: may call only the pay-run contract's run, expiring ──► Altana wallet
+agent ── Textile RFQ: firm USD₮→cNGN quote, the pay-run contract as the taker
+agent ── run(payslip, signature, quote): swap, rate check, pay each signed line ──► freelancers' wallets
 agent ── submits every intent itself, attribution tag at the tail ──► Celo mainnet
 owner ── one transaction revokes the session ──► the agent is stopped
 ```
@@ -56,18 +62,18 @@ owner ── one transaction revokes the session ──► the agent is stopped
 |---|---|---|
 | Textile FX | RFQ conversion USD₮ ↔ cNGN on Celo | used on mainnet (E-002, E-005) |
 | Altana wallet | non-custodial wallet; session keys with call allowlist, spend caps, expiry, one-transaction revoke | used on mainnet (E-001, E-004, E-006) |
-| Self-relay | agent EOA submits session intents to the Orchestrator | proven on mainnet (E-005) |
-| Pay-run contract | pays only a signed payslip, at or above the signed rate | not built |
+| Self-relay | agent EOA submits session intents to the Orchestrator | in product code, used by the pay run (E-005, E-010) |
+| Pay-run contract | pays only a signed payslip, at or above the signed rate, from the owner's float | live on mainnet (E-008, E-010, E-011); not audited |
 | Owner app | payslip, signing, live pay run | not built |
-| ERC-8004 identity | one identity for Albashi's agent | not registered yet |
+| ERC-8004 identity | one identity for Albashi's agent | agent 10095 (E-013) |
 
 ## Limits
 
-- Nothing on this page is the product yet. These are spikes, written during the build window (from 20 Nov 2026), proving the parts the product rests on.
-- The thesis above is unproven until the pay-run contract refuses an off-payslip payment on mainnet.
-- The spike's self-relay works by holding the Altana SDK's last relay request and submitting it ourselves. The product needs a cleaner version of that step.
-- The owner's own setup transactions (create wallet, grant, revoke) still go through Altana's relay and are untagged.
-- Textile accepts the owner key's proof of wallet control, not the session key's, so the owner signs once per pay run.
+- One pay run so far: ₦1,500 to Albashi's own test wallets. The payslip was signed by a script; the owner's app isn't built yet.
+- The refusal of an unsigned payee was checked against mainnet state by the pay-run contract and by Altana's relay, which would not sign it. No failed transaction was mined.
+- The session grant goes through Altana's relay, so it is untagged. Every transaction Albashi sends itself carries the tag.
+- Altana's wallet code (Porto) gives every session key a standing permission on its Orchestrator, used for relay fees. We haven't audited it.
+- One run's relay fee (0.667 CELO) uses most of the SDK's default 1 CELO/day fee cap, so a real agency's session needs a wider one.
 - Whether freelancers can cash cNGN out to naira easily is still being checked with a real user.
 - No audit.
 
@@ -75,6 +81,9 @@ owner ── one transaction revokes the session ──► the agent is stopped
 
 | Path | What |
 |---|---|
+| [contracts/](contracts/) | the pay-run contract (Foundry): `src/PayRun.sol`, 33 tests incl. failure paths and a fuzzed rate floor |
+| [apps/agent/](apps/agent/) | the agent: Textile quotes, self-relay, session setup, `scripts/proof-run.ts` (the live run) |
+| [apps/web/](apps/web/) | the proof page at [albashi.vercel.app](https://albashi.vercel.app) |
 | [spike/](spike/) | the mainnet spikes: `spike.mjs` (session, swap, payout, revoke), `selfrelay.mjs` (self-relay), `verify.mjs` (read-only check) |
 | [docs/](docs/) | [STATE](docs/STATE.md) · [PLAN](docs/PLAN.md) · [DECISIONS](docs/DECISIONS.md) · [EVIDENCE](docs/EVIDENCE.md) (claims and proofs) · [CONTEXT](docs/CONTEXT.md) (verified addresses, SDK calls, traps) |
 | [AGENTS.md](AGENTS.md) | build rules for anyone, human or agent, working on this repo |

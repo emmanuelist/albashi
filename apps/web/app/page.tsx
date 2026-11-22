@@ -1,16 +1,18 @@
 // The proof page's first viewport: the approved lock-screen comp (.impeccable/mocks/comp-2.png) filled with
 // real data. The rate is Textile's live preview; every alert is a Celo mainnet transaction recorded in
-// docs/EVIDENCE.md, read from the chain at request time; the declined alert is a real refusal from the
-// agent's Altana session, which stopped it before anything reached Celo, so it links the captured run log.
+// docs/EVIDENCE.md, read from the chain at request time: the first pay run (E-010), a Textile swap and the two
+// signed lines it paid. The declined alert is that payslip with an unsigned payee added (E-011): refused before
+// anything was signed or sent, so it links the captured run log.
 import type { ReactNode } from 'react';
 import {
   EVIDENCE,
-  REFUSAL,
+  PAYRUN,
+  PAYSLIP_REFUSAL,
   celoscan,
   formatUnits2,
   readBlockNumber,
   short,
-  summarisePayout,
+  summariseLines,
   summariseSwap,
   wat,
   watDay,
@@ -54,17 +56,19 @@ function swapAlert(id: Alert['id'], m: Movement | null, hash: string, desc: stri
   };
 }
 
-function payoutAlert(id: Alert['id'], m: Movement | null, hash: string): Alert {
-  const payout = m && summarisePayout(m.transfers);
-  if (!m || !payout) return unreadable(id, hash);
-  const amount = formatUnits2(payout.units);
+/** One signed payslip line, as the pay run paid it (n counts from 1). */
+function lineAlert(id: Alert['id'], m: Movement | null, hash: string, n: number): Alert {
+  const lines = m ? summariseLines(m.transfers, PAYRUN) : [];
+  const line = lines[n - 1];
+  if (!m || !line) return unreadable(id, hash);
+  const amount = formatUnits2(line.units);
   return {
     id,
     icon: 'credit',
-    lines: [`CREDIT ALERT! AMT: cNGN${amount}`, `TO: ${short(payout.to)} REF: ${short(hash)}`],
+    lines: [`CREDIT ALERT! LINE ${n}: cNGN${amount}`, `TO: ${short(line.to)} REF: ${short(hash)}`],
     time: `${watDay(m.at)} ${wat(m.at)}`,
     href: celoscan(hash),
-    label: `Payout of cNGN${amount} to ${payout.to}, transaction ${hash}`,
+    label: `Payslip line ${n} of ${lines.length}: cNGN${amount} paid to ${line.to}, transaction ${hash}`,
   };
 }
 
@@ -143,21 +147,15 @@ function Card({ id, icon, iconClass, body, time, href, label, declined }: CardPr
 }
 
 export default async function Home() {
-  const [rate, block, swapRelay, payout, swapSelf] = await Promise.all([
-    cachedRate(),
-    readBlockNumber(),
-    cachedMovement(EVIDENCE.swapViaRelay),
-    cachedMovement(EVIDENCE.payout),
-    cachedMovement(EVIDENCE.swapSelfRelay),
-  ]);
+  const [rate, block, run] = await Promise.all([cachedRate(), readBlockNumber(), cachedMovement(EVIDENCE.payRun)]);
   const now = new Date();
 
-  // Newest at the bottom, as an SMS thread reads: the relay swap, the payout, the agent's own tagged swap,
-  // then the refusal that came after it in the same run.
+  // Newest at the bottom, as an SMS thread reads: the pay run's swap and the two lines it paid (one transaction),
+  // then the refusal of the same payslip with a payee added, a minute later.
   const alerts: Alert[] = [
-    swapAlert('alert-2', swapRelay, EVIDENCE.swapViaRelay, 'AGENT SWAP'),
-    payoutAlert('alert-3', payout, EVIDENCE.payout),
-    swapAlert('alert-4', swapSelf, EVIDENCE.swapSelfRelay, 'SENT + TAGGED BY AGENT'),
+    swapAlert('alert-2', run, EVIDENCE.payRun, 'PAYSLIP RUN, TAGGED'),
+    lineAlert('alert-3', run, EVIDENCE.payRun, 1),
+    lineAlert('alert-4', run, EVIDENCE.payRun, 2),
   ];
 
   return (
@@ -219,11 +217,10 @@ export default async function Home() {
           time="now"
           body={
             <>
-              {/* A stated goal, not a claim of fact, until the pay-run contract refuses an off-payslip payment
-                  on mainnet (docs/EVIDENCE.md C-1). Restore the thesis wording when that proof exists. */}
+              {/* The thesis, verbatim (docs/EVIDENCE.md C-1: E-010, E-011; its limits are under #limits). */}
               ALBASHI PAYS YOUR FREELANCERS IN NAIRA.{' '}
               <br className="desk-break" />
-              ITS AGENT WILL ONLY PAY THE PAYSLIP YOU SIGN.
+              ITS AGENT CAN ONLY PAY THE PAYSLIP YOU SIGNED.
             </>
           }
         />
@@ -250,12 +247,12 @@ export default async function Home() {
           declined
           icon={<Cross />}
           iconClass="declined-icon"
-          time={`${watDay(REFUSAL.at)} ${wat(REFUSAL.at)}`}
-          href={REFUSAL.proof}
-          label={`Declined: USD₮${formatUnits2(REFUSAL.attemptedUnits)} would have taken the agent past its USD₮${formatUnits2(REFUSAL.capUnits)} daily cap, with USD₮${formatUnits2(REFUSAL.spentUnits)} already spent. Refused by the session before reaching Celo; open the captured run log`}
+          time={`${watDay(PAYSLIP_REFUSAL.at)} ${wat(PAYSLIP_REFUSAL.at)}`}
+          href={PAYSLIP_REFUSAL.proof}
+          label={`Declined: cNGN${formatUnits2(PAYSLIP_REFUSAL.attemptedUnits)} to a payee the owner never signed for. The pay-run contract refused it (${PAYSLIP_REFUSAL.error}) and Altana's relay would not sign it, so nothing was sent; open the captured run log`}
           body={
             <>
-              DEBIT DECLINED: <span className="struck">USD₮{formatUnits2(REFUSAL.attemptedUnits)} WOULD PASS THE DAILY CAP</span>
+              DEBIT DECLINED: <span className="struck">cNGN{formatUnits2(PAYSLIP_REFUSAL.attemptedUnits)} · PAYEE NOT ON PAYSLIP</span>
             </>
           }
         />
