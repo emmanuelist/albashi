@@ -25,6 +25,8 @@ contract PayRunTest is Test {
     uint256 constant USDT_IN = 1e6;
     uint256 constant CNGN_OUT = 1_440_570_000;
     uint256 constant FLOOR = 1_430_000_000;
+    // The owner keeps 10 USD₮ of float in PayRun and 90 in their wallet.
+    uint256 constant FLOAT = 10e6;
 
     function setUp() public {
         owner = vm.addr(ownerPk);
@@ -36,6 +38,8 @@ contract PayRunTest is Test {
         usdt.mint(owner, 100e6);
         vm.prank(owner);
         usdt.approve(address(payRun), type(uint256).max);
+        vm.prank(owner);
+        payRun.deposit(FLOAT);
 
         cngn.mint(maker, 1_000_000e6);
         vm.prank(maker);
@@ -80,6 +84,11 @@ contract PayRunTest is Test {
         return payRun.run(p, sig, usdtIn, swapData);
     }
 
+    function _assertBacked() internal view {
+        assertEq(usdt.balanceOf(address(payRun)), payRun.totalFloat(), "USDT held equals the floats");
+        assertEq(cngn.balanceOf(address(payRun)), 0, "holds no cNGN after a run");
+    }
+
     // ---- the signed payslip is paid exactly
 
     function test_paysExactlyTheSignedLines() public {
@@ -93,20 +102,20 @@ contract PayRunTest is Test {
         assertEq(cngn.balanceOf(amaka), 600e6);
         assertEq(cngn.balanceOf(tunde), 800e6);
         assertEq(cngn.balanceOf(owner), CNGN_OUT - 1400e6, "leftover cNGN back to the owner");
-        assertEq(usdt.balanceOf(owner), 100e6 - USDT_IN);
+        assertEq(payRun.float(owner), FLOAT - USDT_IN, "only the spent USDT left the float");
+        assertEq(usdt.balanceOf(owner), 100e6 - FLOAT, "the wallet is untouched by a run");
         assertEq(usdt.balanceOf(maker), USDT_IN);
-        assertEq(usdt.balanceOf(address(payRun)), 0, "holds no USDT after a run");
-        assertEq(cngn.balanceOf(address(payRun)), 0, "holds no cNGN after a run");
+        _assertBacked();
         assertEq(usdt.allowance(address(payRun), address(reactor)), 0, "reactor allowance reset");
         assertTrue(payRun.used(payRun.hashPayslip(p)));
     }
 
     function test_unspentUsdtIsRefunded() public {
         PayRun.Payslip memory p = _payslip(_lines(600e6, 800e6));
-        // Pull 2 USD₮ but the quote only takes 1.
+        // Reserve 2 USD₮ but the quote only takes 1: the other stays in the owner's float.
         _run(p, _sign(ownerPk, p), 2e6, _swap(CNGN_OUT, USDT_IN));
-        assertEq(usdt.balanceOf(owner), 100e6 - USDT_IN);
-        assertEq(usdt.balanceOf(address(payRun)), 0);
+        assertEq(payRun.float(owner), FLOAT - USDT_IN);
+        _assertBacked();
     }
 
     function test_executeEntryPointAlsoWorks() public {
@@ -179,7 +188,7 @@ contract PayRunTest is Test {
         bytes memory sig3 = _sign(ownerPk, p);
         vm.expectRevert(abi.encodeWithSelector(PayRun.BelowFloor.selector, poor, USDT_IN, FLOOR));
         _run(p, sig3, USDT_IN, _swap(poor, USDT_IN));
-        assertEq(usdt.balanceOf(owner), 100e6, "nothing moved");
+        assertEq(payRun.float(owner), FLOAT, "nothing moved");
     }
 
     function test_acceptsRateExactlyAtTheFloor() public {
@@ -258,7 +267,7 @@ contract PayRunTest is Test {
         reactor.setBroken(true);
         vm.expectRevert();
         _run(p, sig, USDT_IN, _swap(CNGN_OUT, USDT_IN));
-        assertEq(usdt.balanceOf(owner), 100e6);
+        assertEq(payRun.float(owner), FLOAT);
         assertFalse(payRun.used(payRun.hashPayslip(p)), "a failed run leaves the payslip usable");
     }
 
@@ -295,6 +304,8 @@ contract PayRunTest is Test {
         usdt.mint(address(wallet), 10e6);
         vm.prank(owner);
         wallet.call(address(usdt), abi.encodeCall(IERC20.approve, (address(payRun), type(uint256).max)));
+        vm.prank(owner);
+        wallet.call(address(payRun), abi.encodeCall(PayRun.deposit, (5e6)));
 
         PayRun.Payslip memory p = _payslip(_lines(600e6, 800e6));
         p.owner = address(wallet);
@@ -344,10 +355,88 @@ contract PayRunTest is Test {
 
         if (floorOk && enough) {
             assertEq(cngn.balanceOf(amaka) + cngn.balanceOf(tunde), 1400e6);
-            assertEq(cngn.balanceOf(address(payRun)), 0);
-            assertEq(usdt.balanceOf(address(payRun)), 0);
+            assertEq(payRun.float(owner), FLOAT - usdtIn);
         } else {
             assertEq(cngn.balanceOf(amaka) + cngn.balanceOf(tunde), 0);
+            assertEq(payRun.float(owner), FLOAT);
         }
+        _assertBacked();
+    }
+
+    // ---- the float: only its owner adds to it, spends it through a signed payslip, or withdraws it
+
+    function test_depositCreditsTheCallerOnly() public {
+        assertEq(payRun.float(owner), FLOAT);
+        assertEq(payRun.float(stranger), 0);
+        assertEq(payRun.totalFloat(), FLOAT);
+        _assertBacked();
+    }
+
+    function test_refuses_zeroDepositOrWithdraw() public {
+        vm.startPrank(owner);
+        vm.expectRevert(PayRun.ZeroAmount.selector);
+        payRun.deposit(0);
+        vm.expectRevert(PayRun.ZeroAmount.selector);
+        payRun.withdraw(0);
+        vm.stopPrank();
+    }
+
+    function test_ownerWithdrawsTheirFloat() public {
+        vm.prank(owner);
+        payRun.withdraw(4e6);
+        assertEq(payRun.float(owner), FLOAT - 4e6);
+        assertEq(usdt.balanceOf(owner), 100e6 - FLOAT + 4e6);
+        _assertBacked();
+    }
+
+    function test_refuses_withdrawingMoreThanYourFloat() public {
+        vm.prank(owner);
+        vm.expectRevert(abi.encodeWithSelector(PayRun.InsufficientFloat.selector, FLOAT, FLOAT + 1));
+        payRun.withdraw(FLOAT + 1);
+        // The contract holds the owner's USDT, but none of it is the stranger's.
+        vm.prank(stranger);
+        vm.expectRevert(abi.encodeWithSelector(PayRun.InsufficientFloat.selector, 0, 1));
+        payRun.withdraw(1);
+    }
+
+    function test_refuses_spendingSomeoneElsesFloat() public {
+        // The stranger signs a payslip of their own; the contract holds the owner's float, not theirs.
+        uint256 strangerPk = 0x57A;
+        address s = vm.addr(strangerPk);
+        PayRun.Payslip memory p = _payslip(_lines(600e6, 800e6));
+        p.owner = s;
+        bytes memory sig = _sign(strangerPk, p);
+        vm.prank(s);
+        vm.expectRevert(abi.encodeWithSelector(PayRun.InsufficientFloat.selector, 0, USDT_IN));
+        payRun.run(p, sig, USDT_IN, _swap(CNGN_OUT, USDT_IN));
+        assertEq(payRun.float(owner), FLOAT);
+    }
+
+    function test_refuses_runLargerThanTheFloat() public {
+        vm.prank(owner);
+        payRun.withdraw(FLOAT - 1);
+        PayRun.Payslip memory p = _payslip(_lines(600e6, 800e6));
+        bytes memory sig = _sign(ownerPk, p);
+        vm.expectRevert(abi.encodeWithSelector(PayRun.InsufficientFloat.selector, 1, USDT_IN));
+        _run(p, sig, USDT_IN, _swap(CNGN_OUT, USDT_IN));
+    }
+
+    function test_reactorCanTakeNoMoreThanUsdtIn() public {
+        // The contract holds 10 USD₮, but the fill may take only the 1 the run reserved.
+        PayRun.Payslip memory p = _payslip(_lines(600e6, 800e6));
+        bytes memory sig = _sign(ownerPk, p);
+        vm.expectRevert();
+        _run(p, sig, USDT_IN, _swap(CNGN_OUT, 2e6));
+        assertEq(payRun.float(owner), FLOAT);
+        _assertBacked();
+    }
+
+    function test_depositCreditsWhatArrivedNotWhatWasAsked() public {
+        // A plain transfer to the contract credits nobody, so it can't be spent by any payslip.
+        vm.prank(owner);
+        usdt.transfer(address(payRun), 1e6);
+        assertEq(payRun.float(owner), FLOAT);
+        assertEq(usdt.balanceOf(address(payRun)), FLOAT + 1e6);
+        assertEq(payRun.totalFloat(), FLOAT);
     }
 }

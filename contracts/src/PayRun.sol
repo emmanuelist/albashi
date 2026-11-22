@@ -11,13 +11,14 @@ import {ReentrancyGuardTransient} from "@openzeppelin/contracts/utils/Reentrancy
 
 /// @title PayRun
 /// @notice Pays a payroll in cNGN exactly as the owner signed it, and nothing else.
-/// @dev The owner signs a payslip (EIP-712): who gets paid, how much cNGN each, the most USD₮ to spend, the
-/// lowest cNGN-per-USD₮ rate accepted, and a deadline. The agent, acting from the owner's own wallet under a
-/// session that may call only this contract, submits the payslip with a Textile FX quote. This contract pulls the
-/// USD₮, fills the quote as the taker (cNGN arrives here), checks the rate it actually got against the signed floor,
-/// pays each signed line, and returns everything left to the owner, in one transaction. There is no other way
-/// for funds to leave: a line that was not signed fails the signature check, and the contract holds nothing between
-/// runs.
+/// @dev The owner keeps a USD₮ float here (deposit and withdraw are the owner's alone) and signs a payslip
+/// (EIP-712): who gets paid, how much cNGN each, the most USD₮ to spend, the lowest cNGN-per-USD₮ rate accepted,
+/// and a deadline. The agent, acting from the owner's own wallet under a session that may call only `run`, submits
+/// the payslip with a Textile FX quote. This contract fills the quote as the taker (Textile requires the taker to
+/// hold the USD₮ when it quotes, hence the float), checks the rate it actually got against the signed floor, pays
+/// each signed line, sends leftover cNGN to the owner, and deducts only the USD₮ actually spent from that owner's
+/// float, in one transaction. A line that was not signed fails the signature check; a run can spend only its own
+/// owner's float; and nothing but `withdraw`, called by the owner, returns a float.
 contract PayRun is EIP712, ReentrancyGuardTransient, IERC1271 {
     using SafeERC20 for IERC20;
 
@@ -30,7 +31,7 @@ contract PayRun is EIP712, ReentrancyGuardTransient, IERC1271 {
     /// @notice What the owner signs.
     /// @param owner The paying wallet; it must be the caller and the signer.
     /// @param lines Recipients and cNGN amounts. Paid exactly, in order.
-    /// @param maxUsdtIn The most USD₮ (base units, 6 decimals) this run may pull from the owner.
+    /// @param maxUsdtIn The most USD₮ (base units, 6 decimals) this run may spend from the owner's float.
     /// @param minRate The lowest rate accepted: cNGN base units received per 1 USD₮ (1e6 base units) spent.
     /// @param deadline Unix seconds after which the payslip can't run.
     /// @param salt Any value that makes the payslip unique; each payslip runs at most once.
@@ -63,12 +64,17 @@ contract PayRun is EIP712, ReentrancyGuardTransient, IERC1271 {
     /// @notice Textile FX's LimitOrderReactor: the only contract a run may call to swap.
     address public immutable REACTOR;
     /// @notice The key whose signatures this contract accepts through ERC-1271, so that Textile can bind quotes to
-    /// this contract as the taker. It authorises nothing on-chain: the contract never approves Permit2 and holds no
-    /// funds between runs.
+    /// this contract as the taker. It authorises nothing on-chain: no function checks it, and floats move only through
+    /// `run` (a signed payslip) and `withdraw` (the owner).
     address public immutable TAKER_SIGNER;
 
     /// @notice Payslips that have run or were cancelled, by EIP-712 digest.
     mapping(bytes32 digest => bool) public used;
+
+    /// @notice Each owner's USD₮ float, in base units. Only that owner can add to it or withdraw it.
+    mapping(address owner => uint256) public float;
+    /// @notice Sum of every float. The contract's USD₮ balance is always at least this.
+    uint256 public totalFloat;
 
     event Ran(
         bytes32 indexed digest,
@@ -80,6 +86,8 @@ contract PayRun is EIP712, ReentrancyGuardTransient, IERC1271 {
     );
     event Paid(bytes32 indexed digest, uint256 indexed line, address indexed to, uint256 amount);
     event Cancelled(bytes32 indexed digest, address indexed owner);
+    event Deposited(address indexed owner, uint256 amount);
+    event Withdrawn(address indexed owner, uint256 amount);
 
     error NotOwner();
     error Expired();
@@ -92,6 +100,8 @@ contract PayRun is EIP712, ReentrancyGuardTransient, IERC1271 {
     error BelowFloor(uint256 cngnReceived, uint256 usdtSpent, uint256 minRate);
     error Shortfall(uint256 cngnReceived, uint256 cngnOwed);
     error ZeroAddress();
+    error InsufficientFloat(uint256 float, uint256 needed);
+    error ZeroAmount();
 
     constructor(IERC20 usdt, IERC20 cngn, address reactor, address takerSigner) EIP712("Albashi PayRun", "1") {
         if (
@@ -107,7 +117,7 @@ contract PayRun is EIP712, ReentrancyGuardTransient, IERC1271 {
     /// @notice Runs a signed payslip: swap USD₮ for cNGN on Textile, check the rate, pay the signed lines, refund.
     /// @param p The payslip, exactly as signed.
     /// @param signature The owner's signature over the payslip's EIP-712 digest.
-    /// @param usdtIn The USD₮ to pull for the swap (the quote's takerPays); at most `p.maxUsdtIn`.
+    /// @param usdtIn The USD₮ the swap may take from the owner's float (the quote's takerPays); at most `p.maxUsdtIn`.
     /// @param swapData Calldata for the reactor's execute or executeBatch, from Textile's firm quote.
     /// @return cngnReceived cNGN the swap delivered to this contract.
     /// @return usdtSpent USD₮ the swap consumed.
@@ -118,21 +128,51 @@ contract PayRun is EIP712, ReentrancyGuardTransient, IERC1271 {
     {
         (bytes32 digest, uint256 owed) = _check(p, signature, usdtIn, swapData);
         used[digest] = true;
+        // Reserve the most the swap may take from the owner's float before any external call; credit back the rest.
+        float[p.owner] -= usdtIn;
+        totalFloat -= usdtIn;
 
-        uint256 usdtLeft;
-        (cngnReceived, usdtSpent, usdtLeft) = _swap(usdtIn, swapData);
+        (cngnReceived, usdtSpent) = _swap(usdtIn, swapData);
 
         if (cngnReceived * USDT_UNIT < p.minRate * usdtSpent) {
             revert BelowFloor(cngnReceived, usdtSpent, p.minRate);
         }
         if (cngnReceived < owed) revert Shortfall(cngnReceived, owed);
 
-        // Events follow the swap because they report what it actually delivered (nonReentrant run, immutable reactor, values measured from balances).
+        // Only what the swap actually spent leaves the owner's float; the rest goes back to it.
+        uint256 unspent = usdtIn - usdtSpent;
+        float[p.owner] += unspent;
+        totalFloat += unspent;
+
+        // Events follow the swap because they report what it actually delivered (nonReentrant run, immutable
+        // reactor, values measured from balances).
         // forge-lint: disable-next-line(reentrancy-events)
         emit Ran(digest, p.owner, usdtSpent, cngnReceived, owed, p.lines.length);
         _pay(digest, p.lines);
         if (cngnReceived > owed) CNGN.safeTransfer(p.owner, cngnReceived - owed);
-        if (usdtLeft > 0) USDT.safeTransfer(p.owner, usdtLeft);
+    }
+
+    /// @notice Adds USD₮ to the caller's float. Credits what actually arrived.
+    function deposit(uint256 amount) external nonReentrant {
+        if (amount == 0) revert ZeroAmount();
+        uint256 before = USDT.balanceOf(address(this));
+        USDT.safeTransferFrom(msg.sender, address(this), amount);
+        uint256 received = USDT.balanceOf(address(this)) - before;
+        float[msg.sender] += received;
+        totalFloat += received;
+        // forge-lint: disable-next-line(reentrancy-events)
+        emit Deposited(msg.sender, received);
+    }
+
+    /// @notice Returns USD₮ from the caller's own float to the caller.
+    function withdraw(uint256 amount) external nonReentrant {
+        if (amount == 0) revert ZeroAmount();
+        uint256 have = float[msg.sender];
+        if (have < amount) revert InsufficientFloat(have, amount);
+        float[msg.sender] = have - amount;
+        totalFloat -= amount;
+        emit Withdrawn(msg.sender, amount);
+        USDT.safeTransfer(msg.sender, amount);
     }
 
     /// @notice The owner withdraws a signed payslip before it runs. Only the owner can cancel their own payslip.
@@ -193,6 +233,7 @@ contract PayRun is EIP712, ReentrancyGuardTransient, IERC1271 {
         if (used[digest]) revert AlreadyUsed();
         if (!_signedByOwner(p.owner, digest, signature)) revert NotSigned();
         if (usdtIn == 0 || usdtIn > p.maxUsdtIn) revert OverBudget(usdtIn, p.maxUsdtIn);
+        if (float[p.owner] < usdtIn) revert InsufficientFloat(float[p.owner], usdtIn);
         if (swapData.length < 4) revert NotAReactorFill();
         bytes4 selector = bytes4(swapData[:4]);
         if (selector != EXECUTE && selector != EXECUTE_BATCH) revert NotAReactorFill();
@@ -206,24 +247,21 @@ contract PayRun is EIP712, ReentrancyGuardTransient, IERC1271 {
         }
     }
 
-    /// @dev Pulls `usdtIn` from the caller, who `_check` proved is the owner, and fills the quote on the reactor as
-    /// the taker. Measures what actually
-    /// moved: the swap's own figures are never trusted.
-    function _swap(uint256 usdtIn, bytes calldata swapData)
-        internal
-        returns (uint256 cngnReceived, uint256 usdtSpent, uint256 usdtLeft)
-    {
+    /// @dev Fills the quote on the reactor as the taker, letting it take at most `usdtIn` (which `_check` proved the
+    /// owner's float covers). Measures what actually moved: the swap's own figures are never trusted.
+    function _swap(uint256 usdtIn, bytes calldata swapData) internal returns (uint256 cngnReceived, uint256 usdtSpent) {
         uint256 usdtBefore = USDT.balanceOf(address(this));
         uint256 cngnBefore = CNGN.balanceOf(address(this));
 
-        USDT.safeTransferFrom(msg.sender, address(this), usdtIn);
         USDT.forceApprove(REACTOR, usdtIn);
+        // The float is reserved before this call and only the unspent part is credited after it. Every function that
+        // touches floats (run, deposit, withdraw) holds the same nonReentrant lock, so the reactor can't re-enter them.
+        // forge-lint: disable-next-line(reentrancy-no-eth)
         (bool ok, bytes memory reason) = REACTOR.call(swapData);
         if (!ok) revert SwapFailed(reason);
         USDT.forceApprove(REACTOR, 0);
 
-        usdtLeft = USDT.balanceOf(address(this)) - usdtBefore;
-        usdtSpent = usdtIn - usdtLeft;
+        usdtSpent = usdtBefore - USDT.balanceOf(address(this));
         cngnReceived = CNGN.balanceOf(address(this)) - cngnBefore;
     }
 

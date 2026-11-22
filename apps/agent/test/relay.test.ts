@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { decodeAbiParameters, decodeFunctionData, toFunctionSelector, type Hex } from 'viem';
+import { decodeAbiParameters, decodeFunctionData, erc20Abi, toFunctionSelector, type Hex } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { toDataSuffix } from '@celo/attribution-tags';
 import * as Key from 'porto/viem/Key';
@@ -10,8 +10,8 @@ import {
   ATTRIBUTION_CODE, EXECUTE_ABI, INTENT, intentFrom, laneForKeyHash, laneNonce, secp256k1KeyHash, stripEip7708AssetDiffs,
   taggedExecuteCalldata,
 } from '../src/relay.ts';
-import { payRunPermissions, RUN_SELECTOR } from '../src/session.ts';
-import { REACTOR, type FirmQuote } from '../src/textile.ts';
+import { fundFloatCalls, payRunPermissions, RUN_SELECTOR } from '../src/session.ts';
+import { REACTOR, USDT, type FirmQuote } from '../src/textile.ts';
 import { VECTOR, VECTOR_PAYRUN } from './vector.ts';
 
 // The SDK's own implementations, imported by file path (its package exports allow no deep imports) so these
@@ -55,9 +55,22 @@ test("the session's only permission is PayRun.run, by its real selector", () => 
   const runItem = payRunAbi.find((i) => i.type === 'function' && i.name === 'run');
   assert.ok(runItem);
   assert.equal(RUN_SELECTOR, toFunctionSelector(runItem as never));
-  const perms = payRunPermissions(VECTOR_PAYRUN, 5_000_000n);
+  const perms = payRunPermissions(VECTOR_PAYRUN);
   assert.deepEqual(perms.calls, [{ to: VECTOR_PAYRUN, signature: RUN_SELECTOR }]);
-  assert.equal(perms.spend?.length, 1);
+  // No token spend cap of ours: a run moves no USD₮ out of the owner's wallet (D-010).
+  assert.equal(perms.spend, undefined);
+});
+
+test('the float is funded by an exact approval and a deposit, and only those', () => {
+  const [approve, deposit] = fundFloatCalls(VECTOR_PAYRUN, 1_500_000n);
+  const a = decodeFunctionData({ abi: erc20Abi, data: approve.data });
+  assert.equal(approve.to, USDT);
+  assert.equal(a.functionName, 'approve');
+  assert.equal((a.args[0] as string).toLowerCase(), VECTOR_PAYRUN.toLowerCase());
+  assert.equal(a.args[1], 1_500_000n, 'an exact approval, never unlimited');
+  const d = decodeFunctionData({ abi: payRunAbi, data: deposit.data });
+  assert.equal(deposit.to, VECTOR_PAYRUN);
+  assert.deepEqual([d.functionName, ...d.args], ['deposit', 1_500_000n]);
 });
 
 const relayContext = {
