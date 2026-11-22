@@ -30,6 +30,11 @@ Deadline source: https://www.loops.house/agents-open-for-business ("Mon 7 Dec, 0
 ### M2 · Core claim
 - [ ] (placeholder)
 
+### Layer 1 · Infrastructure for other agents (about 2–5 Dec, after the core claim; D-008)
+- [ ] (placeholder: itemised when M2 closes) corridor-sdk, x402 payout endpoint held to the pay-run contract, `/.well-known/agent.json`, ERC-8004 registration.
+- [ ] **ops · Self Agent ID.** User registers the agent with their own ID in the Self app once the agent EOA is final. Owner: the user.
+- [ ] **ops · Prezenti status.** User screenshots Prezenti's grant policies (Notion) and confirms Frontier is open and accepts a hackathon entry. Owner: the user. By 2026-11-27.
+
 ## Cut list
 Things deliberately not being built. Each entry links the DECISIONS entry that cut it.
 - Self Agent ID and Agent Vault tracks — D-001
