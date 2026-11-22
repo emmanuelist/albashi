@@ -27,7 +27,7 @@ import AlbashiMark from './mark';
 // was actually asked (lib/cached.ts).
 export const dynamic = 'force-dynamic';
 
-const PHONE = '(max-width: 760px), (max-aspect-ratio: 5/6)';
+const PHONE = '(max-width: 1279px), (max-aspect-ratio: 5/6)'; // matches the stacked layout in globals.css
 const WIDE_W = [1280, 1920, 2560, 3200, 4096];
 const PORTRAIT_W = [640, 960, 1280, 1742];
 const set = (name: string, widths: number[], ext: string) => widths.map((w) => `/plates/${name}-${w}.${ext} ${w}w`).join(', ');

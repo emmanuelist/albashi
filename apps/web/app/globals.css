@@ -184,7 +184,9 @@ a.card-in:focus-visible { outline: calc(4 * var(--u)) solid #fff; outline-offset
 
 /* ---- phone: the page is the phone's lock screen at native scale. One --u is one CSS px of a 390 px-wide
    phone, capped so a portrait tablet doesn't blow it up. */
-@media (max-width: 760px), (max-aspect-ratio: 5/6) {
+/* The comp-scaled lock screen needs 1280px before its alert text reaches ~15px (measured 11.8px at 1024, 13.6px at
+   1180); narrower screens, and every portrait one, use the stacked layout. */
+@media (max-width: 1279px), (max-aspect-ratio: 5/6) {
   :root { --u: min(calc(100vw / 390), 1.35px); --frost-blur: 22px; }
   .lock {
     aspect-ratio: auto;
@@ -260,9 +262,10 @@ a.card-in:focus-visible { outline: calc(4 * var(--u)) solid #fff; outline-offset
   .credit-icon { box-shadow: inset 0 0 0 calc(2 * var(--u)) #9a5f17; }
   .declined-icon { border-width: calc(1.5 * var(--u)); }
   .card-text { gap: calc(3 * var(--u)); }
-  .sender { font-size: calc(13 * var(--u)); line-height: calc(17 * var(--u)); font-weight: 600; }
+  /* alert text never drops below 14px on a phone: the card grows and the line wraps instead (12.5px measured at 375) */
+  .sender { font-size: max(0.875rem, calc(13 * var(--u))); line-height: 1.3; font-weight: 600; }
   .time { font-size: max(12px, calc(12 * var(--u))); }
-  .body { font-size: calc(13 * var(--u)); line-height: calc(18 * var(--u)); letter-spacing: 0; white-space: normal; overflow-wrap: anywhere; }
+  .body { font-size: max(0.875rem, calc(13 * var(--u))); line-height: 1.38; letter-spacing: 0; white-space: normal; overflow-wrap: anywhere; }
   .struck { text-decoration-thickness: 1px; }
   .desk-break { display: none; }
 
