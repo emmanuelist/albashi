@@ -101,7 +101,6 @@ export default async function Sections() {
   return (
     <>
       <section id="how" className="sheet" aria-labelledby="how-title">
-        <p className="kicker">How a pay run works</p>
         <h2 id="how-title" className="sheet-title">Four steps, and which of them already run on Celo mainnet.</h2>
         <ol className="steps">
           {STEPS.map((s) => (
@@ -127,7 +126,6 @@ export default async function Sections() {
       </section>
 
       <section id="proof" className="sheet" aria-labelledby="proof-title">
-        <p className="kicker">Proof on Celo</p>
         <h2 id="proof-title" className="sheet-title">Don’t take the page’s word for it.</h2>
         <p className="sheet-lede">
           This page checked the payment its agent sent itself (E-005) against Celo mainnet; the result and when it ran are
@@ -182,7 +180,6 @@ node verify.mjs`}</code>
       </section>
 
       <section id="limits" className="sheet" aria-labelledby="limits-title">
-        <p className="kicker">Limits</p>
         <h2 id="limits-title" className="sheet-title">What isn’t true yet.</h2>
         <ul className="limits">
           {LIMITS.map((l) => (

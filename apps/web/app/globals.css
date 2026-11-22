@@ -310,13 +310,6 @@ a.card-in:focus-visible { outline: calc(4 * var(--u)) solid #fff; outline-offset
   font-family: var(--display);
 }
 main { background: linear-gradient(180deg, #1a1838 0, #1d1b2e 700px, #191826 100%); }
-.kicker {
-  font-family: var(--sms);
-  font-size: 0.8125rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--sheet-gold);
-}
 .sheet-title {
   margin: 0.6rem 0 0;
   max-width: 24ch;
