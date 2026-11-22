@@ -3,7 +3,7 @@ _Last verified: 2026-11-22 07:45 UTC (PayRun v2 mainnet run and refusal)_
 
 **Thesis:** Albashi pays your freelancers in naira, and its agent can only pay the payslip you signed.
 **Milestone:** M0 · Rigged (checkpoint 2026-11-23 05:24 UTC), with M1's contract and agent items already done · **Deadline:** 2026-12-07 09:00 UTC (time left: the clock line)
-**Next action:** M1 "Owner desk in `apps/web`" (docs/PLAN.md): the owner signs a payslip in the browser and the agent runs it. Before that: verify PayRun v2's source on the explorer.
+**Next action:** M1 "Owner desk in `apps/web`" (docs/PLAN.md): the owner signs a payslip in the browser and the agent runs it.
 **Agent wallet on file (Loops House):** `0x1Bce3F6267983dfAb58CED6261EF05a28E168ce8` (D-011). ERC-8004: agent 10095, registered from it (E-013); the event's checker sees its tag (E-012).
 **Blocked on:** nothing. Awaiting Celo DevRel's answer on whether the self-relaying agent EOA is the scored "agent wallet" (asked 2026-11-21 18:55 UTC).
 
@@ -21,13 +21,13 @@ _Last verified: 2026-11-22 07:45 UTC (PayRun v2 mainnet run and refusal)_
 ## Deployed
 | What | Network or environment | Address / URL | Last checked |
 |---|---|---|---|
-| PayRun v2 | Celo mainnet | `0xfa8d963525d5F28427B897A0C761C744A43e59Af` (source not yet verified on the explorer) | 2026-11-22 07:40 UTC: 8,169 B; float 0.459972 = totalFloat = USD₮ held |
+| PayRun v2 | Celo mainnet | `0xfa8d963525d5F28427B897A0C761C744A43e59Af` (source verified on Sourcify, runtime match) | 2026-11-22 07:40 UTC: 8,169 B; float 0.459972 = totalFloat = USD₮ held |
 | PayRun v1 (retired; never send it USD₮) | Celo mainnet | `0x3Ef8f9A0dA701cE46b022b14E87315701D4bfeF7` | 2026-11-22: allowance 0, session permission removed |
 | Public repo | GitHub | https://github.com/emmanuelist/albashi (CI: secrets scan) | 2026-11-21 19:45 UTC |
 | Proof page (apps/web) | Vercel, project albashi | https://albashi.vercel.app | 2026-11-22 09:10 UTC: thesis alert, E-010 lines and E-011 refusal served from chain reads; `/.well-known/agent-registration.json` 200 JSON (agent 10095) |
 
 ## Broken or unverified
-- PayRun is not audited; its source is not verified on the explorer
+- PayRun is not audited (source verified on Sourcify)
 - The refusal is a simulation against mainnet, not a mined reverted transaction (Altana's relay won't price one)
 - Porto's default "any function on the Orchestrator" session permission: not audited by us
 - The session grant still goes through Altana's relay, untagged (C-5 qualified)
