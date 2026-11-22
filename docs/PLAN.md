@@ -19,8 +19,8 @@ Deadline source: https://www.loops.house/agents-open-for-business ("Mon 7 Dec, 0
 - [x] **Self-relay spike.** Done 2026-11-21: E-005 (tag at the tail, sent from the agent EOA). Done when a session-signed intent submitted by *our* EOA to the Orchestrator lands on mainnet and `verifyTx` returns `celo_3f5cac8c49f6` (evidence E-005). Needs the user's OK: spends ≈ $1.50 (a new session-key registration ≈ 20 CELO, plus gas and a $1 Textile swap that comes back as cNGN).
 - [x] USD₮ cap re-test with the fee cap set wide. Done: E-007 (refused while the fee cap had room; the SDK's message names the fee token regardless). Done when a transfer over the USD₮ cap is refused with an error naming USD₮ (E-006). Can share the self-relay spike's run.
 - [x] Repo public at github.com/emmanuelist/albashi before the AskBots round on 2026-11-24 14:00 UTC. Done 2026-11-21: CI (secrets scan) green on bebb78b.
-- [ ] A hello-world `apps/web` deployed; its URL in STATE.
-- [ ] Design bar: the best payroll and payslip interfaces captured into `internal/design/bar/`; `impeccable shape` run; the direction recorded as a decision.
+- [x] A hello-world `apps/web` deployed; its URL in STATE. Done 2026-11-22: the proof page at https://albashi.vercel.app (real mainnet data, UI audit 26/26 PASS); CI web job green on 1df6d50.
+- [x] Design bar: the best payroll and payslip interfaces captured into `internal/design/bar/`; `impeccable shape` run; the direction recorded as a decision. Done 2026-11-22: 8 references in `internal/design/bar/`, comp-2 approved, D-007.
 - [ ] **ops · attribution answer.** User sends the self-relay and agent-wallet question to Celo DevRel (DM) and Altana's Telegram. Owner: the user. By 2026-11-23. If there's no reply by 2026-11-23 18:00 UTC, post it in t.me/celoagenthackathons.
 - [ ] **ops · named user.** A named agency (name, number of freelancers, pay cadence) commits to a real pay run before 2026-11-27, and one of its freelancers says how they'd cash out cNGN. Owner: the user.
 

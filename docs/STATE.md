@@ -1,9 +1,9 @@
 # State
-_Last verified: 2026-11-21 20:20 UTC (self-relay spike committed after this rewrite)_
+_Last verified: 2026-11-22 01:00 UTC (proof page deployed; full rewrite at the next handoff)_
 
 **Thesis:** Albashi pays your freelancers in naira, and its agent can only pay the payslip you signed.
 **Milestone:** M0 · Rigged (checkpoint 2026-11-23 05:24 UTC) · **Deadline:** 2026-12-07 09:00 UTC (time left: the clock line)
-**Next action:** Design bar: capture the best payroll and payslip interfaces into `internal/design/bar/`, then `impeccable shape` (PLAN M0, due 2026-11-23 05:24 UTC). README is live (verify.mjs passes from a clean clone).
+**Next action:** M0 items done except the two ops items (user). Next: itemise M1 and start the pay-run contract (Foundry) with failure-path tests. Proof page live at https://albashi.vercel.app.
 **Blocked on:** nothing. Awaiting Celo DevRel's answer on whether the self-relaying agent EOA is the scored "agent wallet" (asked 2026-11-21 18:55 UTC).
 
 ## Works (verified this session)
@@ -20,7 +20,7 @@ _Last verified: 2026-11-21 20:20 UTC (self-relay spike committed after this rewr
 | What | Network or environment | Address / URL | Last checked |
 |---|---|---|---|
 | Public repo | GitHub | https://github.com/emmanuelist/albashi (CI: secrets scan) | 2026-11-21 19:45 UTC |
-| App | — | nothing deployed yet | |
+| Proof page (apps/web) | Vercel, project albashi | https://albashi.vercel.app | 2026-11-22 00:58 UTC: 200, live rate and block, 5 PASS checks, UI audit 26/26 |
 
 ## Broken or unverified
 - The pay-run contract doesn't exist yet, so the thesis (C-1) is unverified
