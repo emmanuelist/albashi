@@ -75,7 +75,9 @@
 
 .slips { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
 .slip { display: grid; grid-template-columns: minmax(0, 1fr) 290px; border: 1px solid var(--dk-line); border-radius: var(--dk-r); overflow: hidden; background: var(--dk-panel); }
-.advice { display: grid; gap: 4px; padding: 18px 22px; min-width: 0; }
+.advice { display: grid; gap: 4px; padding: 18px 22px; min-width: 0; container-type: inline-size; }
+/* an address never breaks mid-string: where the full one doesn't fit on a line, the slip shows the short form (the full one is the link's title) */
+@container (max-width: 600px) { .payee-long { display: none; } .payee-short { display: inline; } }
 .advice-head { font-size: 13px; color: var(--dk-quiet); }
 .payee { font: 400 15px/1.4 var(--sms); text-decoration: none !important; color: #ece6f0 !important; overflow-wrap: anywhere; }
 .payee:hover { color: #fff !important; }
@@ -154,7 +156,8 @@
 
 /* ---- the public refusal check */
 .try { padding: 20px 22px; border: 1px solid var(--dk-line); border-radius: var(--dk-r); background: var(--dk-panel-2); }
-.try-row { display: flex; gap: 20px; align-items: center; justify-content: space-between; }
+.try-row { display: flex; flex-wrap: wrap; gap: 14px 20px; align-items: center; justify-content: space-between; }
+.try-row .btn { white-space: nowrap; }
 .try-row p { margin: 0; color: var(--dk-quiet); max-width: 54ch; }
 .try-book { margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--dk-line); }
 .try-book .book-title { font-size: 20px; margin-bottom: 8px; }
