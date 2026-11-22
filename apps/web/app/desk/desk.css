@@ -184,7 +184,7 @@
   .dk-main > .book { order: 1; }
   .dk-side { order: 2; }
   .dk-main > .try { order: 3; }
-  .dk-side { position: static; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  .dk-side { position: static; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); align-items: start; }
   .read-at { grid-column: 1 / -1; }
 }
 @media (max-width: 680px) {
