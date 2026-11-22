@@ -28,4 +28,18 @@ jobs:
       - run: npm run typecheck
       - run: npm test # reads the saved mainnet receipts in docs/evidence/
       - run: npm run build
-# The contracts job is added in M1, when contracts/ exists (gate in AGENTS.md).
+  contracts:
+    # The contracts gate from AGENTS.md: fmt, lint with zero warnings, build with sizes, test.
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: contracts
+    steps:
+      - uses: actions/checkout@v7
+        with: { submodules: recursive }
+      - uses: foundry-rs/foundry-toolchain@v1
+        with: { version: v1.8.3 } # the version pinned in AGENTS.md
+      - run: forge fmt --check
+      - run: forge lint --deny warnings
+      - run: forge build --sizes
+      - run: forge test -vv # the mainnet fork checks are opt-in (CELO_FORK=1), so CI needs no RPC

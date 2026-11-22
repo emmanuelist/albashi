@@ -1,0 +1,23 @@
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+solc_version = "0.8.30"     # the version Textile's reactor is verified with on Celo
+evm_version = "cancun"      # transient storage for ReentrancyGuardTransient
+optimizer = true
+optimizer_runs = 20000
+via_ir = true              # run() holds a calldata payslip plus the swap results
+bytecode_hash = "none"
+remappings = [
+  "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
+  "forge-std/=lib/forge-std/src/",
+]
+
+[fmt]
+line_length = 120
+
+[lint]
+exclude_lints = []
+
+[rpc_endpoints]
+celo = "${CELO_RPC_URL}"
