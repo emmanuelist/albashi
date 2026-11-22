@@ -9,7 +9,7 @@ import { CELO, formatQuoteLine, NATIVE_TOKEN, serializeSession, signerFromPrivat
 import { altana, payRunPermissions } from '../src/session.ts';
 
 const PAYRUN = process.env.PAYRUN_ADDRESS as Address;
-const EXPIRY = Math.floor(Date.parse('2026-12-10T09:00:00Z') / 1000);
+const EXPIRY = Math.floor(Date.parse('2027-01-21T09:00:00Z') / 1000);
 const owner = signerFromPrivateKey(process.env.OWNER_KEY as Hex);
 const args = {
   wallet: { address: owner.address },
