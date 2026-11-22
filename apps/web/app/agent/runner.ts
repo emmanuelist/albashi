@@ -90,6 +90,12 @@ export function runEvents(logs: Log[], payRun: Address): RunEvents {
   };
 }
 
+/** The run's real progress, reported as each step completes (the web app streams these to the owner). */
+export type RunStage =
+  | { stage: 'judged'; float: bigint }
+  | { stage: 'quoted'; takerPays: bigint; buyAmount: bigint }
+  | { stage: 'sent'; hash: Hex };
+
 export type RunOutcome =
   | { status: 'refused'; stage: 'payrun' | 'agent'; error: string; sentence: string }
   | { status: 'paid' | 'reverted'; hash: Hex; quote: { takerPays: bigint; buyAmount: bigint }; events: RunEvents };
@@ -104,13 +110,16 @@ export async function runPayslip(args: {
   payRun: Address;
   payslip: Payslip;
   signature: Hex;
+  onStage?: (s: RunStage) => void;
 }): Promise<RunOutcome> {
+  const report = args.onStage ?? (() => {});
   const { pub, payRun, payslip: p, signature } = args;
   if (p.owner.toLowerCase() !== args.session.walletAddress.toLowerCase()) {
     return { status: 'refused', stage: 'agent', error: 'NoSession', sentence: 'Albashi’s agent holds no session for this owner’s wallet.' };
   }
   const verdict = await judge(pub, payRun, p, signature);
   if (!verdict.ok) return { status: 'refused', stage: 'payrun', error: verdict.error, sentence: verdict.sentence };
+  report({ stage: 'judged', float: verdict.float });
 
   // A free preview first: a firm quote holds the owner's float at Textile for minutes, so don't ask for one that the
   // payslip's own budget or floor already rules out.
@@ -122,6 +131,7 @@ export async function runPayslip(args: {
     return { status: 'refused', stage: 'agent', error: 'BelowFloor', sentence: 'Today’s rate is below the minimum the owner signed; nothing was sent.' };
   }
   const quote = await quoteForRun(args.agentAccount, payRun, owed(p));
+  report({ stage: 'quoted', takerPays: quote.takerPays, buyAmount: quote.buyAmount });
   if (verdict.float < quote.takerPays) {
     return { status: 'refused', stage: 'agent', error: 'InsufficientFloat', sentence: `The owner’s float holds ${verdict.float} USD₮ base units; this run needs ${quote.takerPays}.` };
   }
@@ -133,6 +143,7 @@ export async function runPayslip(args: {
     throw e;
   }
   const sent = await selfRelay({ pub, agent: args.agent, session: args.session, sessionPrivateKey: args.sessionPrivateKey, calls: [call], feeToken: NATIVE, send: true });
+  report({ stage: 'sent', hash: sent.hash! });
   const receipt = await pub.waitForTransactionReceipt({ hash: sent.hash! });
   return {
     status: receipt.status === 'success' ? 'paid' : 'reverted',
