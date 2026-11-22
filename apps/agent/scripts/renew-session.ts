@@ -1,5 +1,5 @@
 // Renews the agent's session on the owner wallet: the same session key, permitted only PayRun.run, with a new
-// expiry. Re-granting a registered key costs only Altana's relay fee (no KeyStore fee). Owner action through
+// expiry. The key is already in the KeyStore, so only the account authorization is renewed: a relay fee, no KeyStore fee. Owner action through
 // Altana's relay (untagged, D-006). Writes the session (no key) to .session.json for SESSION_JSON.
 //   node --env-file=.env scripts/renew-session.ts            quote only, sends nothing
 //   node --env-file=.env scripts/renew-session.ts --live     renew (spends the quoted CELO)
@@ -19,6 +19,9 @@ const args = {
   expiry: EXPIRY,
   feeToken: NATIVE_TOKEN,
   chainId: 42220,
+  // The key is still in Altana's KeyStore from its first registration (a second write reverts "key already
+  // registered"); only the account's authorization expired, so re-authorize on the account alone.
+  register: false,
 } as const;
 const client = altana();
 const q = await client.quoteGrantSession(args);
