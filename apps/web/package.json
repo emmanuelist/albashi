@@ -11,11 +11,14 @@
     "start": "next start -p 5180",
     "lint": "eslint . --max-warnings 0",
     "typecheck": "tsc --noEmit",
-    "test": "node --test 'test/**/*.test.ts'"
+    "test": "node --test 'test/**/*.test.ts'",
+    "sync-agent": "node scripts/sync-agent.mjs"
   },
   "dependencies": {
+    "@altananetwork/sdk": "1.1.0",
     "@celo/attribution-tags": "0.5.0",
     "next": "16.4.6",
+    "porto": "0.2.37",
     "react": "19.1.10",
     "react-dom": "19.1.10",
     "viem": "2.57.20"

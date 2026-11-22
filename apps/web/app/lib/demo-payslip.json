@@ -1,0 +1,23 @@
+{
+  "note": "Signed by the owner for the public refusal check. Budget 0.000001 USD₮: it can never pay anyone.",
+  "payRun": "0xfa8d963525d5F28427B897A0C761C744A43e59Af",
+  "digest": "0x317f86a4e014fde3df2918fa19f5164b24b6b4f16531602520c50064c5c26f7c",
+  "payslip": {
+    "owner": "0x0EcaaFc1Bd6f7033d6eb038d8Cbc8a55f900D4B1",
+    "lines": [
+      {
+        "to": "0xBAa4A23304101524f849935C5038073fF1cAE33b",
+        "amount": "700000000"
+      },
+      {
+        "to": "0x57f0A680179e239Ed8E60f732651840E080458E8",
+        "amount": "800000000"
+      }
+    ],
+    "maxUsdtIn": "1",
+    "minRate": "1427846219",
+    "deadline": "1814313600",
+    "salt": "0xef8f127f0afc9f5cb043abf719b315a45f95d31296fe5dde0a92b2d420397f4a"
+  },
+  "signature": "0x272e1154ab4aaabebb99e3e35bdb77023a9a8a975ae55cca101fe6c7040eca6b23e4ac609e10be4edd14d27308d75b3c817e6db3ef11d3b22f34017408e234f21c"
+}
