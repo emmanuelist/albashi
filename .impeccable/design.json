@@ -1,0 +1,418 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-22T20:13:11.330Z",
+  "title": "Design System: Albashi",
+  "extensions": {
+    "colorMeta": {
+      "credit-gold": {
+        "role": "primary",
+        "displayName": "Credit Gold",
+        "canonical": "#e9b65a",
+        "tonalRamp": [
+          "#3a2608",
+          "#5e3e10",
+          "#8a5c18",
+          "#a8691c",
+          "#c98f36",
+          "#e9b65a",
+          "#f3d395",
+          "#fbefd6"
+        ]
+      },
+      "credit-gold-deep": {
+        "role": "primary",
+        "displayName": "Deep Gold",
+        "canonical": "#a8691c"
+      },
+      "credit-gold-hover": {
+        "role": "primary",
+        "displayName": "Lit Gold",
+        "canonical": "#f0c470"
+      },
+      "sheet-gold": {
+        "role": "primary",
+        "displayName": "Reading Gold",
+        "canonical": "#d8b274"
+      },
+      "on-gold-ink": {
+        "role": "neutral",
+        "displayName": "On-Gold Ink",
+        "canonical": "#26190a"
+      },
+      "dusk-violet": {
+        "role": "neutral",
+        "displayName": "Dusk Violet",
+        "canonical": "#35204f",
+        "tonalRamp": [
+          "#120b1c",
+          "#1f1430",
+          "#2b1b4a",
+          "#35204f",
+          "#4a3168",
+          "#6a5088",
+          "#9a86b4",
+          "#d6cde4"
+        ]
+      },
+      "dusk-night": {
+        "role": "neutral",
+        "displayName": "Night",
+        "canonical": "#2b1b4a"
+      },
+      "dusk-navy": {
+        "role": "neutral",
+        "displayName": "Navy",
+        "canonical": "#1c1e3e",
+        "tonalRamp": [
+          "#0b0c1a",
+          "#14152c",
+          "#1c1e3e",
+          "#272a52",
+          "#383c6a",
+          "#565a88",
+          "#8a8db0",
+          "#d2d3e2"
+        ]
+      },
+      "frost-panel": {
+        "role": "neutral",
+        "displayName": "Frost Panel (desk)",
+        "canonical": "rgba(46, 36, 66, 0.62)"
+      },
+      "frost-panel-deep": {
+        "role": "neutral",
+        "displayName": "Deep Frost (desk)",
+        "canonical": "rgba(30, 26, 52, 0.72)"
+      },
+      "frost-alert": {
+        "role": "neutral",
+        "displayName": "Alert Frost (proof page)",
+        "canonical": "rgba(62, 48, 66, 0.5)"
+      },
+      "frost-declined": {
+        "role": "neutral",
+        "displayName": "Declined Frost",
+        "canonical": "rgba(52, 48, 56, 0.6)"
+      },
+      "frost-edge": {
+        "role": "neutral",
+        "displayName": "Frost Edge",
+        "canonical": "rgba(255, 255, 255, 0.26)"
+      },
+      "hairline": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "rgba(255, 255, 255, 0.14)"
+      },
+      "hairline-strong": {
+        "role": "neutral",
+        "displayName": "Strong Hairline",
+        "canonical": "rgba(255, 255, 255, 0.24)"
+      },
+      "ink-on-photo": {
+        "role": "neutral",
+        "displayName": "Photo Ink",
+        "canonical": "#f6f6f7"
+      },
+      "ink-quiet": {
+        "role": "neutral",
+        "displayName": "Quiet Ink (proof page)",
+        "canonical": "#d1c3c8"
+      },
+      "desk-quiet": {
+        "role": "neutral",
+        "displayName": "Desk Quiet",
+        "canonical": "#cbbfd0"
+      },
+      "desk-faint": {
+        "role": "neutral",
+        "displayName": "Desk Faint",
+        "canonical": "#a99db3"
+      },
+      "sheet-ink": {
+        "role": "neutral",
+        "displayName": "Sheet Ink (reading sections)",
+        "canonical": "#d9d3df"
+      },
+      "sheet-quiet": {
+        "role": "neutral",
+        "displayName": "Sheet Quiet (reading sections)",
+        "canonical": "#a49dae"
+      },
+      "declined-grey": {
+        "role": "neutral",
+        "displayName": "Declined Grey",
+        "canonical": "#d4d2d6",
+        "tonalRamp": [
+          "#2a292c",
+          "#3e3c41",
+          "#57555b",
+          "#75737a",
+          "#97959b",
+          "#b6b4ba",
+          "#d4d2d6",
+          "#efeef0"
+        ]
+      },
+      "warn-amber": {
+        "role": "neutral",
+        "displayName": "Warn Amber",
+        "canonical": "#f0c27a"
+      },
+      "error-salmon": {
+        "role": "neutral",
+        "displayName": "Error Salmon",
+        "canonical": "#f19a8a"
+      }
+    },
+    "typographyMeta": {
+      "rate-display": {
+        "displayName": "Rate Display",
+        "purpose": "Live USD₮-to-naira rate at lock-screen clock scale; proof page first viewport only. Sized in comp units (316 of 2688 viewport width; 72 phone units on a phone)."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Section titles in the proof page reading sections."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Desk pay-run heading (22px on a phone, 20px for the public-check sub-book)."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Desk prose and controls; reading sections use 1.0625rem/1.6 at 60-62ch."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Term names, slip line labels, panel titles, in quiet ink."
+      },
+      "figure-large": {
+        "displayName": "Figure Large",
+        "purpose": "Slip amounts, panel rate and float."
+      },
+      "figure": {
+        "displayName": "Figure",
+        "purpose": "Reconciliation strip values."
+      },
+      "record": {
+        "displayName": "Record",
+        "purpose": "Addresses, hashes, event refs, input text."
+      },
+      "stamp": {
+        "displayName": "Stamp",
+        "purpose": "PAID and DECLINED on counterfoils; 14px and unrotated in compact slips."
+      },
+      "sms-alert": {
+        "displayName": "SMS Alert",
+        "purpose": "Proof page notification cards, all caps like bank alerts; sender at 600."
+      },
+      "brand": {
+        "displayName": "Brand",
+        "purpose": "ALBASHI wordmark beside the handwritten mark."
+      }
+    },
+    "shadows": [
+      {
+        "name": "credit-disc-rim",
+        "value": "inset 0 0 0 calc(6 * var(--u)) #9a5f17",
+        "purpose": "Inner rim of the gold credit disc on proof page alert cards (2u on a phone)."
+      },
+      {
+        "name": "rate-line-glow",
+        "value": "0 0 calc(18 * var(--u)) calc(10 * var(--u)) rgb(70 36 92 / 0.45)",
+        "purpose": "Phone only: violet halo keeping the rate line legible over the photo."
+      },
+      {
+        "name": "input-focus-halo",
+        "value": "0 0 0 3px rgba(233, 182, 90, 0.2)",
+        "purpose": "Desk input focus."
+      },
+      {
+        "name": "frost-blur-alert",
+        "value": "blur(calc(64 * var(--u))) saturate(0.85)",
+        "purpose": "backdrop-filter on proof page alert cards and action discs; 22px on a phone."
+      },
+      {
+        "name": "frost-blur-topbar",
+        "value": "blur(16px)",
+        "purpose": "backdrop-filter on the desk sticky top bar."
+      }
+    ],
+    "motion": [
+      {
+        "name": "stamp-land",
+        "value": "0.38s cubic-bezier(0.16, 1, 0.3, 1) both",
+        "purpose": "The one landing: a stamp drops from scale 1.7, -11deg and a 2px blur to rest at -3deg when the Paid event is read. Off under prefers-reduced-motion."
+      },
+      {
+        "name": "desk-ease",
+        "value": "cubic-bezier(0.2, 0.8, 0.2, 1)",
+        "purpose": "Hover and state transitions on desk buttons and tabs, 0.15-0.18s."
+      },
+      {
+        "name": "running-pulse",
+        "value": "1.4s ease-in-out infinite, opacity to 0.35",
+        "purpose": "Small gold dot on a Running counterfoil and pending stages. Off under prefers-reduced-motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "proof-phone",
+        "value": "(max-width: 760px), (max-aspect-ratio: 5/6)"
+      },
+      {
+        "name": "proof-reading-phone",
+        "value": "760px"
+      },
+      {
+        "name": "desk-one-column",
+        "value": "1080px"
+      },
+      {
+        "name": "desk-phone",
+        "value": "680px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one money-moving action: sign and run, new payslip.",
+      "html": "<button class=\"ds-btn-primary\">Sign and run</button>",
+      "css": ".ds-btn-primary{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 18px;border-radius:10px;border:1px solid rgba(255,255,255,0.24);font-family:Inter,ui-sans-serif,system-ui,sans-serif;font-weight:500;font-size:15px;line-height:1;cursor:pointer;transition:background .18s cubic-bezier(0.2,0.8,0.2,1),border-color .18s,transform .08s;background:#e9b65a;border-color:#e9b65a;color:#26190a;} .ds-btn-primary:hover{background:#f0c470;border-color:#f0c470;} .ds-btn-primary:active{transform:translateY(1px);} .ds-btn-primary:focus-visible{outline:2px solid #e9b65a;outline-offset:2px;}"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Standard actions: connect the wallet, try to pay a stranger.",
+      "html": "<button class=\"ds-btn-secondary\">Connect the owner wallet</button>",
+      "css": ".ds-btn-secondary{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 18px;border-radius:10px;border:1px solid rgba(255,255,255,0.24);font-family:Inter,ui-sans-serif,system-ui,sans-serif;font-weight:500;font-size:15px;line-height:1;cursor:pointer;transition:background .18s cubic-bezier(0.2,0.8,0.2,1),border-color .18s,transform .08s;background:rgba(255,255,255,0.06);color:#fff;} .ds-btn-secondary:hover{background:rgba(255,255,255,0.11);border-color:rgba(255,255,255,0.4);} .ds-btn-secondary:active{transform:translateY(1px);} .ds-btn-secondary:focus-visible{outline:2px solid #e9b65a;outline-offset:2px;}"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Low-weight actions: close, add a line.",
+      "html": "<button class=\"ds-btn-ghost\">Add a line</button>",
+      "css": ".ds-btn-ghost{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 18px;border-radius:10px;border:1px solid rgba(255,255,255,0.24);font-family:Inter,ui-sans-serif,system-ui,sans-serif;font-weight:500;font-size:15px;line-height:1;cursor:pointer;transition:background .18s cubic-bezier(0.2,0.8,0.2,1),border-color .18s,transform .08s;background:transparent;border-color:transparent;color:#cbbfd0;} .ds-btn-ghost:hover{color:#fff;background:rgba(255,255,255,0.06);} .ds-btn-ghost:focus-visible{outline:2px solid #e9b65a;outline-offset:2px;}"
+    },
+    {
+      "name": "Amount Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Naira amount field with the ₦ sign inside; mono figures, gold caret and focus.",
+      "html": "<label class=\"ds-fld\"><span class=\"ds-lbl\">Amount</span><span class=\"ds-wrap\"><span class=\"ds-naira\">₦</span><input class=\"ds-in\" value=\"150,000.00\"></span></label>",
+      "css": ".ds-fld{display:grid;gap:6px;background:#1c1e3e;padding:16px;} .ds-lbl{font-family:Inter,ui-sans-serif,system-ui,sans-serif;font-size:14px;color:#cbbfd0;} .ds-wrap{position:relative;display:block;} .ds-naira{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-family:\"IBM Plex Mono\",ui-monospace,Menlo,monospace;font-weight:600;font-size:22px;color:#cbbfd0;} .ds-in{width:100%;box-sizing:border-box;min-height:44px;padding:0 12px 0 34px;border-radius:8px;border:1px solid rgba(255,255,255,0.24);background:rgba(10,8,22,0.45);color:#fff;font-family:\"IBM Plex Mono\",ui-monospace,Menlo,monospace;font-weight:600;font-size:22px;caret-color:#e9b65a;transition:border-color .15s;} .ds-in:hover{border-color:rgba(255,255,255,0.4);} .ds-in:focus{outline:none;border-color:#e9b65a;box-shadow:0 0 0 3px rgba(233,182,90,0.2);} .ds-in[aria-invalid=true]{border-color:#f19a8a;}"
+    },
+    {
+      "name": "Wallet Chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Wallet state pill: gold border for the connected owner, amber for read-only or the wrong account.",
+      "html": "<span class=\"ds-chip ds-chip-owner\">0x0Eca…D4B1</span> <span class=\"ds-chip ds-chip-warn\">Read-only</span>",
+      "css": ".ds-chip{display:inline-flex;align-items:center;height:36px;padding:0 14px;border-radius:999px;border:1px solid rgba(255,255,255,0.24);font-family:Inter,ui-sans-serif,system-ui,sans-serif;font-weight:500;font-size:14px;color:#cbbfd0;} .ds-chip-owner{color:#fff;border-color:rgba(233,182,90,0.55);} .ds-chip-warn{color:#f0c27a;border-color:rgba(240,194,122,0.5);}"
+    },
+    {
+      "name": "Desk Top Bar",
+      "kind": "nav",
+      "description": "Sticky bar: mono wordmark, Desk and Proof tabs.",
+      "html": "<nav class=\"ds-top\"><span class=\"ds-brand\">ALBASHI</span><a class=\"ds-tab\" aria-current=\"page\" href=\"#\">Desk</a><a class=\"ds-tab\" href=\"#\">Proof on Celo</a></nav>",
+      "css": ".ds-top{display:flex;align-items:center;gap:4px;height:64px;padding:0 24px;background:rgba(24,18,44,0.78);border-bottom:1px solid rgba(255,255,255,0.14);backdrop-filter:blur(16px);} .ds-brand{font-family:\"IBM Plex Mono\",ui-monospace,Menlo,monospace;font-weight:600;font-size:18px;letter-spacing:.06em;color:#f6f6f7;margin-right:24px;} .ds-tab{padding:8px 14px;border-radius:8px;text-decoration:none;color:#cbbfd0;font-family:Inter,ui-sans-serif,system-ui,sans-serif;font-weight:500;transition:background .18s,color .18s;} .ds-tab:hover{color:#fff;background:rgba(255,255,255,0.06);} .ds-tab[aria-current=page]{color:#fff;background:rgba(255,255,255,0.1);} .ds-tab:focus-visible{outline:2px solid #e9b65a;outline-offset:2px;}"
+    },
+    {
+      "name": "Desk Slip, PAID",
+      "kind": "custom",
+      "refersTo": "slip",
+      "description": "Pay-advice slip: advice beside a dashed, notched counterfoil stamped PAID when the Paid event is read.",
+      "html": "<div class=\"ds-slip\"><div class=\"ds-adv\"><span class=\"ds-l\">Line 1</span><span class=\"ds-payee\">0xBAa4…E33b</span><span class=\"ds-amt\">₦700.00</span></div><div class=\"ds-foil\"><span class=\"ds-stamp\"><svg viewBox=\"0 0 20 20\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m4.5 10.5 3.5 3.5 7.5-8\"/></svg>PAID 08:32</span><span class=\"ds-note\">₦700.00 paid by PayRun</span></div></div>",
+      "css": ".ds-slip{display:grid;grid-template-columns:minmax(0,1fr) 240px;border:1px solid rgba(255,255,255,0.14);border-radius:14px;overflow:hidden;background:rgba(46,36,66,0.62);color:#f6f6f7;} .ds-adv{display:grid;gap:4px;padding:18px 22px;} .ds-l{font-family:Inter,ui-sans-serif,system-ui,sans-serif;font-size:13px;color:#cbbfd0;} .ds-payee{font-family:\"IBM Plex Mono\",ui-monospace,Menlo,monospace;font-size:15px;color:#ece6f0;} .ds-amt{font-family:\"IBM Plex Mono\",ui-monospace,Menlo,monospace;font-weight:600;font-size:30px;line-height:1.15;letter-spacing:-.01em;} .ds-foil{position:relative;display:grid;align-content:center;justify-items:start;gap:8px;padding:18px 22px;border-left:2px dashed rgba(255,255,255,0.28);background:rgba(233,182,90,0.1);} .ds-foil::before,.ds-foil::after{content:\"\";position:absolute;left:-9px;width:16px;height:16px;border-radius:50%;background:#1c1e3e;border:1px solid rgba(255,255,255,0.14);} .ds-foil::before{top:-9px;} .ds-foil::after{bottom:-9px;} .ds-stamp{display:inline-flex;align-items:center;gap:6px;padding:5px 11px 5px 8px;border:2px solid #e9b65a;border-radius:6px;color:#e9b65a;font-family:\"IBM Plex Mono\",ui-monospace,Menlo,monospace;font-weight:600;font-size:20px;line-height:1;letter-spacing:.04em;transform:rotate(-3deg);animation:ds-land .38s cubic-bezier(0.16,1,0.3,1) both;} .ds-note{font-family:Inter,ui-sans-serif,system-ui,sans-serif;font-size:14px;color:#e6e0ea;} @keyframes ds-land{from{opacity:0;transform:scale(1.7) rotate(-11deg);filter:blur(2px);}to{opacity:1;transform:scale(1) rotate(-3deg);filter:none;}} @media (prefers-reduced-motion:reduce){.ds-stamp{animation:none;}}"
+    },
+    {
+      "name": "Desk Slip, DECLINED",
+      "kind": "custom",
+      "refersTo": "slip-declined",
+      "description": "A payee nobody signed stays on the page: grey, struck, stamped DECLINED with the contract reason.",
+      "html": "<div class=\"ds-dslip\"><div class=\"ds-dadv\"><span class=\"ds-dl\">Not on the signed payslip</span><span class=\"ds-dpayee\">0x1557…dF2</span><span class=\"ds-damt\">₦10.00</span></div><div class=\"ds-dfoil\"><span class=\"ds-dstamp\"><svg viewBox=\"0 0 20 20\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\"><path d=\"m5.5 5.5 9 9m0-9-9 9\"/></svg>DECLINED</span><span class=\"ds-dnote\">The owner did not sign this payslip.</span><span class=\"ds-dmeta\">NotSigned · 0xa72952d8</span></div></div>",
+      "css": ".ds-dslip{display:grid;grid-template-columns:minmax(0,1fr) 240px;border:1px solid rgba(255,255,255,0.14);border-radius:14px;overflow:hidden;background:rgba(52,48,56,0.6);color:#f6f6f7;} .ds-dadv{display:grid;gap:4px;padding:18px 22px;} .ds-dl{font-family:Inter,ui-sans-serif,system-ui,sans-serif;font-size:13px;color:#cbbfd0;} .ds-dpayee{font-family:\"IBM Plex Mono\",ui-monospace,Menlo,monospace;font-size:15px;color:#ece6f0;} .ds-damt{font-family:\"IBM Plex Mono\",ui-monospace,Menlo,monospace;font-weight:600;font-size:30px;color:#d4d2d6;text-decoration:line-through;text-decoration-thickness:2px;} .ds-dfoil{position:relative;display:grid;align-content:center;justify-items:start;gap:8px;padding:18px 22px;border-left:2px dashed rgba(255,255,255,0.28);background:rgba(40,36,46,0.55);} .ds-dfoil::before,.ds-dfoil::after{content:\"\";position:absolute;left:-9px;width:16px;height:16px;border-radius:50%;background:#1c1e3e;border:1px solid rgba(255,255,255,0.14);} .ds-dfoil::before{top:-9px;} .ds-dfoil::after{bottom:-9px;} .ds-dstamp{display:inline-flex;align-items:center;gap:6px;padding:5px 11px 5px 8px;border:2px solid #d4d2d6;border-radius:6px;color:#d4d2d6;font-family:\"IBM Plex Mono\",ui-monospace,Menlo,monospace;font-weight:600;font-size:20px;line-height:1;letter-spacing:.04em;transform:rotate(-3deg);} .ds-dnote{font-family:Inter,ui-sans-serif,system-ui,sans-serif;font-size:14px;color:#e6e0ea;} .ds-dmeta{font-family:\"IBM Plex Mono\",ui-monospace,Menlo,monospace;font-size:13px;color:#a99db3;}"
+    },
+    {
+      "name": "Reconciliation Strip",
+      "kind": "card",
+      "description": "Signed against paid in four cells; mono figures, signed floor beneath the rate.",
+      "html": "<dl class=\"ds-recon\"><div><dt>Signed</dt><dd>₦1,500.00</dd></div><div><dt>Paid by PayRun</dt><dd>₦1,500.00</dd></div><div><dt>USD₮ spent</dt><dd>1.04</dd></div><div><dt>Rate got</dt><dd>₦1,442.27<small>floor ₦1,427.85</small></dd></div></dl>",
+      "css": ".ds-recon{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin:0;border:1px solid rgba(255,255,255,0.14);border-radius:14px;background:rgba(30,26,52,0.72);color:#f6f6f7;} .ds-recon>div{padding:14px 18px;border-left:1px solid rgba(255,255,255,0.14);} .ds-recon>div:first-child{border-left:0;} .ds-recon dt{font-family:Inter,ui-sans-serif,system-ui,sans-serif;font-size:13px;color:#cbbfd0;} .ds-recon dd{margin:4px 0 0;font-family:\"IBM Plex Mono\",ui-monospace,Menlo,monospace;font-weight:600;font-size:20px;line-height:1.2;font-variant-numeric:tabular-nums;} .ds-recon small{display:block;font-family:\"IBM Plex Mono\",ui-monospace,Menlo,monospace;font-weight:400;font-size:13px;color:#a99db3;}"
+    },
+    {
+      "name": "SMS Alert Card",
+      "kind": "card",
+      "refersTo": "alert-card",
+      "description": "Proof page lock-screen notification set like a bank credit alert, gold disc for a credit (phone sizing).",
+      "html": "<a class=\"ds-alert\" href=\"#\"><span class=\"ds-disc\"><svg viewBox=\"0 0 24 24\" width=\"22\" height=\"22\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 6v12M6.5 12.5 12 18l5.5-5.5\"/></svg></span><span class=\"ds-atext\"><span class=\"ds-ahead\"><b>ALBASHI</b><span class=\"ds-time\">now</span></span><span>CREDIT ALERT! AMT: NGN150,000.00 DESC: NOV PAY REF: 0x6272…30c5</span></span></a>",
+      "css": ".ds-alert{display:flex;align-items:flex-start;gap:11px;padding:11px 13px 12px 11px;border-radius:18px;border:1px solid rgba(255,255,255,0.26);background:rgba(62,48,66,0.5);backdrop-filter:blur(22px) saturate(.85);color:#f6f6f7;text-decoration:none;font-family:\"IBM Plex Mono\",ui-monospace,Menlo,monospace;font-size:13px;line-height:18px;} .ds-alert:hover{border-color:rgba(255,255,255,0.5);} .ds-alert:focus-visible{outline:2px solid #fff;outline-offset:3px;} .ds-disc{flex:none;display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#e9b65a,#a8691c);box-shadow:inset 0 0 0 2px #9a5f17;color:#fffaf0;} .ds-atext{display:flex;flex-direction:column;gap:3px;} .ds-ahead{display:flex;justify-content:space-between;gap:16px;} .ds-ahead b{font-weight:600;} .ds-time{font-family:ui-sans-serif,system-ui,sans-serif;font-size:12px;color:#d9d1d3;}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Alert and the Counterfoil",
+    "overview": "Albashi lives in the paperwork a Nigerian payment leaves behind. On the public page that is a phone's lock screen at dusk over Lagos: frosted notification cards from the sender ALBASHI, set like bank credit alerts. On the owner's desk it is the same dusk carried indoors: a book of pay-advice slips, each torn along a dashed perforation, whose counterfoil is stamped PAID when the pay-run contract's event is read, or DECLINED and struck when nobody signed it. Both surfaces are one world: violet-to-navy night, frosted translucent panels, one warm gold that means money arrived, and monospaced figures you could check against the chain.\n\nThe system is dark, quiet and exact. Density is moderate on the desk (laptop-first ledger, 16px body) and theatrical only in the public first viewport, where the live rate is set at lock-screen clock scale. Decoration is almost absent; character comes from the artefacts (alert, slip, perforation, stamp) and from the strict split between words (Inter) and records (IBM Plex Mono).\n\nThe two surfaces do not share one token file. The proof page defines its colours on `:root` in `globals.css` (plus a calmer set scoped to the below-the-fold reading sections); the desk redefines its own set under `.desk` in `desk.css`, borrowing only the gold, night, navy, declined grey, ink and font variables from `:root`. The frontmatter records the values both actually use; where a value belongs to one surface only, the prose says so.",
+    "keyCharacteristics": [
+      "Dusk violet into navy ground; never a white or neutral-grey canvas.",
+      "Frosted, translucent panels with hairline white edges; depth by blur and tone, not shadow.",
+      "Gold is the only accent, and it means a credit or the action that leads to one.",
+      "Declined is grey, struck through, and always spelled out in words.",
+      "Every figure, address, hash and alert in IBM Plex Mono; every sentence in Inter.",
+      "One motion: a stamp landing."
+    ],
+    "rules": [
+      {
+        "name": "The Gold Means Money Rule",
+        "body": "Gold appears only where a credit landed, a check passed, or on the one action that moves money forward (and, on the desk, the keyboard focus that leads to it). Never gold for decoration, headings or a second \"brand\" highlight.",
+        "section": "colors"
+      },
+      {
+        "name": "The Words Before Colour Rule",
+        "body": "A state is never colour alone. Declined is grey plus a strike plus the word DECLINED and the contract's reason; a warning is amber plus the sentence that explains it.",
+        "section": "colors"
+      },
+      {
+        "name": "The No Daylight Rule",
+        "body": "Every surface sits on the dusk ground. There is no light theme and no white panel.",
+        "section": "colors"
+      },
+      {
+        "name": "The Typed Record Rule",
+        "body": "Every figure, address, hash, block number, time stamp and alert line is set in IBM Plex Mono; every sentence, label and button is set in Inter. Never a naira amount in Inter outside the rate display.",
+        "section": "typography"
+      },
+      {
+        "name": "The Tabular Rule",
+        "body": "Figures line up. The desk sets `tabular-nums` on its root; the proof page relies on Plex Mono's fixed widths for the same effect.",
+        "section": "typography"
+      },
+      {
+        "name": "The Frost Not Shadow Rule",
+        "body": "A panel is lifted by translucency and a hairline edge, never by an outer drop shadow.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do set every figure, address, hash, time and alert line in IBM Plex Mono and every sentence in Inter.",
+      "Do keep gold (#e9b65a) for credits, passed checks, PAID stamps and the single money-moving primary action.",
+      "Do show a refusal on the page: declined frost, grey, a strike, the word DECLINED and the contract's own reason.",
+      "Do put the source and read time next to every live value (\"Textile FX quote, read 10:26 WAT\").",
+      "Do lift panels with translucency and a white hairline edge over the dusk ground.",
+      "Do let only the stamp land; respect reduced motion.",
+      "Do shorten addresses to `0x1234…abcd` on narrow screens rather than letting them wrap through a slip."
+    ],
+    "donts": [
+      "Don't introduce a light theme, white panels or a neutral grey canvas.",
+      "Don't use gold as a decorative highlight, a heading colour or a second brand tint.",
+      "Don't show a state by colour alone; warn-amber and declined-grey always travel with words.",
+      "Don't add drop shadows to panels or cards.",
+      "Don't replace the slip book with a KPI row over a generic transactions table.",
+      "Don't add a second animation vocabulary (slides, bounces, staggered reveals) beside the stamp."
+    ]
+  }
+}
