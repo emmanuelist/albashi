@@ -37,5 +37,5 @@ _Last verified: 2026-11-22 23:30 UTC (handoff; the user returns Saturday 28 Nov)
 - Owner wallet holds ~10.4 CELO the user sent for a re-registration that wasn't needed: return on request
 
 ## Open questions
-- Is the self-relaying agent EOA the event's "one agent wallet"? (Celo DevRel, asked 21 Nov; the playground's own checker already sees its tag, E-012)
+- Is the self-relaying agent EOA the event's "one agent wallet", and is self-relay fine for the Altana track? (Celo DevRel, asked 21 Nov, acknowledged 23 Nov: "will check"; the playground's own checker already sees its tag, E-012)
 - Which agency is the named user, and can its freelancers cash out cNGN? (user; was due 27 Nov)
