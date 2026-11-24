@@ -65,6 +65,9 @@ session has to re-derive it or trust training data. Read before touching an inte
 - **Vercel git builds use the project's Root Directory, not where you ran the CLI.** CLI deploys from apps/web worked; the first GitHub build used Root Directory "." and preset "Other", produced nothing in ~1s and served 404 on every route while reporting success. Set Root Directory `apps/web` + Next.js. Check a deploy by its routes, not its status. (source: 2026-11-22 22:11 UTC incident)
 - **forno caps eth_getLogs at a few thousand blocks** (5,000 works, 10,000 is refused): read history in chunks and cache finished ones. A receipt can arrive before its block (getBlock fails): retry. (source: desk build, 2026-11-22)
 
+- **@altananetwork/sdk 1.2.0 (released 23 Nov) tags transactions, but not where Celo's indexer reads.** Its docs: "the tag is a few bytes on the end of one call… in a batch, the tag goes on the last call that has data"; codes `altana,<appCode>`. A relayed transaction's outer calldata is `Orchestrator.execute(intent)`, so the tag sits inside it, as in E-002, not at the outer tail that `verifyTx` reads. Self-relay (D-003) stays. Untested: whether 1.2.0 tags the owner's relayed grant/revoke usefully. Don't pin it before ~25 Nov evening (2-day rule). (source: docs.altana.network/sdk/attribution, read 2026-11-24; npm latest 1.2.0)
+- **Event resources (Loops House email, 24 Nov):** AskBots first review Thu 26 Nov (register on the hackathon page first); office hours Thursdays 12:00 GMT; Altana livestream 25 Nov 14:00 GMT; CELO and USD₮ faucets until 7 Dec (codes in the email, not repeated here); Chainstack Growth plan free for 3 months (claim on the hackathon page; set it as CELO_RPC_URL).
+
 ## Environment
 | Var | Purpose | Where to get it |
 |---|---|---|
