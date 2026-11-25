@@ -3,7 +3,7 @@ _Last verified: 2026-11-22 23:30 UTC (handoff; the user returns Saturday 28 Nov)
 
 **Thesis:** Albashi pays your freelancers in naira, and its agent can only pay the payslip you signed.
 **Milestone:** M0 build work done (two ops items are the user's); M1 done except "one real person paid" · **Deadline:** 2026-12-07 09:00 UTC (time left: the clock line)
-**Next action (28 Nov):** the UI list in order: (1) the proof page's two round buttons link to `#run`/`#try`, which don't exist: "Run payroll" → /desk, "Try" → PayRun's live refusal landing as a DECLINED alert; (2) revoke on the desk (high effort; a re-grant after revoke costs a KeyStore registration, ~10 CELO); (3) the proof page's live checks still verify spike E-005: point them at E-016; (4) a freelancer receipt page per paid line; (5) M3 pass incl. cold judges vs Syncly.
+**Next action (28 Nov):** Altana judges "users should not feel that they are in web3" (CONTEXT): first make the desk read like payroll, not a block explorer: payee names instead of addresses, naira-first plain words, proof one tap away; then the proof page's dead buttons (`#run`/`#try`) and its live checks (→ E-016); the freelancer receipt; revoke on the desk (high effort); M3 pass incl. cold judges vs Syncly.
 **People (user):** the named agency for M1/M2 was due 27 Nov and lands after this break: M1's "real person paid" and M2 now start no earlier than 28 Nov. Celo DevRel's answer on the agent wallet (asked 21 Nov). Report the MetaMask/Blockaid phishing warning on albashi.vercel.app.
 **Agent wallet on file (Loops House):** `0x1Bce3F6267983dfAb58CED6261EF05a28E168ce8` (D-011). ERC-8004 agent 10095 (E-013). Playground: all checks pass (E-014).
 
