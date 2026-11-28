@@ -161,6 +161,8 @@ export const EVIDENCE = {
   deskRun: '0x7b5e0bb86b691472947a463461e92d0235c74256eaac8ae7d1b0e42af3251b94',
   /** E-019: the owner stopped the agent from the desk: revoke(keyHash) sent from its own wallet, tagged. */
   deskRevoke: '0x0fd2eb83f29afa64940df3cbf08af305fc89d49d100ecb9672251b50d8256341',
+  /** E-019: the owner gave the agent its permission back after the stop (Altana re-grant, register: false). */
+  deskRegrant: '0xb05ba9ef59954dc298de15b664cb96246826ba48f44e5ce0c378440c229458d8',
   /** E-018: the first real freelancer paid (₦1,500 to Tommy Braz), signed on the desk by the owner's key, tagged. */
   firstFreelancer: '0xfe750155a452f2ee358a6983165e9f5b544b59ba0c8baeb4a888f3637b0c9889',
   /** E-015: the owner raised the session's daily relay-fee cap to 3 CELO (self-call, tagged). */

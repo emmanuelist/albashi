@@ -271,7 +271,7 @@
   .wl-long { display: none; }
   .wl-short { display: inline; }
   /* the chip keeps its role word on a phone; the address stays for screen readers */
-  .chip-addr { position: absolute; width: 1px; height: 1px; clip-path: inset(50%); white-space: nowrap; }
+  .chip-addr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 }
 /* the smallest phones: the bar keeps the mark, the tabs and a compact wallet button inside 320px */
 @media (max-width: 360px) {
@@ -281,3 +281,10 @@
   .dk-wallet .btn .ic { display: none; }
   .chip { padding: 0 var(--sp-2); }
 }
+
+/* ---- the agent's permission history, from Celo: visible to anyone, so the stop is seen, not described */
+.agent-log { list-style: none; margin: var(--sp-3) 0 0; padding: var(--sp-3) 0 0; border-top: 1px solid var(--border); display: grid; gap: var(--sp-3); font-size: var(--t-small); color: var(--text-soft); }
+.agent-log li { display: grid; gap: var(--sp-1); }
+.log-when { font-size: var(--t-label); color: var(--text-faint); }
+.agent-log a { white-space: nowrap; }
+.stop .meta { margin: 0; }

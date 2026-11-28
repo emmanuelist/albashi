@@ -46,6 +46,8 @@ export type DeskProps = {
   readAt: string;
   /** The agent's session key on the owner's wallet (E-009, E-011). */
   sessionKeyHash: Hex;
+  /** When the owner stopped the agent and gave its permission back (E-019), each time read from Celo. */
+  agentLog: { kind: 'stopped' | 'restored'; hash: Hex; at: string }[];
 };
 
 type SlipState =
@@ -483,7 +485,11 @@ export default function DeskApp(props: DeskProps) {
   if (minRate && liveRate && minRate > liveRate) problems.push({ text: 'Your lowest rate is above today’s rate, so no exchange could meet it.', act: liveRate ? { label: 'Use 99% of today’s rate', run: () => setFloor(money((liveRate * 99n) / 100n).replace(/,/g, '')) } : undefined });
   if (complete && float !== null && maxUsdtIn > float) {
     const short$ = maxUsdtIn - float;
-    problems.push({ text: `At your lowest rate this run could cost up to $${money(maxUsdtIn)}; the payroll balance holds $${money(float)}.`, act: { label: `Add $${money(short$)} to the payroll balance`, run: () => { setFund(money(short$).replace(/,/g, '')); setFundErr(null); fundRef.current?.scrollIntoView({ block: 'center' }); fundRef.current?.focus(); } } });
+    const inWallet = props.ownerState ? BigInt(props.ownerState.walletUsdt) : 0n;
+    // Offer the top-up only when the wallet can cover it; otherwise say where the money has to come from first.
+    problems.push(inWallet >= short$
+      ? { text: `At your lowest rate this run could cost up to $${money(maxUsdtIn)}; the payroll balance holds $${money(float)}.`, act: { label: `Add $${money(short$)} to the payroll balance`, run: () => { setFund(money(short$).replace(/,/g, '')); setFundErr(null); fundRef.current?.scrollIntoView({ block: 'center' }); fundRef.current?.focus(); } } }
+      : { text: `At your lowest rate this run could cost up to $${money(maxUsdtIn)}; the payroll balance holds $${money(float)} and your wallet $${money(inWallet)}. Send at least $${money(short$ - inWallet)} in USD₮ on Celo to your wallet (${short(props.owner)}) first, then add it to the payroll balance.`, act: { label: 'Copy your wallet address', run: () => { void navigator.clipboard?.writeText(props.owner); } } });
   }
   const blockers: Note[] = [];
   if (!isOwner) blockers.push({ text: 'Connect the owner’s wallet to sign.', act: { label: 'Connect', run: () => void connect() } });
@@ -844,9 +850,22 @@ export default function DeskApp(props: DeskProps) {
                 {feeCap && <div><dt>Network fees</dt><dd><span className="mono">{money(BigInt(feeCap.spentToday) / 10n ** 12n)} of {money(BigInt(feeCap.limit) / 10n ** 12n)}</span> CELO today</dd></div>}
               </dl>
             ) : <p className="meta">{props.ownerState ? 'The agent has no permission on this wallet, so it can’t pay anyone.' : 'Celo didn’t answer; the agent’s permission can’t be read right now.'}</p>}
+            <p className="meta">This permission lives on the owner’s Altana wallet on Celo, not with Albashi.</p>
+            {props.agentLog.length > 0 && (
+              <ol className="agent-log" aria-label="The agent’s permission, as recorded on Celo">
+                {props.agentLog.map((e) => (
+                  <li key={e.hash}>
+                    <span className="log-when mono">{watDate(new Date(e.at))} {wat(new Date(e.at))}</span>
+                    {e.kind === 'stopped'
+                      ? <span>Stopped by the owner in one transaction. <a href={celoscanTx(e.hash)} target="_blank" rel="noreferrer">Transaction<Out className="ic-s" /></a> Its next call was refused. <a href={'https://github.com/emmanuelist/albashi/blob/main/docs/evidence/agent-tries-after-stop-2026-11-28T12-55-48-476Z.json'} target="_blank" rel="noreferrer">Record<Out className="ic-s" /></a></span>
+                      : <span>Permission given back by the owner. <a href={celoscanTx(e.hash)} target="_blank" rel="noreferrer">Transaction<Out className="ic-s" /></a></span>}
+                  </li>
+                ))}
+              </ol>
+            )}
             {session && (isOwner && chainOk && account
               ? <StopAgent owner={props.owner} keyHash={props.sessionKeyHash} account={account} onStopped={() => setTimeout(() => router.refresh(), 1500)} />
-              : <p className="meta">The owner can stop the agent at any time, in one transaction from their wallet.</p>)}
+              : <div className="stop"><button type="button" className="btn btn-danger" disabled aria-describedby="stop-who">Stop the agent</button><p id="stop-who" className="meta">Only the owner’s wallet can press this: one transaction ends the agent’s permission at once.</p></div>)}
           </section>
           <section className="panel">
             <h2 className="panel-title">Payroll balance</h2>
