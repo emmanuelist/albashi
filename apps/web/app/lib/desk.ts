@@ -30,6 +30,8 @@ export type PaidLine = { line: number; to: Address; amount: bigint };
 export type Run = {
   hash: Hash;
   at: string;
+  /** The block it was mined in. */
+  block: number;
   digest: Hex;
   payslip: Payslip | null;
   usdtSpent: bigint;
@@ -64,6 +66,7 @@ const runJson = unstable_cache(
       signer,
       hash,
       at: new Date(Number(block.timestamp) * 1000).toISOString(),
+      block: Number(receipt.blockNumber),
       digest: ev.ran.digest,
       usdtSpent: ev.ran.usdtSpent.toString(),
       cngnReceived: ev.ran.cngnReceived.toString(),
@@ -74,7 +77,7 @@ const runJson = unstable_cache(
         : null,
     };
   },
-  ['desk-run-v2'],
+  ['desk-run-v3'],
   { revalidate: false },
 );
 

@@ -89,7 +89,7 @@ const PROOFS: { id: string; what: string; hash?: string; log?: string }[] = [
 ];
 
 const LIMITS = [
-  'Three pay runs so far, all from Albashi’s demo agency: two to its own test wallets (₦1,500 signed by a script, E-010; ₦1,550 signed in MetaMask on the desk, E-016), then ₦1,500 to its first real freelancer, a photographer in Lagos (E-018). No agency other than the demo one has run payroll yet.',
+  'Three pay runs so far, all from the Albashi team’s own agency wallet: two to its own test wallets (₦1,500 signed by a script, E-010; ₦1,550 signed in MetaMask on the desk, E-016), then ₦1,500 to its first real freelancer, a photographer in Lagos (E-018). No outside agency has run payroll on it yet.',
   'The refusal was checked against Celo mainnet’s state by the pay-run contract and by Altana’s relay, which would not sign it. No failed transaction was mined.',
   'The session grant goes through Altana’s relay, so it carries no attribution tag. Every transaction Albashi sends itself does.',
   'Altana’s wallet code (Porto) gives every session key a standing permission on its Orchestrator, used to pay relay fees. We haven’t audited it.',

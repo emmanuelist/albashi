@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import localFont from 'next/font/local';
 import './layout-vars.css';
 import './globals.css';
+import './tokens.css';
 
 // Faces chosen by metric matching against the approved comp (font-match) and by glyph coverage: the page sets
 // ₦ and ₮, so both faces must carry them. The rate and actions in Inter, the SMS alerts in IBM Plex Mono.

@@ -1,0 +1,74 @@
+/* Albashi's working surfaces (the desk and the freelancer receipt) share these tokens: DESIGN-RULES.md §7-9.
+   Colours are DESIGN.md's values in OKLCH; components use the semantic names, never raw values. Spacing is one 4px
+   scale in rem; type is one named scale, fluid with clamp() between rem floors and ceilings.
+   The proof page's lock screen keeps its own comp-unit system in globals.css (D-014). */
+:root {
+  /* surfaces */
+  --surface: oklch(0.252 0.060 278.5);            /* night navy ground */
+  --surface-bar: oklch(0.205 0.050 292.0 / 0.78); /* the sticky top bar, under its blur */
+  --surface-raised: oklch(0.287 0.055 298.2 / 0.62); /* slips and side panels: frost */
+  --surface-sunk: oklch(0.237 0.049 289.2 / 0.72);   /* strips and quieter panels: deep frost */
+  --surface-field: oklch(0.15 0.04 290 / 0.45);      /* inputs */
+  --surface-refused: oklch(0.317 0.015 307.9 / 0.6); /* a refused slip */
+
+  /* text */
+  --text: oklch(0.973 0.001 286.4);
+  --text-soft: oklch(0.933 0.015 312.2);
+  --text-muted: oklch(0.820 0.027 316.1);
+  --text-faint: oklch(0.713 0.034 309.8);
+
+  /* lines */
+  --border: oklch(1 0 0 / 0.14);
+  --border-strong: oklch(1 0 0 / 0.24);
+  --divider: oklch(1 0 0 / 0.10);
+  --perforation: oklch(1 0 0 / 0.28);
+
+  /* meaning: gold is money (a credit landed, a check passed, the one action that moves money) */
+  --accent: oklch(0.805 0.124 80.2);
+  --accent-hover: oklch(0.842 0.114 82.3);
+  --on-accent: oklch(0.226 0.033 68.8);
+  --accent-wash: oklch(0.805 0.124 80.2 / 0.10);
+  --success: var(--accent);
+  --refused: oklch(0.867 0.006 308.4);  /* refused is grey, struck, and always in words */
+  --warning: oklch(0.839 0.104 77.8);
+  --warning-text: oklch(0.925 0.046 82.0);
+  --warning-wash: oklch(0.839 0.104 77.8 / 0.08);
+  --danger: oklch(0.770 0.108 31.0);
+  --danger-text: oklch(0.826 0.081 31.2);
+
+  /* spacing: 4px steps */
+  --sp-1: 0.25rem; --sp-2: 0.5rem; --sp-3: 0.75rem; --sp-4: 1rem; --sp-5: 1.25rem;
+  --sp-6: 1.5rem; --sp-8: 2rem; --sp-10: 2.5rem; --sp-12: 3rem; --sp-16: 4rem;
+  --gutter: clamp(1rem, 3vw, 2.5rem);
+
+  /* type: one named scale */
+  --t-display: clamp(3rem, 2.2rem + 4vw, 4.5rem);        /* the receipt's amount */
+  --t-title: clamp(1.375rem, 1.2rem + 0.8vw, 1.625rem);   /* a page or book title */
+  --t-heading: clamp(1.125rem, 1.05rem + 0.3vw, 1.25rem); /* a section within it */
+  --t-figure-lg: clamp(1.5rem, 1.3rem + 0.9vw, 1.875rem); /* a slip's amount, a panel's value */
+  --t-figure: clamp(1.125rem, 1.05rem + 0.3vw, 1.25rem);  /* strip values */
+  --t-body: 1rem;
+  --t-ui: 0.9375rem;    /* buttons and controls */
+  --t-small: 0.875rem;  /* supporting text, records */
+  --t-label: 0.8125rem; /* term names and meta */
+  --t-stamp: 1.25rem;
+
+  /* shape and motion */
+  --r-stamp: 6px; --r-input: 8px; --r-button: 10px; --r-slip: 14px; --r-book: 20px; --r-pill: 999px;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-land: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ---- the stamp: PAID in gold, REFUSED in grey; the same object on the desk and on the receipt */
+.stamp { white-space: nowrap; display: inline-flex; align-items: center; gap: var(--sp-2); padding: var(--sp-1) var(--sp-3) var(--sp-1) var(--sp-2); border: 2px solid var(--accent); border-radius: var(--r-stamp); color: var(--accent); font: 600 var(--t-stamp)/1.25 var(--sms); letter-spacing: 0.04em; transform: rotate(-3deg); }
+.stamp .ic { width: 1.125rem; height: 1.125rem; flex: none; }
+.stamp-refused { border-color: var(--refused); color: var(--refused); }
+.stamp-land { animation: stamp-land 0.38s var(--ease-land) both; }
+@keyframes stamp-land { from { opacity: 0; transform: scale(1.7) rotate(-11deg); filter: blur(2px); } to { opacity: 1; transform: scale(1) rotate(-3deg); filter: none; } }
+@media (prefers-reduced-motion: reduce) { .stamp-land { animation: none; } }
+
+/* ---- the counterfoil edge: a dashed perforation with two punched notches, so the slip reads as tearable paper */
+.perf { position: relative; border-top: 2px dashed var(--perforation); }
+.perf::before, .perf::after { content: ''; position: absolute; top: -9px; width: 16px; height: 16px; border-radius: 50%; background: var(--surface); border: 1px solid var(--border); }
+.perf::before { left: -9px; }
+.perf::after { right: -9px; }

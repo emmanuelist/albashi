@@ -447,3 +447,22 @@ main { background: linear-gradient(180deg, #1a1838 0, #1d1b2e 700px, #191826 100
   .proof-ref { display: flex; align-items: center; justify-content: flex-end; min-height: 44px; }
 }
 @media (max-width: 760px) { .proof-ref { justify-content: flex-start; } }
+
+/* ---- the live refusal, answered on the lock screen: one more alert card, pinned over the page until dismissed */
+.sr-live { position: absolute; width: 1px; height: 1px; clip-path: inset(50%); white-space: nowrap; }
+.try-live {
+  position: fixed; z-index: 30; left: 50%; bottom: max(1rem, env(safe-area-inset-bottom)); transform: translateX(-50%);
+  width: min(32rem, calc(100vw - 2rem)); display: grid; gap: 0.5rem; padding: 0.75rem 1rem 1rem;
+  border: 1px solid var(--frost-edge); border-radius: 1.125rem; background: rgb(44 40 50 / 0.92);
+  backdrop-filter: blur(22px) saturate(0.85); color: var(--ink-on-photo); font-family: var(--sms);
+}
+.try-live:focus { outline: 2px solid #fff; outline-offset: 3px; }
+.try-live-head { display: flex; align-items: center; gap: 0.75rem; font-size: 0.875rem; }
+.try-live-from { font-weight: 600; }
+.try-live-time { margin-left: auto; color: var(--ink-quiet); font-family: var(--display); }
+.try-live-close { width: 44px; height: 44px; margin: -0.5rem -0.75rem -0.5rem 0; border: 0; background: transparent; color: var(--ink-quiet); font: 400 1.5rem/1 var(--display); cursor: pointer; border-radius: 50%; }
+.try-live-close:hover { color: #fff; background: rgb(255 255 255 / 0.08); }
+.try-live-body { margin: 0; font-size: 0.9375rem; line-height: 1.4; letter-spacing: 0.01em; color: var(--declined); }
+.try-live-body .struck { text-decoration: line-through; text-decoration-thickness: 1px; }
+.try-live-note { margin: 0; font: 400 0.9375rem/1.5 var(--display); color: var(--ink-on-photo); }
+.try-live-link { display: inline-flex; align-items: center; min-height: 44px; font: 500 0.9375rem/1 var(--display); color: #fff; text-underline-offset: 3px; }

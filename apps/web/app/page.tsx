@@ -22,6 +22,7 @@ import { Suspense } from 'react';
 import { cachedMovement, cachedRate } from './lib/cached';
 import Sections from './sections';
 import AlbashiMark from './mark';
+import TryLive from './try-live';
 
 // Rendered on every request. The rate may be up to 30 s old, and its "read" time is always the moment Textile
 // was actually asked (lib/cached.ts).
@@ -249,10 +250,10 @@ export default async function Home() {
           iconClass="declined-icon"
           time={`${watDay(PAYSLIP_REFUSAL.at)} ${wat(PAYSLIP_REFUSAL.at)}`}
           href={PAYSLIP_REFUSAL.proof}
-          label={`Declined: cNGN${formatUnits2(PAYSLIP_REFUSAL.attemptedUnits)} to a payee the owner never signed for. The pay-run contract refused it (${PAYSLIP_REFUSAL.error}) and Altana's relay would not sign it, so nothing was sent; open the captured run log`}
+          label={`Refused: cNGN${formatUnits2(PAYSLIP_REFUSAL.attemptedUnits)} to a payee the owner never signed for. The pay-run contract refused it (${PAYSLIP_REFUSAL.error}) and Altana's relay would not sign it, so nothing was sent; open the captured run log`}
           body={
             <>
-              DEBIT DECLINED: <span className="struck">cNGN{formatUnits2(PAYSLIP_REFUSAL.attemptedUnits)} · PAYEE NOT ON PAYSLIP</span>
+              DEBIT REFUSED: <span className="struck">cNGN{formatUnits2(PAYSLIP_REFUSAL.attemptedUnits)} · PAYEE NOT ON PAYSLIP</span>
             </>
           }
         />
@@ -269,7 +270,7 @@ export default async function Home() {
         </span>
         <span className="action-label">Run payroll</span>
       </a>
-      <a className="box r-btn-try round-action" href="/desk#try">
+      <TryLive className="box r-btn-try round-action">
         <span className="disc" aria-hidden="true">
         <svg viewBox="0 0 48 48" aria-hidden="true" className="action-glyph">
           <circle cx="22" cy="15" r="7" fill="none" stroke="currentColor" strokeWidth="2.4" />
@@ -279,7 +280,7 @@ export default async function Home() {
         </svg>
         </span>
         <span className="action-label">Try to pay someone not on the payslip</span>
-      </a>
+      </TryLive>
       </div>
       {/* Streamed: the sections below the fold never hold up the first screen. */}
       <Suspense fallback={null}>

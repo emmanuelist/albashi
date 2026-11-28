@@ -14,7 +14,7 @@ export const PAYEES: Record<Address, string> = {
 /** The address the public refusal check adds to the owner's signed demo payslip (apps/web/app/api/try). */
 export const STRANGER: Address = getAddress('0x155720001349A7EB406d5450a21375794a0fddF2');
 
-/** Who pays: the owner wallets Albashi knows by name. The demo agency is Albashi's own test owner (STATE, D-012). */
+/** Who pays: the owner wallets Albashi knows by name. This one is the Albashi team's own agency wallet (STATE, D-012). */
 export const PAYERS: Record<Address, string> = {
-  [getAddress('0x0EcaaFc1Bd6f7033d6eb038d8Cbc8a55f900D4B1')]: 'Albashi demo agency',
+  [getAddress('0x0EcaaFc1Bd6f7033d6eb038d8Cbc8a55f900D4B1')]: 'Albashi team',
 };

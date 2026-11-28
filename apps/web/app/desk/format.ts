@@ -30,3 +30,8 @@ export function parseNaira(s: string): bigint | null {
   const units = BigInt(w!) * 10n ** D + BigInt((f + '000000').slice(0, 6));
   return units > 0n ? units : null;
 }
+
+/** "21 Jan 2027": a date that matters beyond this week carries its year. */
+export function watDate(d: Date): string {
+  return d.toLocaleDateString('en-GB', { timeZone: 'Africa/Lagos', day: 'numeric', month: 'short', year: 'numeric' });
+}

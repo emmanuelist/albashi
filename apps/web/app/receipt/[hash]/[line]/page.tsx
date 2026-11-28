@@ -8,7 +8,9 @@ import { getAddress, isHash, type Address, type Hash } from 'viem';
 import { readRun, type Run } from '../../../lib/desk.ts';
 import { PAYEES, PAYERS } from '../../../lib/payees.ts';
 import { CNGN, PAYRUN } from '../../../lib/proof.ts';
-import { celoscanAddr, celoscanTx, money, rateOf, short, wat, watDay } from '../../../desk/format.ts';
+import { celoscanAddr, celoscanTx, money, rateOf, short, wat, watDate, watDay } from '../../../desk/format.ts';
+import { Check, Cross } from '../../../desk/icons.tsx';
+import { Stamp } from '../../../stamp.tsx';
 import AlbashiMark from '../../../mark.tsx';
 import './receipt.css';
 
@@ -51,6 +53,7 @@ function Shell({ children }: { children: React.ReactNode }) {
     <main className="rc">
       <header className="rc-top">
         <Link href="/" className="rc-brand" aria-label="Albashi home"><AlbashiMark className="rc-mark" /><span>ALBASHI</span></Link>
+        <span className="rc-context">Payment receipt</span>
       </header>
       {children}
     </main>
@@ -93,9 +96,16 @@ export default async function Receipt({ params }: { params: Promise<Params> }) {
   return (
     <Shell>
       <article className="rc-sheet" aria-labelledby="rc-title">
-        <p className="rc-kicker">Payment receipt</p>
-        <h1 id="rc-title" className="rc-amount" aria-label={`You were paid ₦${money(amount)}`}>₦{money(amount)}</h1>
-        <p className="rc-stamp"><span>PAID</span> {watDay(at)} {wat(at)} WAT</p>
+        {/* The receipt is one pay-advice slip: the advice (amount, who, from whom, at what rate) above a perforated
+            counterfoil that carries the same PAID stamp as the agency's desk. */}
+        <div className="rc-advice">
+          <h1 id="rc-title" className="rc-amount" aria-label={`You were paid ₦${money(amount)}`}>₦{money(amount)}</h1>
+          <p className="rc-to">to <strong>{who ?? 'a wallet with no name on file'}</strong></p>
+        </div>
+        <div className="rc-foil perf">
+          <Stamp kind="paid"> {wat(at)}</Stamp>
+          <span className="rc-when"><span className="rc-mono">{watDate(at)}, {wat(at)}</span> WAT · confirmed on Celo</span>
+        </div>
 
         <dl className="rc-facts">
           <div><dt>To</dt><dd><span className="rc-name">{who ?? 'Wallet with no name on file'}</span><span className="rc-mono">{short(to)}</span></dd></div>
@@ -107,9 +117,9 @@ export default async function Receipt({ params }: { params: Promise<Params> }) {
         <section className="rc-why" aria-labelledby="rc-why-title">
           <h2 id="rc-why-title" className="rc-h2">{signedByOwner && matches ? 'The agency signed this exact amount' : 'What Celo shows about this payment'}</h2>
           <ul className="rc-checks">
-            <li className={signedByOwner ? 'ok' : 'no'}><span className="rc-v">{signedByOwner ? 'Yes' : 'No'}</span>The payslip was signed by the agency’s own wallet before anything was paid.</li>
-            <li className={matches ? 'ok' : 'no'}><span className="rc-v">{matches ? 'Yes' : 'No'}</span>You received exactly the amount on that signed line{signedAmount !== null && !matches ? ` (signed: ₦${money(signedAmount)})` : ''}.</li>
-            <li className="ok"><span className="rc-v">Yes</span>Confirmed on Celo, the network the payment was made on.</li>
+            <li className={signedByOwner ? 'ok' : 'no'}><span className="rc-v">{signedByOwner ? <Check className="ic" /> : <Cross className="ic" />}{signedByOwner ? 'Yes' : 'No'}</span>The payslip was signed by the agency’s own wallet before anything was paid.</li>
+            <li className={matches ? 'ok' : 'no'}><span className="rc-v">{matches ? <Check className="ic" /> : <Cross className="ic" />}{matches ? 'Yes' : 'No'}</span>You received exactly the amount on that signed line{signedAmount !== null && !matches ? ` (signed: ₦${money(signedAmount)})` : ''}.</li>
+            <li className="ok"><span className="rc-v"><Check className="ic" />Yes</span>Recorded on Celo by the payroll contract itself: its payment record for this line, in block {run.block.toLocaleString('en-US')}.</li>
           </ul>
           <p className="rc-note">Albashi’s agent pays only what the agency signed. It can’t change an amount or add anyone.</p>
         </section>

@@ -23,7 +23,7 @@ colors:
   desk-faint: "#a99db3"
   sheet-ink: "#d9d3df"
   sheet-quiet: "#a49dae"
-  declined-grey: "#d4d2d6"
+  refused-grey: "#d4d2d6"
   warn-amber: "#f0c27a"
   error-salmon: "#f19a8a"
 typography:
@@ -148,7 +148,7 @@ components:
     padding: "18px 22px"
   slip-declined:
     backgroundColor: "{colors.frost-declined}"
-    textColor: "{colors.declined-grey}"
+    textColor: "{colors.refused-grey}"
     rounded: "{rounded.slip}"
     padding: "18px 22px"
   stamp-paid:
@@ -157,7 +157,7 @@ components:
     rounded: "{rounded.stamp}"
     padding: "5px 11px 5px 8px"
   stamp-declined:
-    textColor: "{colors.declined-grey}"
+    textColor: "{colors.refused-grey}"
     typography: "{typography.stamp}"
     rounded: "{rounded.stamp}"
     padding: "5px 11px 5px 8px"
@@ -180,11 +180,11 @@ components:
 
 **Creative North Star: "The Alert and the Counterfoil"**
 
-Albashi lives in the paperwork a Nigerian payment leaves behind. On the public page that is a phone's lock screen at dusk over Lagos: frosted notification cards from the sender ALBASHI, set like bank credit alerts. On the owner's desk it is the same dusk carried indoors: a book of pay-advice slips, each torn along a dashed perforation, whose counterfoil is stamped PAID when the pay-run contract's event is read, or DECLINED and struck when nobody signed it. Both surfaces are one world: violet-to-navy night, frosted translucent panels, one warm gold that means money arrived, and monospaced figures you could check against the chain.
+Albashi lives in the paperwork a Nigerian payment leaves behind. On the public page that is a phone's lock screen at dusk over Lagos: frosted notification cards from the sender ALBASHI, set like bank credit alerts. On the owner's desk it is the same dusk carried indoors: a book of pay-advice slips, each torn along a dashed perforation, whose counterfoil is stamped PAID when the pay-run contract's event is read, or REFUSED and struck when nobody signed it. Both surfaces are one world: violet-to-navy night, frosted translucent panels, one warm gold that means money arrived, and monospaced figures you could check against the chain.
 
 The system is dark, quiet and exact. Density is moderate on the desk (laptop-first ledger, 16px body) and theatrical only in the public first viewport, where the live rate is set at lock-screen clock scale. Decoration is almost absent; character comes from the artefacts (alert, slip, perforation, stamp) and from the strict split between words (Inter) and records (IBM Plex Mono).
 
-The two surfaces do not share one token file. The proof page defines its colours on `:root` in `globals.css` (plus a calmer set scoped to the below-the-fold reading sections); the desk redefines its own set under `.desk` in `desk.css`, borrowing only the gold, night, navy, declined grey, ink and font variables from `:root`. The frontmatter records the values both actually use; where a value belongs to one surface only, the prose says so.
+The proof page and the working surfaces do not share one token file. The proof page defines its colours on `:root` in `globals.css` (plus a calmer set scoped to the below-the-fold reading sections); the desk redefines its own set under `.desk` in `desk.css`, borrowing only the gold, night, navy, declined grey, ink and font variables from `:root`. The frontmatter records the values both actually use; where a value belongs to one surface only, the prose says so.
 
 **Key Characteristics:**
 - Dusk violet into navy ground; never a white or neutral-grey canvas.
@@ -210,7 +210,7 @@ A low-saturation night palette with one warm metal accent; state is carried by w
 - **Alert Frost** (`frost-alert`): the proof page's notification cards, tuned so 13px white text keeps 4.5:1 over the brightest sunset. **Declined Frost** (`frost-declined`) is its greyer, more opaque sibling, used by both declined alerts and declined slips.
 - **Frost Edge**, **Hairline**, **Strong Hairline**: 1px white-alpha borders. Edge on frosted alert cards and lock-screen discs; hairline on desk panels, dividers and slip borders; strong hairline on buttons, chips and inputs.
 - **Photo Ink** (`ink-on-photo`): primary text on both surfaces. **Quiet Ink** (`ink-quiet`) is the proof page's secondary; the desk uses its own **Desk Quiet** and **Desk Faint** for labels and metadata; the reading sections use **Sheet Ink** (about 11:1, chosen to avoid halation) and **Sheet Quiet**.
-- **Declined Grey** (`declined-grey`): struck amounts, DECLINED stamps, declined alert text.
+- **Refused Grey** (`refused-grey`): struck amounts, REFUSED stamps, declined alert text.
 - **Warn Amber** (`warn-amber`): an ended session, the wrong-account chip, the banner and notes. It is always paired with a sentence ("ended 22 Nov 10:26 WAT").
 - **Error Salmon** (`error-salmon`): invalid input borders; field error text uses a lighter `#f6b3a6`, the proof page's FAIL verdict `#ff9a8a`.
 - **On-Gold Ink** (`on-gold-ink`): text on the gold primary button.
@@ -218,7 +218,7 @@ A low-saturation night palette with one warm metal accent; state is carried by w
 ### Named Rules
 **The Gold Means Money Rule.** Gold appears only where a credit landed, a check passed, or on the one action that moves money forward (and, on the desk, the keyboard focus that leads to it). Never gold for decoration, headings or a second "brand" highlight.
 
-**The Words Before Colour Rule.** A state is never colour alone. Declined is grey plus a strike plus the word DECLINED and the contract's reason; a warning is amber plus the sentence that explains it.
+**The Words Before Colour Rule.** A state is never colour alone. Declined is grey plus a strike plus the word REFUSED and the contract's reason; a warning is amber plus the sentence that explains it.
 
 **The No Daylight Rule.** Every surface sits on the dusk ground. There is no light theme and no white panel.
 
@@ -240,7 +240,7 @@ Both faces are self-hosted, subset to Latin plus ₦ and ₮, and carry both sym
 - **Figure Large** (Plex Mono 600, 30px/1.15): slip amounts, the panel rate and float.
 - **Figure** (Plex Mono 600, 20px/1.2): reconciliation strip values; 22px inside amount inputs.
 - **Record** (Plex Mono 400, 13 to 15px): payee addresses, hashes, event refs, input text, floor and metadata lines.
-- **Stamp** (Plex Mono 600, 20px, 0.04em, uppercase word): PAID and DECLINED; 14px in compact slips.
+- **Stamp** (Plex Mono 600, 20px, 0.04em, uppercase word): PAID and REFUSED; 14px in compact slips.
 - **SMS Alert** (Plex Mono, 13px/18px on a phone, 31 comp pixels on desktop, all caps as bank alerts read, sender in 600): the proof page's notification cards and the rate line beneath the rate.
 - **Brand** (Plex Mono 600, 0.04 to 0.06em tracking): the ALBASHI wordmark beside the handwritten mark.
 
@@ -255,7 +255,7 @@ The proof page's first viewport is a measured composition: every element sits at
 
 The desk is a two-column ledger: main column plus a 340px sticky side column (top 92px), 28px gaps, max 1360px, side padding clamp(16px, 3vw, 40px), under a 64px sticky top bar. Slips stack with 12px gaps; beyond six lines they fold to one row each (6px gaps) and keep their stamp column. At 1080px the grid becomes one column ordered run first, then the agent's limits and float, then the public check; side panels tile at 240px minimum. At 680px slips stack the counterfoil under the advice (perforation turns horizontal), the reconciliation strip goes two by two, addresses shorten to `0x1234…abcd`, and the wordmark collapses to the mark.
 
-Spacing is hand-tuned rather than a strict scale; the recurring steps are 4, 8, 12, 18, 22 and 28px.
+The desk and the receipt share one token file (`apps/web/app/tokens.css`, 28 Nov, D-014): semantic colours in OKLCH (`surface`, `surface-raised`, `surface-sunk`, `text`, `text-muted`, `text-faint`, `border`, `divider`, `accent`, `success`, `refused`, `warning`, `danger`), spacing on a 4px scale in rem (`--sp-1` 0.25rem to `--sp-16` 4rem), and one named type scale fluid with clamp() (display, title, heading, figure-lg, figure, body, ui, small, label, stamp). The proof page's lock screen keeps its own comp-unit system. The stamp is one shared component (`app/stamp.tsx`) on both working surfaces.
 
 ## Elevation & Depth
 
@@ -306,7 +306,7 @@ One shape, three weights.
 ### Desk Slip (signature)
 The pay-advice slip. Left, the advice: line label (13px quiet), payee address (Record), amount (Figure Large). Right, a 290px counterfoil behind the dashed perforation with its two notches. The counterfoil holds the state:
 - **PAID hh:mm:** gold-bordered stamp with a check, on a 10% gold wash, followed by the paid amount and the Paid event link.
-- **DECLINED:** grey-bordered stamp with a cross; the whole slip on declined frost, the amount struck and grey, and the contract's sentence and error name beneath. A declined payee stays on the page; it is never removed.
+- **REFUSED:** grey-bordered stamp with a cross; the whole slip on declined frost, the amount struck and grey, and the contract's sentence and error name beneath. A declined payee stays on the page; it is never removed.
 - **Signed:** quiet Inter 600 word plus a faint note ("waiting for the agent").
 - **Running:** the word with a small pulsing gold dot ("stamped when PayRun pays this line").
 - **Not signed yet:** the word alone.
@@ -316,7 +316,7 @@ In compact mode (more than six lines) the stamp drops to 14px and unrotated; a d
 A four-cell definition strip on deep frost with hairline dividers: Signed, Paid by PayRun, USD₮ spent, Rate got (with the signed floor beneath in faint mono). Labels in Inter 13px, values in Figure. Two by two on a phone.
 
 ### SMS Alert Card (proof page)
-A frosted lock-screen notification: icon tile on the left (the Albashi app tile, a gold credit disc with a down arrow, or a grey ringed disc with a cross), sender ALBASHI and time on the head row, body in all-caps mono written the way bank alerts read (AMT, DESC, TIME, REF). A credit card links to its transaction; the declined card uses declined frost, grey text and a strike, and says DEBIT DECLINED and why. Hover brightens the edge to 50% white; focus is a white outline.
+A frosted lock-screen notification: icon tile on the left (the Albashi app tile, a gold credit disc with a down arrow, or a grey ringed disc with a cross), sender ALBASHI and time on the head row, body in all-caps mono written the way bank alerts read (AMT, DESC, TIME, REF). A credit card links to its transaction; the declined card uses declined frost, grey text and a strike, and says DEBIT REFUSED and why. Hover brightens the edge to 50% white; focus is a white outline.
 
 ### Motion
 One motion in the system: the stamp landing. When the pay-run contract's Paid event for a line is read, its stamp drops in over 0.38s on `cubic-bezier(0.16, 1, 0.3, 1)`, from 1.7x scale, -11deg and a 2px blur to rest at -3deg. A 1.4s opacity pulse marks a running line. Hovers use 0.15 to 0.18s on `cubic-bezier(0.2, 0.8, 0.2, 1)`. Under `prefers-reduced-motion` the stamp and pulses do not animate.
@@ -326,7 +326,7 @@ One motion in the system: the stamp landing. When the pay-run contract's Paid ev
 ### Do:
 - **Do** set every figure, address, hash, time and alert line in IBM Plex Mono and every sentence in Inter.
 - **Do** keep gold (#e9b65a) for credits, passed checks, PAID stamps and the single money-moving primary action.
-- **Do** show a refusal on the page: declined frost, grey, a strike, the word DECLINED and the contract's own reason.
+- **Do** show a refusal on the page: declined frost, grey, a strike, the word REFUSED and the contract's own reason.
 - **Do** put the source and read time next to every live value ("Textile FX quote, read 10:26 WAT").
 - **Do** lift panels with translucency and a white hairline edge over the dusk ground.
 - **Do** let only the stamp land; respect reduced motion.
@@ -335,7 +335,7 @@ One motion in the system: the stamp landing. When the pay-run contract's Paid ev
 ### Don't:
 - **Don't** introduce a light theme, white panels or a neutral grey canvas.
 - **Don't** use gold as a decorative highlight, a heading colour or a second brand tint.
-- **Don't** show a state by colour alone; warn-amber and declined-grey always travel with words.
+- **Don't** show a state by colour alone; warn-amber and refused-grey always travel with words.
 - **Don't** add drop shadows to panels or cards.
 - **Don't** replace the slip book with a KPI row over a generic transactions table.
 - **Don't** add a second animation vocabulary (slides, bounces, staggered reveals) beside the stamp.
