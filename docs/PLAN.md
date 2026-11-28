@@ -29,7 +29,7 @@ Deadline source: https://www.loops.house/agents-open-for-business ("Mon 7 Dec, 0
 - [x] **Agent path in product code:** Textile firm quote with PayRun as the taker, a clean prepare → sign → simulate → submit self-relay (no SDK interception), tagged. Done 2026-11-22: E-010 (`apps/agent/src/relay.ts`, `scripts/proof-run.ts`).
 - [x] **First mainnet pay run and refusal, to our own test wallets.** Done 2026-11-22: E-010 (₦700 + ₦800, exactly the signed lines), E-011 (`NotSigned`).
 - [x] **Owner desk in `apps/web`** (done 2026-11-22: E-016, a run signed in MetaMask on albashi.vercel.app/desk, run by the agent, tagged): the owner writes and signs a payslip in the browser, the agent runs it, and the page shows that run from chain. The payslip/run component renders real data and is chosen from three variants (`impeccable generate 3`). Done when a run started from the deployed page lands on mainnet, tagged.
-- [ ] **One real person paid** in cNGN (M1's exit says a real person, not our test wallets). Needs the named agency (ops item above) or one freelancer the user knows.
+- [x] **One real person paid** in cNGN. Done 2026-11-28: E-018, ₦1,500 to Tommy Braz (photographer), run from the deployed desk, tagged inner and outer.
 - [x] **PayRun v2 source verified**, so judges can read what pays. Done 2026-11-22 on Sourcify (runtime match); Blockscout can't match the tagged creation input (CONTEXT trap).
 - [x] **Proof page and README:** state the thesis as true where C-1 allows, and add the E-010 run and E-011 refusal as alerts. Done 2026-11-22: deployed, served from chain reads (commit 9b3c907).
 

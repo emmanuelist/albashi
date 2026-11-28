@@ -69,7 +69,7 @@ owner ── one transaction revokes the session ──► the agent is stopped
 
 ## Limits
 
-- One pay run so far: ₦1,500 to Albashi's own test wallets. The payslip was signed by a script; the owner's app isn't built yet.
+- Three pay runs so far, all from Albashi's demo agency: two to its own test wallets (E-010, E-016) and ₦1,500 to its first real freelancer, a photographer in Lagos (E-018, [receipt](https://albashi.vercel.app/receipt/0xfe750155a452f2ee358a6983165e9f5b544b59ba0c8baeb4a888f3637b0c9889/1)). No other agency has run payroll yet, and cashing cNGN out to a bank is still being checked with him.
 - The refusal of an unsigned payee was checked against mainnet state by the pay-run contract and by Altana's relay, which would not sign it. No failed transaction was mined.
 - The session grant goes through Altana's relay, so it is untagged. Every transaction Albashi sends itself carries the tag.
 - Altana's wallet code (Porto) gives every session key a standing permission on its Orchestrator, used for relay fees. We haven't audited it.

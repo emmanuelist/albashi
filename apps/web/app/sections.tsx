@@ -84,11 +84,12 @@ const PROOFS: { id: string; what: string; hash?: string; log?: string }[] = [
   { id: 'E-011', what: 'The same payslip with a payee added was refused (NotSigned) before anything was signed or sent', log: PAYSLIP_REFUSAL.proof },
   { id: 'E-013', what: 'The agent registered its ERC-8004 identity, agent 10095', hash: EVIDENCE.erc8004 },
   { id: 'E-015', what: 'The owner raised the agent’s daily network-fee cap to 3 CELO on its own wallet, tagged', hash: EVIDENCE.feeCap },
+  { id: 'E-018', what: 'The first real freelancer paid: ₦1,500 to Tommy Braz, a photographer in Lagos, exactly the signed line, at ₦1,440.57 per USD₮ (signed floor ₦1,426.15)', hash: EVIDENCE.firstFreelancer },
   { id: 'E-016', what: 'A pay run signed by the owner on the desk in MetaMask: ₦750 and ₦800, exactly the signed lines, at ₦1,442.09 per USD₮ (signed floor ₦1,427.67)', hash: EVIDENCE.deskRun },
 ];
 
 const LIMITS = [
-  'Two pay runs so far, both to Albashi’s own test wallets: ₦1,500 signed by a script (E-010), then ₦1,550 signed by the owner on the desk (E-016). No real freelancer has been paid yet.',
+  'Three pay runs so far, all from Albashi’s demo agency: two to its own test wallets (₦1,500 signed by a script, E-010; ₦1,550 signed in MetaMask on the desk, E-016), then ₦1,500 to its first real freelancer, a photographer in Lagos (E-018). No agency other than the demo one has run payroll yet.',
   'The refusal was checked against Celo mainnet’s state by the pay-run contract and by Altana’s relay, which would not sign it. No failed transaction was mined.',
   'The session grant goes through Altana’s relay, so it carries no attribution tag. Every transaction Albashi sends itself does.',
   'Altana’s wallet code (Porto) gives every session key a standing permission on its Orchestrator, used to pay relay fees. We haven’t audited it.',

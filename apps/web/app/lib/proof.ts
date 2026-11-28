@@ -159,6 +159,8 @@ export const EVIDENCE = {
   payRun: '0xaaabd2dfa98b955f8e5edb3b9eabe1b7b0d750d4983bdb3152a30f5815b89bfc',
   /** E-016: the first pay run signed by the owner on the deployed desk (MetaMask), run by the agent's route, tagged. */
   deskRun: '0x7b5e0bb86b691472947a463461e92d0235c74256eaac8ae7d1b0e42af3251b94',
+  /** E-018: the first real freelancer paid (₦1,500 to Tommy Braz), signed on the desk by the owner's key, tagged. */
+  firstFreelancer: '0xfe750155a452f2ee358a6983165e9f5b544b59ba0c8baeb4a888f3637b0c9889',
   /** E-015: the owner raised the session's daily relay-fee cap to 3 CELO (self-call, tagged). */
   feeCap: '0xf18922feece3195b4030dc937e4b987e0086ea0e03bbeb6e142c1ef8915ee28f',
   /** E-013: the agent registered its ERC-8004 identity (agent 10095), tagged. */

@@ -4,7 +4,7 @@
 
 A payroll agent for small agencies on Celo mainnet. The owner signs a payslip (who is paid, how much in naira, the lowest exchange rate they accept, a deadline). The agent buys cNGN with USD₮ on Textile FX and the payroll contract (PayRun) pays each signed line, and nothing else. The agent acts from the owner's Altana wallet under a permission that may call only PayRun.run; the owner can end it in one transaction.
 
-Everything on the pages is read from Celo or Textile when the page loads. Limits are stated on the home page under "What isn't true yet": not audited; pay runs so far went to Albashi's own test wallets; cashing cNGN out to a bank is still being checked with a real freelancer.
+Everything on the pages is read from Celo or Textile when the page loads. Limits are stated on the home page under "What isn't true yet": not audited; pay runs so far came from Albashi's demo agency, one of them to a real freelancer (₦1,500 to a photographer in Lagos, 28 Nov); cashing cNGN out to a bank is still being checked with him.
 
 ## Pages
 

@@ -31,7 +31,7 @@ _Last verified: 2026-11-22 23:30 UTC (handoff; the user returns Saturday 28 Nov)
 
 ## Broken or unverified
 - MetaMask warns "phishing or wallet-draining" on albashi.vercel.app (not on MetaMask's public list; likely Blockaid; unreported)
-- No real person paid yet (our test wallets only); cNGN cash-out unverified
+- First real freelancer paid (E-018, 28 Nov), by the demo agency; no outside agency yet; his cNGN cash-out to a bank unverified
 - Revoke exists only as a spike script, not in the desk
 - PayRun not audited; refusal shown as a simulation against mainnet, not a mined revert
 - The session grant goes through Altana's relay, untagged
