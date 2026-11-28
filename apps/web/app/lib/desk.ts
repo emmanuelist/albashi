@@ -2,12 +2,12 @@
 // events, each with the payslip and signature decoded from its transaction), its USD₮ float and wallet balance,
 // and the agent's session on the owner's account (expiry, permitted calls, spend caps). Nothing is filled in:
 // a read that fails comes back null and the page says so.
-import { createPublicClient, erc20Abi, http, parseAbi, parseAbiItem, type Address, type Hash, type Hex, type Log } from 'viem';
+import { createPublicClient, erc20Abi, http, parseAbi, parseAbiItem, recoverTypedDataAddress, type Address, type Hash, type Hex, type Log } from 'viem';
 import { celo } from 'viem/chains';
 import { unstable_cache } from 'next/cache';
 import { payRunAbi } from '../agent/abi.ts';
 import { payslipFromRunTx, runEvents } from '../agent/runner.ts';
-import type { Payslip } from '../agent/payslip.ts';
+import { payslipDomain, payslipTypes, type Payslip } from '../agent/payslip.ts';
 import { PAYRUN, USDT, settled } from './proof.ts';
 
 // forno occasionally drops a request from a serverless region; viem retries each call (3 tries, backing off) so one
@@ -36,6 +36,8 @@ export type Run = {
   cngnReceived: bigint;
   cngnPaid: bigint;
   paid: PaidLine[];
+  /** Who signed the payslip inside the run, recovered from its EIP-712 signature (null if it couldn't be decoded). */
+  signer: Address | null;
 };
 
 type RunJson = Omit<Run, 'usdtSpent' | 'cngnReceived' | 'cngnPaid' | 'paid' | 'payslip'> & {
@@ -55,7 +57,11 @@ const runJson = unstable_cache(
     if (!ev.ran) throw new Error(`${hash} has no Ran event`);
     const decoded = payslipFromRunTx(tx.input, PAYRUN);
     const p = decoded?.payslip;
+    const signer = decoded
+      ? await recoverTypedDataAddress({ domain: payslipDomain(PAYRUN), types: payslipTypes, primaryType: 'Payslip', message: decoded.payslip, signature: decoded.signature }).catch(() => null)
+      : null;
     return {
+      signer,
       hash,
       at: new Date(Number(block.timestamp) * 1000).toISOString(),
       digest: ev.ran.digest,
@@ -68,7 +74,7 @@ const runJson = unstable_cache(
         : null,
     };
   },
-  ['desk-run-v1'],
+  ['desk-run-v2'],
   { revalidate: false },
 );
 
@@ -97,6 +103,15 @@ const finishedChunk = unstable_cache(
   ['desk-ran-chunk-v1'],
   { revalidate: false },
 );
+
+/** One pay run by its transaction, or null when it isn't a PayRun run or Celo didn't answer. */
+export async function readRun(hash: Hash): Promise<Run | null> {
+  try {
+    return runFrom(await runJson(hash));
+  } catch {
+    return null;
+  }
+}
 
 /** Every pay run this owner has had, newest first, from PayRun's Ran events. */
 export async function readRuns(owner: Address = DESK_OWNER): Promise<Run[] | null> {

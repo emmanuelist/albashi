@@ -46,7 +46,7 @@ export type DeskProps = {
 };
 
 type SlipState =
-  | { kind: 'paid'; at: Date; hash: Hex; amount: bigint; fresh?: boolean }
+  | { kind: 'paid'; at: Date; hash: Hex; amount: bigint; line: number; fresh?: boolean }
   | { kind: 'declined'; sentence: string; note: string }
   | { kind: 'draft' }
   | { kind: 'signed' }
@@ -61,7 +61,7 @@ function Counterfoil({ s }: { s: SlipState }) {
         <div className="foil foil-paid">
           <span className={`stamp${s.fresh ? ' stamp-land' : ''}`}><Check className="ic" />PAID {wat(s.at)}</span>
           <span className="foil-note"><span className="mono">₦{money(s.amount)}</span> received</span>
-          <a className="ref" href={`${celoscanTx(s.hash)}#eventlog`} target="_blank" rel="noreferrer">Receipt on Celo<Out className="ic-s" /></a>
+          <Link className="ref" href={`/receipt/${s.hash}/${s.line + 1}`}>Receipt to send</Link>
         </div>
       );
     case 'declined':
@@ -478,7 +478,7 @@ export default function DeskApp(props: DeskProps) {
     const signed = last.lines ?? last.paid.map((p) => ({ to: p.to, amount: p.amount }));
     return signed.map((l, i) => {
       const p = last.paid.find((x) => x.line === i);
-      return { to: l.to, amount: BigInt(l.amount), state: (p ? { kind: 'paid', at: new Date(last.at), hash: last.hash, amount: BigInt(p.amount) } : { kind: 'unpaid' }) as SlipState };
+      return { to: l.to, amount: BigInt(l.amount), state: (p ? { kind: 'paid', at: new Date(last.at), hash: last.hash, amount: BigInt(p.amount), line: i } : { kind: 'unpaid' }) as SlipState };
     });
   }, [last]);
   const signedTotal = lastLines.reduce((s, l) => s + l.amount, 0n);
@@ -490,7 +490,7 @@ export default function DeskApp(props: DeskProps) {
     if (phase === 'running') return { kind: 'waiting' };
     const ev = outcome?.paid?.find((p) => Number(p.line) === i);
     if (outcome?.status === 'paid' && outcome.hash && outcome.minedAt && ev && stamped.includes(i)) {
-      return { kind: 'paid', at: new Date(outcome.minedAt * 1000), hash: outcome.hash, amount: BigInt(ev.amount), fresh: true };
+      return { kind: 'paid', at: new Date(outcome.minedAt * 1000), hash: outcome.hash, amount: BigInt(ev.amount), line: i, fresh: true };
     }
     if (outcome?.status === 'paid') return { kind: 'waiting' };
     return { kind: 'signed' };
@@ -594,7 +594,7 @@ export default function DeskApp(props: DeskProps) {
                 </ol>
               )}
               {outcome && outcome.status !== 'paid' && <p className="refusal" role="alert"><Cross className="ic" />{outcome.sentence}</p>}
-              {outcome?.status === 'paid' && <p className="done-line" role="status"><Check className="ic ok" />Paid exactly as signed. Each stamp links to that person’s receipt on Celo.</p>}
+              {outcome?.status === 'paid' && <p className="done-line" role="status"><Check className="ic ok" />Paid exactly as signed. Each stamp links to a receipt you can send that person.</p>}
 
               <div className="actions">
                 {phase !== 'done' ? (
@@ -618,7 +618,7 @@ export default function DeskApp(props: DeskProps) {
                     ? <button type="button" className="btn btn-primary" onClick={() => setDrafting(true)}><Plus className="ic" />New payslip</button>
                     : <button type="button" className="btn btn-quiet" onClick={connect} disabled={connecting}><Wallet className="ic" />Connect the owner wallet to write</button>)}
                 </div>
-                <p className="book-sub">Every line below is one the owner signed. A PAID stamp means that person received the money, with a receipt on Celo.</p>
+                <p className="book-sub">Every line below is one the owner signed. A PAID stamp means that person received the money; each has a receipt to send them.</p>
                 <dl className="recon" aria-label="Signed against paid">
                   <div><dt>Owner signed</dt><dd>₦{money(signedTotal)}</dd></div>
                   <div><dt>Paid out</dt><dd>₦{money(BigInt(last.cngnPaid))}</dd></div>
