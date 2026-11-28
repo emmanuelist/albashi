@@ -1,13 +1,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { decodeAbiParameters, decodeFunctionData, erc20Abi, toFunctionSelector, type Hex } from 'viem';
+import { decodeAbiParameters, decodeFunctionData, encodeFunctionData, erc20Abi, toFunctionSelector, type Hex } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { toDataSuffix } from '@celo/attribution-tags';
 import * as Key from 'porto/viem/Key';
 import { payRunAbi } from '../src/abi.ts';
 import { buildRunCall, RunRefused } from '../src/payrun.ts';
 import {
-  ATTRIBUTION_CODE, EXECUTE_ABI, INTENT, intentFrom, laneForKeyHash, laneNonce, secp256k1KeyHash, stripEip7708AssetDiffs,
+  ATTRIBUTION_CODE, EXECUTE_ABI, innerTag, INTENT, intentFrom, laneForKeyHash, laneNonce, secp256k1KeyHash, stripEip7708AssetDiffs,
   taggedExecuteCalldata,
 } from '../src/relay.ts';
 import { fundFloatCalls, payRunPermissions, RUN_SELECTOR } from '../src/session.ts';
@@ -15,7 +15,7 @@ import { REACTOR, USDT, type FirmQuote } from '../src/textile.ts';
 import { VECTOR, VECTOR_PAYRUN } from './vector.ts';
 
 // The SDK's own implementations, imported by file path (its package exports allow no deep imports) so these
-// tests fail the moment our port drifts from @altananetwork/sdk 1.1.0.
+// tests fail the moment our port drifts from @altananetwork/sdk (1.1.0 internals, unchanged in 1.2.0).
 const sdk = '../node_modules/@altananetwork/sdk/dist/internal/';
 const sdkLane = (await import(sdk + 'appNonceLane.js')) as { laneForKeyHash(h: Hex): bigint; laneNonce(l: bigint, c: bigint): bigint };
 const sdkKey = (await import(sdk + 'erc1271.js')) as { computeAccountSecp256k1KeyHash(a: Hex): Hex };
@@ -144,4 +144,15 @@ test('buildRunCall refuses a quote below the floor or too small, in sentences', 
   const big = { ...VECTOR, lines: [{ to: VECTOR.lines[0]!.to, amount: 1_500_000_000n }] };
   assert.throws(() => buildRunCall({ payRun: VECTOR_PAYRUN, payslip: big, ownerSignature: '0x', quote, nowSeconds: now }), (e: unknown) =>
     e instanceof RunRefused && e.problems.includes('The quote buys less cNGN than the payslip pays out.'));
+});
+
+test('the inner tag is the SDK 1.2.0 tag (altana + our code) and leaves a PayRun.run call decoding the same', async () => {
+  const { parseAttribution, tagCalls } = await import('@altananetwork/sdk');
+  assert.deepEqual(parseAttribution(innerTag())?.codes, ['altana', ATTRIBUTION_CODE]);
+  const call = { to: VECTOR_PAYRUN, data: encodeFunctionData({ abi: payRunAbi, functionName: 'run', args: [VECTOR, '0x1234', 1_000_000n, '0x3f62192e'] }) };
+  const [tagged] = tagCalls([{ to: call.to, data: call.data, value: 0n }], innerTag(), { session: true });
+  assert.ok(tagged!.data!.endsWith(innerTag().slice(2)));
+  const plain = decodeFunctionData({ abi: payRunAbi, data: call.data });
+  const withTag = decodeFunctionData({ abi: payRunAbi, data: tagged!.data as Hex });
+  assert.deepEqual(withTag.args, plain.args);
 });

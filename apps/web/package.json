@@ -15,7 +15,7 @@
     "sync-agent": "node scripts/sync-agent.mjs"
   },
   "dependencies": {
-    "@altananetwork/sdk": "1.1.0",
+    "@altananetwork/sdk": "1.2.0",
     "@celo/attribution-tags": "0.5.0",
     "next": "16.4.6",
     "porto": "0.2.37",

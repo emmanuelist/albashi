@@ -3,7 +3,7 @@
 // the session key signs it here; the agent's own wallet submits it to the Orchestrator with Albashi's attribution
 // tag at the very end of the outer calldata, so Celo's attribution indexer credits it.
 //
-// Everything below mirrors @altananetwork/sdk 1.1.0 using only public packages (the SDK's package exports allow no
+// Everything below mirrors @altananetwork/sdk 1.1.0 (unchanged in 1.2.0, whose exported tagCalls is used) using only public packages (the SDK's package exports allow no
 // deep imports):
 //   - the relay transport strips EIP-7708 system-address asset diffs before porto validates a response
 //     (sdk dist/internal/relay.js sanitizingHttp, dist/internal/eip7708.js);
@@ -31,7 +31,7 @@ import {
 } from 'viem';
 import { celo } from 'viem/chains';
 import { privateKeyToAccount } from 'viem/accounts';
-import { RELAY_URL, type Session } from '@altananetwork/sdk';
+import { RELAY_URL, attributionCodes, attributionTag, tagCalls, type Session } from '@altananetwork/sdk';
 import * as Key from 'porto/viem/Key';
 import { prepareCalls, signCalls } from 'porto/viem/RelayActions';
 import { toDataSuffix } from '@celo/attribution-tags';
@@ -39,6 +39,17 @@ import { toDataSuffix } from '@celo/attribution-tags';
 /** Altana's (Porto) Orchestrator on Celo; execute(bytes) accepts any caller (verified source, docs/CONTEXT.md). */
 export const ORCHESTRATOR: Address = '0xaf140d0416a994aebb3fa6212b16ce6700f09751';
 export const ATTRIBUTION_CODE = 'celo_3f5cac8c49f6';
+/**
+ * The tag SDK 1.2.0's own execute() puts on a session's calls when the client sets appCode: `altana,<code>` on the
+ * end of the last call with data (sdk dist/attribution.js tagCalls). Altana asked builders to use it (CONTEXT,
+ * 26 Nov). Self-relay keeps Celo's tag at the outer tail as well, where verifyTx reads it.
+ */
+export function innerTag(): Hex {
+  // Built on first use, not at import: Next's server bundle evaluates the SDK after this module, and a call at module
+  // scope hits it uninitialised ("Cannot access before initialization", web build, 28 Nov).
+  return (innerTagMemo ??= attributionTag(attributionCodes(ATTRIBUTION_CODE)));
+}
+let innerTagMemo: Hex | undefined;
 const ZERO: Address = '0x0000000000000000000000000000000000000000';
 
 /** Albashi runs on Celo only; Celo clients carry Celo's own transaction formatters. */
@@ -276,7 +287,7 @@ export async function selfRelay(args: {
 
   const prepared = await prepareCalls(relay, {
     account: args.session.walletAddress,
-    calls: args.calls.map((c) => ({ to: c.to, data: c.data, value: c.value ?? 0n })),
+    calls: tagCalls(args.calls.map((c) => ({ to: c.to, data: c.data, value: c.value ?? 0n })), innerTag(), { session: true }).map((c) => ({ to: c.to, data: c.data, value: c.value ?? 0n })),
     key,
     feeToken: args.feeToken,
     nonce,
