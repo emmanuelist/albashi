@@ -141,6 +141,7 @@ type TryResult = {
   block: string;
   signed: { payslip: { lines: { to: Address; amount: string }[] }; verdict: string };
   tampered: { added: { to: Address; amount: string }; verdict: string; sentence: string | null; revertData: string | null };
+  strangerSends?: { from: Address; verdict: string };
 };
 
 function TryBook({ result, nameOf }: { result: TryResult; nameOf: (a?: string) => string | null }) {
@@ -166,7 +167,10 @@ function TryBook({ result, nameOf }: { result: TryResult; nameOf: (a?: string) =
             : { kind: 'unpaid' }}
         />
       </ol>
-      {declined && <p className="next-step">To pay someone new, the owner writes a new payslip with them on it and signs it. The agent can’t add anyone.</p>}
+      {declined && <p className="next-step"><strong>No money moved. Nobody was paid.</strong> To pay someone new, the owner writes a new payslip with them on it and signs it. The agent can’t add anyone.</p>}
+      {result.strangerSends && result.strangerSends.verdict !== 'accepted' && (
+        <p className="next-step">And if that stranger sends the owner’s signed payslip to the payroll contract themselves, it’s refused before the signature is even read: only the owner’s own wallet can run a payslip. <span className="foil-meta">Celo’s answer: {result.strangerSends.verdict}</span></p>
+      )}
     </section>
   );
 }

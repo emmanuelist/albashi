@@ -1,0 +1,21 @@
+# Albashi
+
+> Albashi pays your freelancers in naira, and its agent can only pay the payslip you signed.
+
+A payroll agent for small agencies on Celo mainnet. The owner signs a payslip (who is paid, how much in naira, the lowest exchange rate they accept, a deadline). The agent buys cNGN with USD₮ on Textile FX and the payroll contract (PayRun) pays each signed line, and nothing else. The agent acts from the owner's Altana wallet under a permission that may call only PayRun.run; the owner can end it in one transaction.
+
+Everything on the pages is read from Celo or Textile when the page loads. Limits are stated on the home page under "What isn't true yet": not audited; pay runs so far went to Albashi's own test wallets; cashing cNGN out to a bank is still being checked with a real freelancer.
+
+## Pages
+
+- [Proof page](https://albashi.vercel.app/): the thesis, the latest pay run as alerts, and live checks of a mined run against Celo
+- [Owner desk](https://albashi.vercel.app/desk): the last pay run (each signed line and its payment), the agent's limits, the payroll balance, and a live check that PayRun refuses a payee the owner didn't sign
+- [A payment receipt](https://albashi.vercel.app/receipt/0x7b5e0bb86b691472947a463461e92d0235c74256eaac8ae7d1b0e42af3251b94/1): what a freelancer receives
+
+## Check it yourself
+
+- PayRun (payroll contract), Celo mainnet: 0xfa8d963525d5F28427B897A0C761C744A43e59Af — source verified on Sourcify: https://repo.sourcify.dev/42220/0xfa8d963525d5F28427B897A0C761C744A43e59Af
+- Pay run signed by the owner on the desk: https://celoscan.io/tx/0x7b5e0bb86b691472947a463461e92d0235c74256eaac8ae7d1b0e42af3251b94
+- Live refusal (no wallet, nothing sent): POST https://albashi.vercel.app/api/try
+- Agent identity (ERC-8004, agent 10095): https://albashi.vercel.app/.well-known/agent-registration.json
+- Source, evidence and decisions: https://github.com/emmanuelist/albashi (docs/EVIDENCE.md lists every proof)
