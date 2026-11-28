@@ -77,6 +77,15 @@ owner ── one transaction revokes the session ──► the agent is stopped
 - Whether freelancers can cash cNGN out to naira easily is still being checked with a real user.
 - No audit.
 
+## Build and test from a clean clone
+
+The contracts' libraries (forge-std, OpenZeppelin) are git submodules, so clone with `--recurse-submodules`, or run `git submodule update --init --recursive` in a clone you already have. A plain `git clone` leaves `contracts/lib/` empty and `forge build` can't find its imports.
+
+```bash
+git clone --recurse-submodules https://github.com/emmanuelist/albashi && cd albashi/contracts
+forge build && forge test     # Foundry 1.8.x; 33 tests, no network needed
+```
+
 ## Repo
 
 | Path | What |
