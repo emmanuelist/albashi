@@ -194,13 +194,14 @@ a.card-in:focus-visible { outline: calc(4 * var(--u)) solid #fff; outline-offset
     min-height: 100svh;
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    grid-template-rows: calc(46 * var(--u)) auto auto 1fr auto;
+    /* the two actions sit above the alerts on a phone, so they're on the first screen (benchmark 28 Nov) */
+    grid-template-rows: calc(46 * var(--u)) auto auto auto 1fr;
     grid-template-areas:
       'brand net'
       'rate rate'
       'line line'
-      'alerts alerts'
-      'run try';
+      'run try'
+      'alerts alerts';
     align-content: start;
     --gutter: max(16px, calc((100vw - 620px) / 2));
     padding: 0 var(--gutter) max(20px, env(safe-area-inset-bottom));
@@ -341,7 +342,6 @@ main { background: linear-gradient(180deg, #1a1838 0, #1d1b2e 700px, #191826 100
 .step-text { margin: 0.45rem 0 0; max-width: 62ch; font-size: 1.0625rem; line-height: 1.6; color: var(--sheet-quiet); }
 .status { margin: 0.85rem 0 0; font-family: var(--sms); font-size: 0.875rem; line-height: 1.7; }
 .status + .status { margin-top: 0.35rem; }
-.ref { white-space: nowrap; }
 .status-label { display: inline-block; margin-right: 0.6rem; text-transform: uppercase; letter-spacing: 0.08em; }
 .status-proven .status-label { color: var(--sheet-gold); }
 .status-pending { color: var(--sheet-quiet); }
@@ -448,21 +448,8 @@ main { background: linear-gradient(180deg, #1a1838 0, #1d1b2e 700px, #191826 100
 }
 @media (max-width: 760px) { .proof-ref { justify-content: flex-start; } }
 
-/* ---- the live refusal, answered on the lock screen: one more alert card, pinned over the page until dismissed */
-.sr-live { position: absolute; width: 1px; height: 1px; clip-path: inset(50%); white-space: nowrap; }
-.try-live {
-  position: fixed; z-index: 30; left: 50%; bottom: max(1rem, env(safe-area-inset-bottom)); transform: translateX(-50%);
-  width: min(32rem, calc(100vw - 2rem)); display: grid; gap: 0.5rem; padding: 0.75rem 1rem 1rem;
-  border: 1px solid var(--frost-edge); border-radius: 1.125rem; background: rgb(44 40 50 / 0.92);
-  backdrop-filter: blur(22px) saturate(0.85); color: var(--ink-on-photo); font-family: var(--sms);
-}
-.try-live:focus { outline: 2px solid #fff; outline-offset: 3px; }
-.try-live-head { display: flex; align-items: center; gap: 0.75rem; font-size: 0.875rem; }
-.try-live-from { font-weight: 600; }
-.try-live-time { margin-left: auto; color: var(--ink-quiet); font-family: var(--display); }
-.try-live-close { width: 44px; height: 44px; margin: -0.5rem -0.75rem -0.5rem 0; border: 0; background: transparent; color: var(--ink-quiet); font: 400 1.5rem/1 var(--display); cursor: pointer; border-radius: 50%; }
-.try-live-close:hover { color: #fff; background: rgb(255 255 255 / 0.08); }
-.try-live-body { margin: 0; font-size: 0.9375rem; line-height: 1.4; letter-spacing: 0.01em; color: var(--declined); }
-.try-live-body .struck { text-decoration: line-through; text-decoration-thickness: 1px; }
-.try-live-note { margin: 0; font: 400 0.9375rem/1.5 var(--display); color: var(--ink-on-photo); }
-.try-live-link { display: inline-flex; align-items: center; min-height: 44px; font: 500 0.9375rem/1 var(--display); color: #fff; text-underline-offset: 3px; }
+/* ---- the live refusal: the fifth alert answers in place; only the amount is struck, the reason stays readable */
+.sr-live { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.card:focus { outline: 2px solid #fff; outline-offset: 3px; }
+h1.body { margin: 0; font-weight: inherit; }
+.ref { white-space: normal; overflow-wrap: anywhere; }

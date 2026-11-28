@@ -159,6 +159,8 @@ export const EVIDENCE = {
   payRun: '0xaaabd2dfa98b955f8e5edb3b9eabe1b7b0d750d4983bdb3152a30f5815b89bfc',
   /** E-016: the first pay run signed by the owner on the deployed desk (MetaMask), run by the agent's route, tagged. */
   deskRun: '0x7b5e0bb86b691472947a463461e92d0235c74256eaac8ae7d1b0e42af3251b94',
+  /** E-019: the owner stopped the agent from the desk: revoke(keyHash) sent from its own wallet, tagged. */
+  deskRevoke: '0x0fd2eb83f29afa64940df3cbf08af305fc89d49d100ecb9672251b50d8256341',
   /** E-018: the first real freelancer paid (₦1,500 to Tommy Braz), signed on the desk by the owner's key, tagged. */
   firstFreelancer: '0xfe750155a452f2ee358a6983165e9f5b544b59ba0c8baeb4a888f3637b0c9889',
   /** E-015: the owner raised the session's daily relay-fee cap to 3 CELO (self-call, tagged). */

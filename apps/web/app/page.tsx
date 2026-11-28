@@ -19,10 +19,13 @@ import {
   type Movement,
 } from './lib/proof';
 import { Suspense } from 'react';
-import { cachedMovement, cachedRate } from './lib/cached';
+import { cachedMovement, cachedRate, cachedTxTime } from './lib/cached';
 import Sections from './sections';
 import AlbashiMark from './mark';
 import TryLive from './try-live';
+import LiveRefusal from './live-refusal';
+import { PAYEES } from './lib/payees';
+import { getAddress } from 'viem';
 
 // Rendered on every request. The rate may be up to 30 s old, and its "read" time is always the moment Textile
 // was actually asked (lib/cached.ts).
@@ -35,7 +38,7 @@ const set = (name: string, widths: number[], ext: string) => widths.map((w) => `
 
 type Alert = {
   id: 'alert-2' | 'alert-3' | 'alert-4';
-  icon: 'credit' | 'fx';
+  icon: 'credit' | 'fx' | 'stop';
   lines: [string, string];
   time: string;
   href: string;
@@ -63,13 +66,17 @@ function lineAlert(id: Alert['id'], m: Movement | null, hash: string, n: number)
   const line = lines[n - 1];
   if (!m || !line) return unreadable(id, hash);
   const amount = formatUnits2(line.units);
+  // A person in the payee book is named, as a bank alert names who was paid (first name and surname only).
+  const who = PAYEES[getAddress(line.to)]?.replace(/\s*\(.*\)$/, '') ?? null;
   return {
     id,
     icon: 'credit',
-    lines: [`CREDIT ALERT! LINE ${n}: cNGN${amount}`, `TO: ${short(line.to)} REF: ${short(hash)}`],
+    lines: who
+      ? [`CREDIT ALERT! cNGN${amount} TO ${who.toUpperCase()}`, `PAID EXACTLY AS SIGNED REF: ${short(hash)}`]
+      : [`CREDIT ALERT! LINE ${n}: cNGN${amount}`, `TO: ${short(line.to)} REF: ${short(hash)}`],
     time: `${watDay(m.at)} ${wat(m.at)}`,
-    href: celoscan(hash),
-    label: `Payslip line ${n} of ${lines.length}: cNGN${amount} paid to ${line.to}, transaction ${hash}`,
+    href: who ? `/receipt/${hash}/${n}` : celoscan(hash),
+    label: `Payslip line ${n} of ${lines.length}: cNGN${amount} paid to ${who ?? line.to}, transaction ${hash}${who ? '; open their receipt' : ''}`,
   };
 }
 
@@ -102,6 +109,15 @@ function Swap() {
   );
 }
 
+function Stop() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="glyph">
+      <circle cx="12" cy="12" r="9.2" fill="none" stroke="currentColor" strokeWidth="1.7" />
+      <rect x="8.6" y="8.6" width="6.8" height="6.8" rx="1.2" fill="none" stroke="currentColor" strokeWidth="1.8" />
+    </svg>
+  );
+}
+
 function Cross() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" className="glyph">
@@ -121,7 +137,8 @@ type CardProps = {
   declined?: boolean;
 };
 
-function Card({ id, icon, iconClass, body, time, href, label, declined }: CardProps) {
+function Card({ id, icon, iconClass, body, time, href, label, declined, heading }: CardProps & { heading?: boolean }) {
+  const Body = heading ? 'h1' : 'span';
   const inner = (
     <>
       <span className={`card-icon ${iconClass}`} aria-hidden="true">{icon}</span>
@@ -130,7 +147,7 @@ function Card({ id, icon, iconClass, body, time, href, label, declined }: CardPr
           <span className="sender">ALBASHI</span>
           <span className="time">{time}</span>
         </span>
-        <span className={`body${declined ? ' declined' : ''}`}>{body}</span>
+        <Body className={`body${declined ? ' declined' : ''}`}>{body}</Body>
       </span>
     </>
   );
@@ -148,15 +165,22 @@ function Card({ id, icon, iconClass, body, time, href, label, declined }: CardPr
 }
 
 export default async function Home() {
-  const [rate, block, run] = await Promise.all([cachedRate(), readBlockNumber(), cachedMovement(EVIDENCE.payRun)]);
+  const [rate, block, run, stoppedAt] = await Promise.all([cachedRate(), readBlockNumber(), cachedMovement(EVIDENCE.firstFreelancer), cachedTxTime(EVIDENCE.deskRevoke)]);
   const now = new Date();
 
-  // Newest at the bottom, as an SMS thread reads: the pay run's swap and the two lines it paid (one transaction),
-  // then the refusal of the same payslip with a payee added, a minute later.
+  // Newest first, as a lock screen stacks them: the owner stopping the agent from the desk (E-019), the real
+  // freelancer's payment and its exchange (E-018, one transaction), then a refusal the visitor can ask for live.
   const alerts: Alert[] = [
-    swapAlert('alert-2', run, EVIDENCE.payRun, 'PAYSLIP RUN, TAGGED'),
-    lineAlert('alert-3', run, EVIDENCE.payRun, 1),
-    lineAlert('alert-4', run, EVIDENCE.payRun, 2),
+    {
+      id: 'alert-2',
+      icon: 'stop',
+      lines: ['AGENT STOPPED: OWNER REVOKED IT, 1 TX', `ITS NEXT CALL REFUSED. REF: ${short(EVIDENCE.deskRevoke)}`],
+      time: stoppedAt ? `${watDay(stoppedAt)} ${wat(stoppedAt)}` : '',
+      href: celoscan(EVIDENCE.deskRevoke),
+      label: `The owner stopped the agent from the desk in one transaction (${EVIDENCE.deskRevoke}); the agent's next call was refused`,
+    },
+    lineAlert('alert-3', run, EVIDENCE.firstFreelancer, 1),
+    swapAlert('alert-4', run, EVIDENCE.firstFreelancer, 'PAYROLL RUN, TAGGED'),
   ];
 
   return (
@@ -201,9 +225,9 @@ export default async function Home() {
         <a href="https://github.com/emmanuelist/albashi">Docs</a>
       </nav>
 
-      <h1 className="box r-rate rate">
+      <p className="box r-rate rate">
         {rate ? `₦${formatUnits2((rate.buyUnits * 10n ** 6n) / rate.sellUnits)}` : '₦ ––'}
-      </h1>
+      </p>
       <p className="box r-rate-line rate-line">
         {rate
           ? `per USD₮ · Textile FX quote · read ${wat(rate.readAt)} WAT`
@@ -216,6 +240,7 @@ export default async function Home() {
           icon={<AlbashiMark className="app-mark" />}
           iconClass="app-icon"
           time="now"
+          heading
           body={
             <>
               {/* The thesis, verbatim (docs/EVIDENCE.md C-1: E-010, E-011; its limits are under #limits). */}
@@ -229,8 +254,8 @@ export default async function Home() {
           <Card
             key={a.id}
             id={a.id}
-            icon={a.icon === 'credit' ? <DownArrow /> : <Swap />}
-            iconClass="credit-icon"
+            icon={a.icon === 'credit' ? <DownArrow /> : a.icon === 'stop' ? <Stop /> : <Swap />}
+            iconClass={a.icon === 'stop' ? 'declined-icon' : 'credit-icon'}
             time={a.time}
             href={a.href}
             label={a.label}
@@ -243,19 +268,12 @@ export default async function Home() {
             }
           />
         ))}
-        <Card
-          id="alert-5"
-          declined
-          icon={<Cross />}
-          iconClass="declined-icon"
+        <LiveRefusal
           time={`${watDay(PAYSLIP_REFUSAL.at)} ${wat(PAYSLIP_REFUSAL.at)}`}
           href={PAYSLIP_REFUSAL.proof}
-          label={`Refused: cNGN${formatUnits2(PAYSLIP_REFUSAL.attemptedUnits)} to a payee the owner never signed for. The pay-run contract refused it (${PAYSLIP_REFUSAL.error}) and Altana's relay would not sign it, so nothing was sent; open the captured run log`}
-          body={
-            <>
-              DEBIT REFUSED: <span className="struck">cNGN{formatUnits2(PAYSLIP_REFUSAL.attemptedUnits)} · PAYEE NOT ON PAYSLIP</span>
-            </>
-          }
+          amount={`cNGN${formatUnits2(PAYSLIP_REFUSAL.attemptedUnits)}`}
+          error={PAYSLIP_REFUSAL.error}
+          icon={<Cross />}
         />
       </ol>
 
