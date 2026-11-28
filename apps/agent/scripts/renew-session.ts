@@ -18,6 +18,8 @@ const args = {
   permissions: payRunPermissions(PAYRUN),
   expiry: EXPIRY,
   feeToken: NATIVE_TOKEN,
+  // The SDK's default fee cap is one CELO a day, below two runs' relay fees (CONTEXT); keep the 3 CELO/day the owner set.
+  feeSpendLimit: 3_000_000_000_000_000_000n,
   chainId: 42220,
   // The key is still in Altana's KeyStore from its first registration (a second write reverts "key already
   // registered"); only the account's authorization expired, so re-authorize on the account alone.

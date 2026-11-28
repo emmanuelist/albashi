@@ -55,6 +55,8 @@ export async function ownerGrantPayRunSession(args: {
     permissions: payRunPermissions(args.payRun),
     expiry: args.expiry,
     feeToken: NATIVE_TOKEN,
+    // Default is one CELO a day, below two runs' relay fees (E-015); a real agency needs room for several runs.
+    feeSpendLimit: 3_000_000_000_000_000_000n,
     chainId: CELO_CHAIN_ID,
   });
 }
