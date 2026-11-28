@@ -446,9 +446,9 @@ export default function DeskApp(props: DeskProps) {
     amount: lines[i]!.amount.trim() && !l.amount ? 'Enter naira, up to two decimals.' : null,
   }));
   const complete = parsed.every((l) => l.to && l.amount);
-  if (complete && liveRate && owed * 10n ** 6n < liveRate * 10n ** 6n) problems.push('Textile quotes from about US$1 per run: the payslip must total at least one dollar of naira.');
-  if (minRate && liveRate && minRate > liveRate) problems.push('Your floor is above today’s rate, so no quote would clear it.');
-  if (complete && float !== null && maxUsdtIn > float) problems.push(`At your floor this run could take up to USD₮${money(maxUsdtIn)}; the float holds USD₮${money(float)}. Add to the float first.`);
+  if (complete && liveRate && owed * 10n ** 6n < liveRate * 10n ** 6n) problems.push('The exchange takes at least about $1 per run: the payslip must total at least a dollar’s worth of naira.');
+  if (minRate && liveRate && minRate > liveRate) problems.push('Your lowest rate is above today’s rate, so no exchange could meet it. Lower it, or wait for the rate to rise.');
+  if (complete && float !== null && maxUsdtIn > float) problems.push(`At your lowest rate this run could cost up to $${money(maxUsdtIn)}; the payroll balance holds $${money(float)}. Add funds first.`);
   const blockers: string[] = [];
   if (!isOwner) blockers.push('Connect the owner’s wallet to sign.');
   else if (!chainOk) blockers.push('Switch your wallet to Celo.');
