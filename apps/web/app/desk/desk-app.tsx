@@ -2,7 +2,7 @@
 // The owner desk. Server-rendered with the agency's last real run (so it reads with no JavaScript and no wallet);
 // in the browser it adds the public refusal check, the owner's wallet, the payslip editor, signing, and the run.
 // Every figure comes from Celo, Textile or the payslip the owner signed; a source that is down says so.
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createPublicClient, createWalletClient, custom, encodeFunctionData, erc20Abi, getAddress, http, isAddress, keccak256, toHex, type Address, type Hex } from 'viem';
@@ -14,6 +14,7 @@ import { ATTRIBUTION_CODE } from '../agent/relay.ts';
 import { celoscanAddr, celoscanTx, money, parseNaira, rateOf, short, wat, watDay } from './format.ts';
 import { Check, Cross, Dot, Minus, Out, Pen, Plus, Wallet } from './icons.tsx';
 import AlbashiMark from '../mark.tsx';
+import { PAYEES, STRANGER } from '../lib/payees.ts';
 
 const USDT: Address = '0x48065fbBE25f71C9282ddf5e1cD6D6A887483D5e';
 const RUN_SELECTOR = '0xac219ae6';
@@ -59,32 +60,56 @@ function Counterfoil({ s }: { s: SlipState }) {
       return (
         <div className="foil foil-paid">
           <span className={`stamp${s.fresh ? ' stamp-land' : ''}`}><Check className="ic" />PAID {wat(s.at)}</span>
-          <span className="foil-note"><span className="mono">₦{money(s.amount)}</span> paid by PayRun</span>
-          <a className="ref" href={`${celoscanTx(s.hash)}#eventlog`} target="_blank" rel="noreferrer">Paid event · <span className="mono">{short(s.hash)}</span><Out className="ic-s" /></a>
+          <span className="foil-note"><span className="mono">₦{money(s.amount)}</span> received</span>
+          <a className="ref" href={`${celoscanTx(s.hash)}#eventlog`} target="_blank" rel="noreferrer">Receipt on Celo<Out className="ic-s" /></a>
         </div>
       );
     case 'declined':
       return (
         <div className="foil foil-declined">
-          <span className="stamp stamp-declined stamp-land"><Cross className="ic" />DECLINED</span>
+          <span className="stamp stamp-declined stamp-land"><Cross className="ic" />REFUSED</span>
           <span className="foil-note" title={s.sentence}>{s.sentence}</span>
-          <span className="foil-meta mono">{s.note}</span>
+          <span className="foil-meta">{s.note}</span>
         </div>
       );
     case 'signed':
       return <div className="foil foil-quiet"><span className="foil-word">Signed</span><span className="foil-meta">waiting for the agent</span></div>;
     case 'waiting':
-      return <div className="foil foil-quiet foil-busy"><span className="foil-word">Running</span><span className="foil-meta">stamped when PayRun pays this line</span></div>;
+      return <div className="foil foil-quiet foil-busy"><span className="foil-word">Paying</span><span className="foil-meta">stamped when the money lands</span></div>;
     case 'demo':
-      return <div className="foil foil-quiet"><span className="foil-word">Signed</span><span className="foil-meta">demo payslip, can never pay</span></div>;
+      return <div className="foil foil-quiet"><span className="foil-word">Signed</span><span className="foil-meta">test payslip, can never pay</span></div>;
     case 'unpaid':
-      return <div className="foil foil-quiet"><span className="foil-word">Not paid</span><span className="foil-meta">no Paid event for this line</span></div>;
+      return <div className="foil foil-quiet"><span className="foil-word">Not paid</span><span className="foil-meta">no payment recorded for this line</span></div>;
     default:
       return <div className="foil foil-quiet"><span className="foil-word">Not signed yet</span></div>;
   }
 }
 
-function Slip({ n, to, amount, state, children, label }: { n: number | null; to?: string; amount?: bigint | null; state: SlipState; children?: React.ReactNode; label?: string }) {
+// ---------------------------------------------------------------- the payee book
+
+const BOOK_KEY = 'albashi.payees.v1';
+type Book = Record<string, string>;
+function readLocalBook(): Book {
+  try { return JSON.parse(localStorage.getItem(BOOK_KEY) ?? '{}') as Book; } catch { return {}; }
+}
+function saveLocalBook(add: Book) {
+  try { localStorage.setItem(BOOK_KEY, JSON.stringify({ ...readLocalBook(), ...add })); } catch { /* names stay for this visit only */ }
+}
+/** Names for addresses: the agency's payee book, plus names the owner typed in this browser (never on chain). */
+const noSubscribe = () => () => {};
+function useBook(): (a?: string) => string | null {
+  // The server has no browser book; the client reads it after hydration, so both first renders agree.
+  const raw = useSyncExternalStore(noSubscribe, () => { try { return localStorage.getItem(BOOK_KEY) ?? '{}'; } catch { return '{}'; } }, () => '{}');
+  const local = useMemo<Book>(() => { try { return JSON.parse(raw) as Book; } catch { return {}; } }, [raw]);
+  return (a) => {
+    if (!a || !isAddress(a)) return null;
+    const k = getAddress(a);
+    if (k === STRANGER) return 'Someone not on the payslip';
+    return PAYEES[k] ?? local[k] ?? null;
+  };
+}
+
+function Slip({ n, to, name, amount, state, children, label }: { n: number | null; to?: string; name?: string | null; amount?: bigint | null; state: SlipState; children?: React.ReactNode; label?: string }) {
   const declined = state.kind === 'declined';
   return (
     <li className={`slip${declined ? ' slip-declined' : ''}`}>
@@ -92,6 +117,7 @@ function Slip({ n, to, amount, state, children, label }: { n: number | null; to?
         <span className="advice-head">{label ?? (n === null ? 'Not on the signed payslip' : `Line ${n}`)}</span>
         {children ?? (
           <>
+            <span className="payee-name">{name ?? 'Unnamed payee'}</span>
             <a className="payee" href={to ? celoscanAddr(to) : undefined} target="_blank" rel="noreferrer" title={to}>
               <span className="payee-long">{to}</span>
               <span className="payee-short">{to ? short(to) : ''}</span>
@@ -114,27 +140,30 @@ type TryResult = {
   tampered: { added: { to: Address; amount: string }; verdict: string; sentence: string | null; revertData: string | null };
 };
 
-function TryBook({ result }: { result: TryResult }) {
+function TryBook({ result, nameOf }: { result: TryResult; nameOf: (a?: string) => string | null }) {
   const at = new Date(result.checkedAt);
   const declined = result.tampered.verdict !== 'accepted';
   return (
-    <section className="book try-book" aria-live="polite" aria-label="PayRun's answer">
-      <h3 className="book-title">PayRun’s answer, live from Celo</h3>
+    <section className="book try-book" aria-live="polite" aria-label="The answer from Celo">
+      <h3 className="book-title">{declined ? 'Refused: that person isn’t on the payslip the owner signed' : 'Not refused'}</h3>
       <p className="book-sub">
-        The owner’s signed demo payslip (same two lines, a budget of 0.000001 USD₮ so it can never pay), with a stranger added. Asked at {wat(at)} WAT, block{' '}
-        {Number(result.block).toLocaleString('en-US')}. Nothing was signed or sent.
+        We took the owner’s signed test payslip (the same two people, with a budget so small it can never pay), added one more
+        person, and asked the payroll contract on Celo to pay it, as if the owner were sending it. Asked at {wat(at)} WAT. Nothing
+        was signed, sent or spent.
       </p>
       <ol className="slips">
-        {result.signed.payslip.lines.map((l, i) => <Slip key={l.to + i} n={i + 1} to={l.to} amount={BigInt(l.amount)} state={{ kind: 'demo' }} />)}
+        {result.signed.payslip.lines.map((l, i) => <Slip key={l.to + i} n={i + 1} to={l.to} name={nameOf(l.to)} amount={BigInt(l.amount)} state={{ kind: 'demo' }} />)}
         <Slip
           n={null}
           to={result.tampered.added.to}
+          name={nameOf(result.tampered.added.to)}
           amount={BigInt(result.tampered.added.amount)}
           state={declined
-            ? { kind: 'declined', sentence: result.tampered.sentence ?? 'PayRun refused it.', note: `${result.tampered.verdict}${result.tampered.revertData ? ` · ${result.tampered.revertData}` : ''}` }
+            ? { kind: 'declined', sentence: result.tampered.verdict === 'NotSigned' ? 'The owner never signed a payslip with this person on it.' : (result.tampered.sentence ?? 'The payroll contract refused it.'), note: `Celo’s answer: ${result.tampered.verdict}, block ${Number(result.block).toLocaleString('en-US')}` }
             : { kind: 'unpaid' }}
         />
       </ol>
+      {declined && <p className="next-step">To pay someone new, the owner writes a new payslip with them on it and signs it. The agent can’t add anyone.</p>}
     </section>
   );
 }
@@ -150,14 +179,63 @@ function walletError(e: unknown): string {
   return (m.shortMessage ?? m.message ?? 'The wallet returned an error.').slice(0, 200);
 }
 
+// ---------------------------------------------------------------- how it pays, and how to check it
+
+function Copy({ text }: { text: string }) {
+  const [done, setDone] = useState(false);
+  return (
+    <button type="button" className="btn btn-ghost btn-copy" onClick={() => { navigator.clipboard?.writeText(text).then(() => { setDone(true); setTimeout(() => setDone(false), 1600); }, () => {}); }}>
+      {done ? 'Copied' : 'Copy'}
+    </button>
+  );
+}
+
+function HowItPays({ payRun, owner, last, session, feeLimit }: { payRun: Address; owner: Address; last: RunView | null; session: { expiry: string; orchestratorDefault: boolean } | null; feeLimit: bigint | null }) {
+  return (
+    <details className="how">
+      <summary><span className="how-title">How Albashi pays, and how to check it</span><span className="how-hint">Five steps, each enforced on Celo</span></summary>
+      <ol className="how-steps">
+        <li><strong>The owner signs a payslip</strong> in their own wallet: who is paid, how much in naira, the lowest exchange rate they accept, and a one-hour deadline. Signing is free and sends nothing.</li>
+        <li><strong>The agent holds one permission on the owner’s wallet</strong>{session ? <>, until <span className="mono">{watDay(new Date(session.expiry))}</span></> : null}: it may ask the payroll contract to pay a signed payslip, and nothing else.{feeLimit !== null && <> The wallet itself caps its network fees at <span className="mono">{money(feeLimit / 10n ** 12n)}</span> CELO a day.</>} The owner can end the permission with one transaction.</li>
+        <li><strong>The payroll contract checks every line against the signature</strong>, plus the deadline, the budget and that the payslip runs only once. A person who isn’t on it, or a changed amount, is refused before any money moves.</li>
+        <li><strong>Textile FX exchanges the dollars for naira</strong> at no less than the signed rate, or the whole run is refused.</li>
+        <li><strong>Each person receives cNGN</strong>, a naira stablecoin, in their own wallet, with a receipt on Celo.</li>
+      </ol>
+      <p className="how-note">The agent sends its payment through Altana’s Orchestrator, which acts as the owner’s wallet: the payroll contract sees the payment coming from the owner. That’s why nobody else can call it directly; a stranger is refused before the signature is even read.</p>
+      <dl className="check">
+        {last && (
+          <div>
+            <dt>Last pay run</dt>
+            <dd><span className="mono hash">{last.hash}</span><span className="check-acts"><Copy text={last.hash} /><a href={celoscanTx(last.hash)} target="_blank" rel="noreferrer">Celoscan<Out className="ic-s" /></a></span></dd>
+          </div>
+        )}
+        <div>
+          <dt>Payroll contract (PayRun)</dt>
+          <dd><span className="mono hash">{payRun}</span><span className="check-acts"><Copy text={payRun} /><a href={celoscanAddr(payRun)} target="_blank" rel="noreferrer">Celoscan<Out className="ic-s" /></a><a href={`https://repo.sourcify.dev/42220/${payRun}`} target="_blank" rel="noreferrer">Source<Out className="ic-s" /></a></span></dd>
+        </div>
+        <div>
+          <dt>Owner’s wallet</dt>
+          <dd><span className="mono hash">{owner}</span><span className="check-acts"><Copy text={owner} /><a href={celoscanAddr(owner)} target="_blank" rel="noreferrer">Celoscan<Out className="ic-s" /></a></span></dd>
+        </div>
+      </dl>
+      <ul className="how-fine">
+        <li>Amounts on Celo have 6 decimals in both currencies: <span className="mono">750000000</span> cNGN is ₦750.00; <span className="mono">1074829</span> USD₮ is $1.07.</li>
+        <li>The source is verified on Sourcify as a partial match: the runtime code matches, and the contract is compiled without a metadata hash, which a full match needs.</li>
+        <li>The agent’s permission is <span className="mono">PayRun.run</span> only{session?.orchestratorDefault ? ', plus the fee-payment permission Altana’s wallet gives every session' : ''}. Not audited.</li>
+      </ul>
+    </details>
+  );
+}
+
 // ---------------------------------------------------------------- the desk
 
-type DraftLine = { to: string; amount: string };
+type DraftLine = { name: string; to: string; amount: string };
 type Stage = { key: 'judged' | 'quoted' | 'sent' | 'done'; text: string; href?: string };
 
 export default function DeskApp(props: DeskProps) {
   const router = useRouter();
   const last = props.runs?.[0] ?? null;
+  const nameOf = useBook();
   const [tryState, setTryState] = useState<'idle' | 'asking' | 'error'>('idle');
   const [tryResult, setTryResult] = useState<TryResult | null>(null);
 
@@ -168,7 +246,7 @@ export default function DeskApp(props: DeskProps) {
   const isOwner = account !== null && account.toLowerCase() === props.owner.toLowerCase();
 
   const [drafting, setDrafting] = useState(false);
-  const [lines, setLines] = useState<DraftLine[]>([{ to: '', amount: '' }]);
+  const [lines, setLines] = useState<DraftLine[]>([{ name: '', to: '', amount: '' }]);
   const [floor, setFloor] = useState('');
   const [polledRate, setPolledRate] = useState<DeskProps['rate']>(null);
   const rate = (drafting && polledRate) || props.rate;
@@ -312,6 +390,7 @@ export default function DeskApp(props: DeskProps) {
       return;
     }
     setSignedSlip(payslip);
+    saveLocalBook(Object.fromEntries(parsed.flatMap((l, i) => (l.to && lines[i]!.name.trim() ? [[l.to, lines[i]!.name.trim()]] : []))));
     setPhase('running');
     try {
       const res = await fetch('/api/run', {
@@ -339,9 +418,9 @@ export default function DeskApp(props: DeskProps) {
         while ((nl = buf.indexOf('\n')) >= 0) {
           const ev = JSON.parse(buf.slice(0, nl));
           buf = buf.slice(nl + 1);
-          if (ev.stage === 'judged') setStages((s) => [...s, { key: 'judged', text: `PayRun checked your signature and the payslip: accepted. Float USD₮${money(BigInt(ev.float))}.` }]);
-          if (ev.stage === 'quoted') setStages((s) => [...s, { key: 'quoted', text: `Textile quoted USD₮${money(BigInt(ev.takerPays))} for ₦${money(BigInt(ev.buyAmount))}, PayRun as the taker.` }]);
-          if (ev.stage === 'sent') setStages((s) => [...s, { key: 'sent', text: `The agent sent the run from its own wallet, tagged ${ATTRIBUTION_CODE}.`, href: celoscanTx(ev.hash) }]);
+          if (ev.stage === 'judged') setStages((s) => [...s, { key: 'judged', text: `Your signature checked: this payslip can be paid. Payroll balance $${money(BigInt(ev.float))}.` }]);
+          if (ev.stage === 'quoted') setStages((s) => [...s, { key: 'quoted', text: `Exchange booked: $${money(BigInt(ev.takerPays))} buys ₦${money(BigInt(ev.buyAmount))} (Textile FX).` }]);
+          if (ev.stage === 'sent') setStages((s) => [...s, { key: 'sent', text: 'The agent sent the payment.', href: celoscanTx(ev.hash) }]);
           if (ev.stage === 'done') {
             const o = ev.outcome;
             setOutcome({ status: o.status, sentence: o.sentence, hash: o.hash, minedAt: o.minedAt, paid: o.events?.paid });
@@ -441,14 +520,19 @@ export default function DeskApp(props: DeskProps) {
                 <h1 className="book-title">New payslip</h1>
                 <button type="button" className="btn btn-ghost" onClick={() => { setDrafting(false); setPhase('edit'); setOutcome(null); }} disabled={phase === 'signing' || phase === 'running'}>Close</button>
               </div>
-              <p className="book-sub">Each slip is one line you sign. The agent can pay these lines and nothing else.</p>
+              <p className="book-sub">Write who gets paid and how much in naira. Once you sign, the agent can pay exactly these people these amounts, and nothing else. Names stay in this browser; only wallets and amounts are signed.</p>
               <ol className={`slips${lines.length > COMPACT_AFTER ? ' compact' : ''}`}>
                 {lines.map((l, i) => (
                   <Slip key={i} n={i + 1} state={draftStates[i]!}>
                     <label className="fld">
+                      <span className="sr">Line {i + 1} payee name</span>
+                      <input className="in in-name" placeholder="Name, e.g. Ada (design)" value={l.name} autoComplete="off" disabled={phase !== 'edit'} maxLength={60}
+                        onChange={(e) => setLines((x) => x.map((y, j) => (j === i ? { ...y, name: e.target.value } : y)))} />
+                    </label>
+                    <label className="fld">
                       <span className="sr">Line {i + 1} payee address</span>
-                      <input className="in in-mono" placeholder="0x… payee on Celo" value={l.to} spellCheck={false} autoComplete="off" disabled={phase !== 'edit'}
-                        aria-invalid={!!fieldErr[i]!.to} aria-describedby={fieldErr[i]!.to ? `to-err-${i}` : undefined} onChange={(e) => setLines((x) => x.map((y, j) => (j === i ? { ...y, to: e.target.value } : y)))} />
+                      <input className="in in-mono" placeholder="Their Celo wallet, 0x…" value={l.to} spellCheck={false} autoComplete="off" disabled={phase !== 'edit'}
+                        aria-invalid={!!fieldErr[i]!.to} aria-describedby={fieldErr[i]!.to ? `to-err-${i}` : undefined} onChange={(e) => { const v = e.target.value; setLines((x) => x.map((y, j) => (j === i ? { ...y, to: v, name: y.name || (nameOf(v.trim()) ?? '') } : y))); }} />
                       {fieldErr[i]!.to && <span className="fld-err" id={`to-err-${i}`}>{fieldErr[i]!.to}</span>}
                     </label>
                     <div className="amt-row">
@@ -467,19 +551,19 @@ export default function DeskApp(props: DeskProps) {
                 ))}
               </ol>
               {phase === 'edit' && lines.length < MAX_LINES && (
-                <button type="button" className="btn btn-ghost add-line" onClick={() => setLines((x) => [...x, { to: '', amount: '' }])}><Plus className="ic" />Add a line</button>
+                <button type="button" className="btn btn-ghost add-line" onClick={() => setLines((x) => [...x, { name: '', to: '', amount: '' }])}><Plus className="ic" />Add a line</button>
               )}
 
               <div className="terms">
                 <label className="fld">
-                  <span className="lbl">Lowest rate you accept</span>
-                  <span className="in-wrap"><span className="naira" aria-hidden="true">₦</span><input className="in in-amt" inputMode="decimal" value={floor} disabled={phase !== 'edit'} onChange={(e) => setFloor(e.target.value)} /><span className="unit">per USD₮</span></span>
-                  <span className="hint">{rate ? <>Textile now: <span className="mono">₦{money(BigInt(rate.buyUnits))}</span>, read <span className="mono">{wat(new Date(rate.readAt))}</span> WAT</> : 'Textile isn’t quoting right now'}</span>
+                  <span className="lbl">Lowest exchange rate you accept</span>
+                  <span className="in-wrap"><span className="naira" aria-hidden="true">₦</span><input className="in in-amt" inputMode="decimal" value={floor} disabled={phase !== 'edit'} onChange={(e) => setFloor(e.target.value)} /><span className="unit">per US$1</span></span>
+                  <span className="hint">{rate ? <>Today’s rate: <span className="mono">₦{money(BigInt(rate.buyUnits))}</span>, read <span className="mono">{wat(new Date(rate.readAt))}</span> WAT</> : 'Textile isn’t quoting right now'}</span>
                 </label>
                 <dl className="terms-figs">
                   <div><dt>Pays out</dt><dd className="mono">₦{money(owed)}</dd></div>
-                  <div><dt>Costs about</dt><dd className="mono">{estUsdt !== null ? `USD₮${money(estUsdt)}` : '–'}</dd></div>
-                  <div><dt>Most it may spend</dt><dd className="mono">USD₮{money(maxUsdtIn)}</dd></div>
+                  <div><dt>Costs about</dt><dd className="mono">{estUsdt !== null ? `$${money(estUsdt)}` : '–'}</dd></div>
+                  <div><dt>Most it may spend</dt><dd className="mono">${money(maxUsdtIn)}</dd></div>
                   <div><dt>Valid for</dt><dd>1 hour after signing</dd></div>
                 </dl>
               </div>
@@ -495,19 +579,19 @@ export default function DeskApp(props: DeskProps) {
                   {stages.map((s) => (
                     <li key={s.key}><Check className="ic ok" />{s.text}{s.href && <> <a href={s.href} target="_blank" rel="noreferrer">Transaction<Out className="ic-s" /></a></>}</li>
                   ))}
-                  {phase === 'running' && <li className="busy"><Dot className="ic pulse" />{stages.length === 0 ? 'PayRun is checking your signature…' : stages.length === 1 ? 'Asking Textile for a firm quote…' : stages.length === 2 ? 'Sending the run…' : 'Waiting for Celo to mine it…'}</li>}
+                  {phase === 'running' && <li className="busy"><Dot className="ic pulse" />{stages.length === 0 ? 'Checking your signature…' : stages.length === 1 ? 'Booking the exchange rate…' : stages.length === 2 ? 'Sending the payment…' : 'Waiting for Celo to confirm it…'}</li>}
                 </ol>
               )}
               {outcome && outcome.status !== 'paid' && <p className="refusal" role="alert"><Cross className="ic" />{outcome.sentence}</p>}
-              {outcome?.status === 'paid' && <p className="done-line" role="status"><Check className="ic ok" />Paid exactly as signed. Each stamp is PayRun’s Paid event for that line.</p>}
+              {outcome?.status === 'paid' && <p className="done-line" role="status"><Check className="ic ok" />Paid exactly as signed. Each stamp links to that person’s receipt on Celo.</p>}
 
               <div className="actions">
                 {phase !== 'done' ? (
                   <button type="button" className="btn btn-primary" disabled={!canSign} onClick={signAndRun}>
-                    <Pen className="ic" />{phase === 'signing' ? 'Sign in your wallet…' : phase === 'running' ? 'The agent is running it…' : 'Sign and hand to the agent'}
+                    <Pen className="ic" />{phase === 'signing' ? 'Sign in your wallet…' : phase === 'running' ? 'The agent is paying…' : 'Sign and pay'}
                   </button>
                 ) : (
-                  <button type="button" className="btn btn-primary" onClick={() => { setPhase('edit'); setOutcome(null); setStages([]); setSignedSlip(null); setLines([{ to: '', amount: '' }]); }}>Write another payslip</button>
+                  <button type="button" className="btn btn-primary" onClick={() => { setPhase('edit'); setOutcome(null); setStages([]); setSignedSlip(null); setLines([{ name: '', to: '', amount: '' }]); }}>Write another payslip</button>
                 )}
                 {signedSlip && <span className="hint">Signed by {short(signedSlip.owner)} · {signedSlip.lines.length} line{signedSlip.lines.length === 1 ? '' : 's'}</span>}
               </div>
@@ -523,23 +607,23 @@ export default function DeskApp(props: DeskProps) {
                     ? <button type="button" className="btn btn-primary" onClick={() => setDrafting(true)}><Plus className="ic" />New payslip</button>
                     : <button type="button" className="btn btn-quiet" onClick={connect} disabled={connecting}><Wallet className="ic" />Connect the owner wallet to write</button>)}
                 </div>
-                <p className="book-sub">Each slip is a line the owner signed; each counterfoil is PayRun’s own record of paying it on Celo.</p>
+                <p className="book-sub">Every line below is one the owner signed. A PAID stamp means that person received the money, with a receipt on Celo.</p>
                 <dl className="recon" aria-label="Signed against paid">
-                  <div><dt>Signed</dt><dd>₦{money(signedTotal)}</dd></div>
-                  <div><dt>Paid by PayRun</dt><dd>₦{money(BigInt(last.cngnPaid))}</dd></div>
-                  <div><dt>USD₮ spent</dt><dd>{money(BigInt(last.usdtSpent))}</dd></div>
-                  <div><dt>Rate got</dt><dd>₦{money(runRate)}{last.minRate && <small> floor ₦{money(BigInt(last.minRate))}</small>}</dd></div>
+                  <div><dt>Owner signed</dt><dd>₦{money(signedTotal)}</dd></div>
+                  <div><dt>Paid out</dt><dd>₦{money(BigInt(last.cngnPaid))}</dd></div>
+                  <div><dt>Cost in dollars</dt><dd>${money(BigInt(last.usdtSpent))}</dd></div>
+                  <div><dt>Rate per $1</dt><dd>₦{money(runRate)}{last.minRate && <small>lowest accepted ₦{money(BigInt(last.minRate))}</small>}</dd></div>
                 </dl>
                 <ol className={`slips${lastLines.length > COMPACT_AFTER ? ' compact' : ''}`}>
-                  {lastLines.map((l, i) => <Slip key={i} n={i + 1} to={l.to} amount={l.amount} state={l.state} />)}
+                  {lastLines.map((l, i) => <Slip key={i} n={i + 1} to={l.to} name={nameOf(l.to)} amount={l.amount} state={l.state} />)}
                 </ol>
               </>
             ) : props.runs === null ? (
-              <p className="empty">Celo didn’t answer, so the runs can’t be shown right now. Nothing here is a placeholder: reload in a moment.</p>
+              <p className="empty">Celo didn’t answer, so past pay runs can’t be shown right now. Nothing here is a placeholder: reload in a moment.</p>
             ) : (
               <div className="empty">
                 <h1 className="book-title">No pay runs yet</h1>
-                <p>When the owner signs a payslip and the agent runs it, each line appears here with PayRun’s stamp.</p>
+                <p>When the owner signs a payslip and the agent pays it, each person appears here with a PAID stamp.</p>
                 {isOwner
                   ? <button type="button" className="btn btn-primary" onClick={() => setDrafting(true)}><Plus className="ic" />New payslip</button>
                   : <button type="button" className="btn btn-quiet" onClick={connect} disabled={connecting}><Wallet className="ic" />Connect the owner wallet to write</button>}
@@ -547,53 +631,51 @@ export default function DeskApp(props: DeskProps) {
             )}
           </section>
 
+          <HowItPays payRun={props.payRun} owner={props.owner} last={last} session={session} feeLimit={feeCap ? BigInt(feeCap.limit) : null} />
+
           <section className="try" aria-label="Try to pay someone not on the payslip">
             <div className="try-row">
-              <p>Anyone can ask PayRun to pay a stranger with the owner’s signature. It answers live from Celo; nothing is sent.</p>
+              <p><strong>Can the agent pay someone the owner didn’t sign for?</strong> Test it: we add a stranger to the owner’s signed payslip and ask Celo to pay it. Nothing is sent.</p>
               <button type="button" className="btn btn-quiet" onClick={askPayRun} disabled={tryState === 'asking'}>
-                <Cross className="ic" />{tryState === 'asking' ? 'Asking PayRun…' : 'Try to pay someone not on the payslip'}
+                <Cross className="ic" />{tryState === 'asking' ? 'Asking Celo…' : 'Try to pay someone not on the payslip'}
               </button>
             </div>
-            {tryState === 'error' && <p className="refusal" role="alert">Celo didn’t answer, so PayRun couldn’t be asked. Try again in a moment.</p>}
-            {tryResult && <TryBook result={tryResult} />}
+            {tryState === 'error' && <p className="refusal" role="alert">Celo didn’t answer, so nothing was checked. Try again in a moment.</p>}
+            {tryResult && <TryBook result={tryResult} nameOf={nameOf} />}
           </section>
         </div>
 
-        <aside className="dk-side" aria-label="Rate, limits and float">
+        <aside className="dk-side" aria-label="Rate, the agent's limits and the payroll balance">
           <section className="panel">
-            <h2 className="panel-title">USD₮ to naira</h2>
-            <p className="big">{rate ? `₦${money(BigInt(rate.buyUnits))}` : '₦ ––'}</p>
-            <p className="meta">{rate ? `Textile FX quote, read ${wat(new Date(rate.readAt))} WAT` : 'Textile isn’t quoting right now'}</p>
+            <h2 className="panel-title">Exchange rate today</h2>
+            <p className="big">{rate ? `₦${money(BigInt(rate.buyUnits))}` : '₦ ––'}<span className="big-unit"> per $1</span></p>
+            <p className="meta">{rate ? `Textile FX, read ${wat(new Date(rate.readAt))} WAT` : 'Textile isn’t quoting right now'}</p>
           </section>
           <section className="panel">
-            <h2 className="panel-title">What the agent may do</h2>
+            <h2 className="panel-title">What the agent can do</h2>
             {session ? (
               <dl className="facts">
-                <div><dt>Call</dt><dd>{session.calls.some((c) => c.to.toLowerCase() === props.payRun.toLowerCase() && c.selector === RUN_SELECTOR) ? <><span className="mono">PayRun.run</span> on <a href={celoscanAddr(props.payRun)} target="_blank" rel="noreferrer">{short(props.payRun)}</a></> : 'nothing on PayRun'}</dd></div>
-                <div><dt>Pay</dt><dd>only lines the owner signed, from the float</dd></div>
-                <div><dt>Session</dt><dd className={session.live ? '' : 'warn'}>{session.live ? 'until' : 'ended'} <span className="mono">{watDay(new Date(session.expiry))} {wat(new Date(session.expiry))}</span> WAT</dd></div>
-                {session.caps.filter((c) => c.token === '0x0000000000000000000000000000000000000000').map((c) => (
-                  <div key="fee"><dt>Relay fees</dt><dd><span className="mono">{money(BigInt(c.spentToday) / 10n ** 12n)} of {money(BigInt(c.limit) / 10n ** 12n)}</span> CELO today</dd></div>
-                ))}
+                <div><dt>Pay</dt><dd>{session.calls.some((c) => c.to.toLowerCase() === props.payRun.toLowerCase() && c.selector === RUN_SELECTOR) ? 'only the people and amounts the owner signed' : 'nothing: it holds no permission to pay'}</dd></div>
+                <div><dt>{session.live ? 'Allowed until' : 'Ended'}</dt><dd className={session.live ? '' : 'warn'}><span className="mono">{watDay(new Date(session.expiry))} {wat(new Date(session.expiry))}</span> WAT</dd></div>
+                {feeCap && <div><dt>Network fees</dt><dd><span className="mono">{money(BigInt(feeCap.spentToday) / 10n ** 12n)} of {money(BigInt(feeCap.limit) / 10n ** 12n)}</span> CELO today</dd></div>}
               </dl>
-            ) : <p className="meta">{props.ownerState ? 'The agent holds no session on this wallet.' : 'Celo didn’t answer; the session can’t be read right now.'}</p>}
-            {session?.orchestratorDefault && <p className="meta">Altana’s wallet also lets every session pay relay fees through its Orchestrator.</p>}
+            ) : <p className="meta">{props.ownerState ? 'The agent holds no permission on this wallet.' : 'Celo didn’t answer; the agent’s permission can’t be read right now.'}</p>}
           </section>
           <section className="panel">
-            <h2 className="panel-title">Float in PayRun</h2>
+            <h2 className="panel-title">Payroll balance</h2>
             {props.ownerState ? (
               <>
-                <p className="big">USD₮{money(BigInt(props.ownerState.float))}</p>
-                <p className="meta">Only a payslip the owner signed can spend it; only the owner can take it out. Wallet: USD₮{money(BigInt(props.ownerState.walletUsdt))}.</p>
+                <p className="big">${money(BigInt(props.ownerState.float))}</p>
+                <p className="meta">Held in USD₮ by the payroll contract. Only a payslip the owner signed can spend it; only the owner can take it out. In the owner’s wallet: ${money(BigInt(props.ownerState.walletUsdt))}.</p>
                 {isOwner && chainOk && (
                   <div className="fund">
-                    <label className="fld"><span className="sr">USD₮ to add</span><span className="in-wrap"><input className="in in-amt" inputMode="decimal" placeholder="0.00" value={fund} onChange={(e) => setFund(e.target.value)} disabled={!!funding && !funding.includes('declined')} /><span className="unit">USD₮</span></span></label>
-                    <button type="button" className="btn btn-quiet" disabled={!parseNaira(fund) || (!!funding && !funding.includes('declined'))} onClick={addToFloat}>Add to float</button>
+                    <label className="fld"><span className="sr">Dollars (USD₮) to add</span><span className="in-wrap"><input className="in in-amt" inputMode="decimal" placeholder="0.00" value={fund} onChange={(e) => setFund(e.target.value)} disabled={!!funding && !funding.includes('declined')} /><span className="unit">USD₮</span></span></label>
+                    <button type="button" className="btn btn-quiet" disabled={!parseNaira(fund) || (!!funding && !funding.includes('declined'))} onClick={addToFloat}>Add funds</button>
                     {funding && <p className="meta" role="status">{funding}</p>}
                   </div>
                 )}
               </>
-            ) : <p className="meta">Celo didn’t answer; the float can’t be read right now.</p>}
+            ) : <p className="meta">Celo didn’t answer; the balance can’t be read right now.</p>}
           </section>
           <p className="read-at">Read from Celo at <span className="mono">{wat(new Date(props.readAt))}</span> WAT · owner <a className="mono" href={celoscanAddr(props.owner)} target="_blank" rel="noreferrer">{short(props.owner)}</a></p>
         </aside>

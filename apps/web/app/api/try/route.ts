@@ -2,16 +2,15 @@
 // payslip the owner signed. It is an eth_call: nothing is signed, sent or spent. The payslip is the owner's demo
 // payslip (docs/evidence/demo-payslip.json), whose budget of 0.000001 USD₮ means it can never pay anyone.
 import { NextResponse } from 'next/server';
-import { getAddress, type Hex } from 'viem';
+import { type Hex } from 'viem';
 import { judge } from '../../agent/runner.ts';
 import { payslipDigest } from '../../agent/payslip.ts';
 import { PAYRUN_ADDRESS, publicClient } from '../../lib/agent-env.ts';
 import { payslipFromJson, payslipToJson, toJson } from '../../lib/payslip-json.ts';
 import demo from '../../lib/demo-payslip.json';
+import { STRANGER } from '../../lib/payees.ts';
 
 export const dynamic = 'force-dynamic';
-
-const STRANGER = getAddress('0x155720001349A7EB406d5450a21375794a0fddF2');
 
 export async function POST() {
   const signed = payslipFromJson(demo.payslip);

@@ -228,3 +228,37 @@
   .dk-wallet .btn .ic { display: none; }
   .chip { padding: 0 8px; }
 }
+
+/* ---- payroll words: a person first, their wallet second */
+.payee-name { font: 600 1.0625rem/1.3 var(--display); color: #fff; overflow-wrap: anywhere; }
+.payee { font-size: 0.8438rem; color: var(--dk-quiet) !important; }
+.in-name { font-family: var(--display); }
+.big-unit { font: 400 0.9375rem/1 var(--display); color: var(--dk-quiet); }
+.next-step { margin: 14px 0 0; color: #ece6f0; max-width: 68ch; }
+.try-row strong { color: #fff; font-weight: 600; }
+
+/* ---- how it pays: one tap away, closed by default */
+.how { border: 1px solid var(--dk-line); border-radius: var(--dk-r); background: var(--dk-panel-2); }
+.how summary { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; padding: 16px 22px; min-height: 44px; cursor: pointer; list-style: none; }
+.how summary::-webkit-details-marker { display: none; }
+.how summary::before { content: '+'; font: 500 1.125rem/1 var(--sms); color: var(--dk-gold); width: 14px; }
+.how[open] summary::before { content: '–'; }
+.how-title { font: 500 1.0625rem/1.3 var(--display); color: #fff; }
+.how-hint { font-size: 0.875rem; color: var(--dk-faint); }
+.how-steps { margin: 0; padding: 4px 22px 0 46px; display: grid; gap: 10px; color: #e6e0ea; max-width: 76ch; }
+.how-steps strong { color: #fff; font-weight: 600; }
+.how-note { margin: 16px 22px 0; padding: 12px 16px; border-left: 2px solid var(--dk-gold); background: rgba(255, 255, 255, 0.04); color: var(--dk-quiet); font-size: 0.9375rem; max-width: 76ch; }
+.check { margin: 18px 22px 0; display: grid; border-top: 1px solid var(--dk-line); }
+.check > div { display: grid; gap: 4px; padding: 12px 0; border-bottom: 1px solid var(--dk-line); }
+.check dt { font-size: 0.8125rem; color: var(--dk-quiet); }
+.check dd { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; min-width: 0; }
+.check .hash { font-size: 0.8438rem; overflow-wrap: anywhere; min-width: 0; }
+.check-acts { display: inline-flex; align-items: center; gap: 12px; font-size: 0.875rem; white-space: nowrap; }
+.btn-copy { min-height: 32px; padding: 0 10px; font-size: 0.8438rem; }
+.how-fine { margin: 14px 22px 20px; padding-left: 18px; display: grid; gap: 6px; font-size: 0.875rem; color: var(--dk-faint); max-width: 76ch; }
+@media (max-width: 1080px) { .dk-main > .how { order: 3; } .dk-main > .try { order: 4; } }
+@media (max-width: 680px) {
+  .how summary { padding: 14px 18px; }
+  .how-steps { padding: 4px 18px 0 38px; }
+  .how-note, .check, .how-fine { margin-left: 18px; margin-right: 18px; }
+}
