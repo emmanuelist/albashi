@@ -79,6 +79,8 @@ session has to re-derive it or trust training data. Read before touching an inte
 
 - **This network can't reach Vercel's 64.29.17.3 / 216.198.79.3 edge cluster** (28 Nov: vercel.com and nextjs.org time out there too), and public DNS rotates albashi.vercel.app across .3, .67 and .131. When the site hangs locally but `curl --resolve albashi.vercel.app:443:64.29.17.67` serves it, it's this, not a deploy; the recorder takes `--pin 64.29.17.67`. (source: curl, dig, 2026-11-28)
 
+- **@celo/attribution-tags 0.7.0 reads relayed intents and returns the inner tag with its sender.** On E-018 `verifyTx` returns `{codes: ['altana','celo_3f5cac8c49f6'], sender: <owner's Altana wallet>}`: the inner tag Albashi adds (SDK 1.2.0 tagCalls) is what it credits, to the owner wallet. The desk revoke (owner self-call) returns `celo_3f5cac8c49f6`; the relayed re-grant returns null. (source: verifyTx 0.7.0, 2026-11-28)
+
 ## Environment
 | Var | Purpose | Where to get it |
 |---|---|---|

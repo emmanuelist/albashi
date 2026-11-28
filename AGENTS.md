@@ -37,7 +37,7 @@ Looked up on 2026-11-21, never from memory. Re-check before any upgrade.
 | Foundry | forge 1.8.3 |
 | `@altananetwork/sdk` | 1.2.0 in apps/ (bundles porto 0.2.37; checked 2026-11-28). `spike/` stays on 1.1.0, the code behind E-001..E-007 |
 | `viem` | 2.57.20 (2.58.4 was hours old on 2026-11-21; don't take a release under ~2 days old) |
-| `@celo/attribution-tags` | 0.5.0 |
+| `@celo/attribution-tags` | 0.7.0 in apps/ (reads relayed intents; checked 2026-11-28). `spike/` stays on 0.5.0 |
 | Next.js / React / TypeScript | decide when `apps/web` starts. TypeScript 7.0.2 shipped 2026-11-21: check typescript-eslint's peer range before pinning a major |
 
 ```bash
