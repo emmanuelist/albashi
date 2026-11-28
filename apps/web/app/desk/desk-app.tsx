@@ -275,7 +275,16 @@ function StopAgent({ owner, keyHash, account, onStopped }: { owner: Address; key
       if (receipt.status !== 'success') { setSt({ kind: 'failed', text: 'Celo didn’t accept it, so the agent still has its permission. Try again.' }); return; }
       // Don't take the receipt's word for it: read the wallet and confirm the key is gone.
       setSt({ kind: 'busy', text: 'Checking your wallet on Celo…' });
-      const gone = await pub.readContract({ address: owner, abi: ACCOUNT_ABI, functionName: 'getKey', args: [keyHash] }).then((k) => k.expiry === 0, () => true);
+      // Read at the confirmed block, a few times: a public node can answer from just before it (seen 28 Nov: a
+      // confirmed revoke was reported as "still lists the key", then read as gone a moment later).
+      let gone = false;
+      for (let i = 0; i < 6 && !gone; i++) {
+        if (i) await new Promise((r) => setTimeout(r, 1500));
+        // Only the wallet's own answer counts as gone: KeyDoesNotExist (0xe57b6304). Any other error (the node
+        // hasn't got that block yet, a dropped request) is retried.
+        gone = await pub.readContract({ address: owner, abi: ACCOUNT_ABI, functionName: 'getKey', args: [keyHash], blockNumber: receipt.blockNumber })
+          .then((k) => k.expiry === 0, (e: unknown) => /e57b6304|KeyDoesNotExist/.test(String((e as Error)?.message ?? '')));
+      }
       if (!gone) { setSt({ kind: 'failed', text: 'The transaction was confirmed, but the wallet still lists the agent’s key. Check it on Celoscan before relying on it.' }); return; }
       const block = await pub.getBlock({ blockNumber: receipt.blockNumber }).catch(() => null);
       setSt({ kind: 'stopped', hash, at: block ? new Date(Number(block.timestamp) * 1000) : new Date() });

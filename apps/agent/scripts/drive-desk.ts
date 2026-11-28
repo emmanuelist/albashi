@@ -25,6 +25,8 @@ const PAYEE = arg('payee') ?? '';
 const NAME = arg('name') ?? '';
 const NAIRA = arg('naira') ?? '';
 const FUND = arg('fund');
+// --stop: the reversal beat. The owner stops the agent on the desk, then writes a payslip the desk can no longer pay.
+const STOP = process.argv.includes('--stop');
 if (!isAddress(PAYEE) || !NAME || !/^\d+(\.\d{1,2})?$/.test(NAIRA)) throw new Error('need --payee 0x… --name "…" --naira 1500');
 
 const owner = privateKeyToAccount(process.env.OWNER_KEY as Hex);
@@ -78,7 +80,10 @@ async function answer({ method, params }: { method: string; params?: unknown[] }
   }
 }
 
-const browser = await chromium.launch({ headless: false, channel: 'chrome' });
+// --pin <ip>: reach the site through one Vercel edge address. On 28 Nov this machine's network could not reach
+// Vercel's 64.29.17.3 / 216.198.79.3 cluster (vercel.com too) while .67 and .131 answered; DNS rotates among them.
+const PIN = arg('pin');
+const browser = await chromium.launch({ headless: false, channel: 'chrome', args: PIN ? [`--host-resolver-rules=MAP ${new globalThis.URL(SITE).host} ${PIN}`] : [] });
 const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, recordVideo: { dir: out, size: { width: 1440, height: 900 } } });
 const page: Page = await ctx.newPage();
 await page.exposeFunction('__ownerWallet', (req: { method: string; params?: unknown[] }) =>
@@ -105,6 +110,26 @@ try {
   await page.locator('.chip-owner').waitFor({ timeout: 15_000 });
   await page.waitForTimeout(800);
   await snap('owner-connected');
+
+  if (STOP) {
+    await page.getByRole('button', { name: 'Stop the agent', exact: true }).click();
+    await page.waitForFunction(() => /\d\.\d{4}/.test(document.querySelector('.stop-confirm')?.textContent ?? ''), null, { timeout: 30_000 });
+    await page.waitForTimeout(1200);
+    await snap('stop-confirm');
+    await page.getByRole('button', { name: 'Stop the agent now' }).click();
+    await page.locator('.stop-done, .stop .refusal').first().waitFor({ timeout: 180_000 });
+    await page.waitForTimeout(1500);
+    await snap('stopped');
+    log(`stop: ${await page.locator('.stop-done, .stop .refusal').first().innerText()}`);
+    // After the desk re-reads Celo, the agent panel and the payslip editor show what stopping means.
+    await page.waitForTimeout(3000);
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.locator('.recon, .empty').first().waitFor({ timeout: 60_000 });
+    await page.getByRole('button', { name: /connect the owner wallet/i }).first().click();
+    await page.locator('.chip-owner').waitFor({ timeout: 15_000 });
+    await page.waitForTimeout(1500);
+    await snap('agent-has-no-permission');
+  }
 
   if (FUND) {
     const before = await page.locator('.dk-side .big').nth(1).innerText();
@@ -137,7 +162,12 @@ try {
   const signBtn = page.getByRole('button', { name: /sign and pay/i });
   log(`sign button enabled: ${await signBtn.isEnabled()}`);
 
-  if (LIVE) {
+  if (STOP) {
+    // The reversal beat: with the agent stopped, the desk won't let the owner hand it a payslip.
+    await page.locator('.draft-book .notes').scrollIntoViewIfNeeded();
+    await page.waitForTimeout(1500);
+    await snap('payslip-blocked-agent-stopped');
+  } else if (LIVE) {
     await signBtn.click();
     await page.locator('.done-line, .draft-book .refusal').first().waitFor({ timeout: 240_000 });
     await page.waitForTimeout(2500);

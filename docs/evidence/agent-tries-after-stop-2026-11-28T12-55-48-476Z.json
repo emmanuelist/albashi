@@ -1,0 +1,13 @@
+{
+  "label": "after-stop",
+  "checkedAt": "2026-11-28T12:55:48.476Z",
+  "block": "83969783",
+  "wallet": "0x0EcaaFc1Bd6f7033d6eb038d8Cbc8a55f900D4B1",
+  "keyHash": "0x655198e5d3b27ac148df494a3b87f73f2aeba50bcfaa838c9c126e7216df4750",
+  "agentKey": {
+    "onWallet": false,
+    "error": "The contract function \"getKey\" reverted with the following signature:\n0xe57b6304\n\nUnable to decode signature \"0xe57b6304"
+  },
+  "attempted": "PayRun.run (owner-signed demo payslip, budget 1 unit), prepared and simulated through Altana relay; nothing sent",
+  "answer": "Details: key hash 0x655198e5d3b27ac148df494a3b87f73f2aeba50bcfaa838c9c126e7216df4750 is unknown"
+}

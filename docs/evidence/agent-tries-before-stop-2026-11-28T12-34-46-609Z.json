@@ -1,0 +1,13 @@
+{
+  "label": "before-stop",
+  "checkedAt": "2026-11-28T12:34:46.609Z",
+  "block": "83968524",
+  "wallet": "0x0EcaaFc1Bd6f7033d6eb038d8Cbc8a55f900D4B1",
+  "keyHash": "0x655198e5d3b27ac148df494a3b87f73f2aeba50bcfaa838c9c126e7216df4750",
+  "agentKey": {
+    "onWallet": true,
+    "expiry": "2027-01-21T09:00:00.000Z"
+  },
+  "attempted": "PayRun.run (owner-signed demo payslip, budget 1 unit), prepared and simulated through Altana relay; nothing sent",
+  "answer": "Reason: 0xff9fa59500000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000"
+}

@@ -34,7 +34,10 @@ Deadline source: https://www.loops.house/agents-open-for-business ("Mon 7 Dec, 0
 - [x] **Proof page and README:** state the thesis as true where C-1 allows, and add the E-010 run and E-011 refusal as alerts. Done 2026-11-22: deployed, served from chain reads (commit 9b3c907).
 
 ### M2 · Core claim
-- [ ] (placeholder)
+- [x] **Revoke on mainnet from the desk, and the agent refused after it.** Done 2026-11-28: E-019 (stop, relay refuses the unknown key, re-grant, agent reaches PayRun again).
+- [x] **Refusal of a payee the owner didn't sign**, live on the desk (eth_call against mainnet: NotSigned; a stranger sending the payslip: NotOwner). A mined reverted transaction isn't possible through Altana's relay (C-1 qualification).
+- [ ] **ops · a named outside agency's real pay run.** Owner: the user.
+- [ ] Tommy's cash-out to a Nigerian bank: which app, fees, time (owner: the user, with Tommy); fills the receipt's bank section.
 
 ### Layer 1 · Infrastructure for other agents (about 2–5 Dec, after the core claim; D-008)
 - [ ] (placeholder: itemised when M2 closes) corridor-sdk, x402 payout endpoint held to the pay-run contract, `/.well-known/agent.json`, ERC-8004 registration.
