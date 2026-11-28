@@ -40,9 +40,9 @@ Deadline source: https://www.loops.house/agents-open-for-business ("Mon 7 Dec, 0
 - [ ] Tommy's cash-out to a Nigerian bank: which app, fees, time (owner: the user, with Tommy); fills the receipt's bank section.
 
 ### M3 · UI pass (benchmark 28 Nov, internal/benchmarks/2026-11-28-5cc6abb.md; critique 24 → 28/40)
-- [ ] **Fix 1 · the 28 Nov truth where judges read:** README top (status, a track-requirements table → E-018, E-019, E-015, 10095), submission text (three runs, Tommy, desk revoke, session limits), public STATE cleaned. Evidence 1 → 3.
-- [ ] **Fix 2 · the real run on the proof page's first screen:** E-018 as a named credit alert, the thesis as the h1, the live refusal as an alert in the stack, phone CTAs above the fold, 320px overflow fixed. First screen 2 → 3.
-- [ ] **Fix 3 · revoke visible to a stranger on the desk:** the agent panel's history from chain (E-019 stop → refused → given back), a greyed owner-only Stop, Altana named; .chip-addr overflow fixed; "Add $x" only when the wallet can cover it. Rubric (Altana).
+- [x] **Fix 1 · the 28 Nov truth where judges read** (done ed0201f; verify.mjs 8/8): README top (status, a track-requirements table → E-018, E-019, E-015, 10095), submission text (three runs, Tommy, desk revoke, session limits), public STATE cleaned. Evidence 1 → 3.
+- [x] **Fix 2 · the real run on the proof page's first screen** (done 688e8ec): E-018 as a named credit alert, the thesis as the h1, the live refusal as an alert in the stack, phone CTAs above the fold, 320px overflow fixed. First screen 2 → 3.
+- [x] **Fix 3 · revoke visible to a stranger on the desk** (done 38e8d3b): the agent panel's history from chain (E-019 stop → refused → given back), a greyed owner-only Stop, Altana named; .chip-addr overflow fixed; "Add $x" only when the wallet can cover it. Rubric (Altana).
 - [ ] **Fix 4 · the demo video** with apps/agent/scripts/drive-desk.ts, labelled as signed by the owner's wallet (not MetaMask). Demo 0 → 2.
 - [ ] **ops · Fix 5 · traction:** an outside agency's payroll with several freelancers from its own wallet; Tommy's bank cash-out. Owner: the user.
 
