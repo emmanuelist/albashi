@@ -4,7 +4,7 @@
 // request asks Celo again. The block number is read on every request; the rate is held briefly (see cachedRate).
 import { unstable_cache } from 'next/cache';
 import type { Hash } from 'viem';
-import { checkSelfRelay, readMovement, readRate, readTxTime, type CheckRun, type Movement, type Rate } from './proof';
+import { checkDeskRun, readMovement, readRate, readTxTime, type CheckRun, type Movement, type Rate } from './proof';
 
 type MovementJson = { hash: Hash; at: string; transfers: { token: 'USDT' | 'CNGN'; from: string; to: string; units: string }[] };
 
@@ -56,16 +56,16 @@ class NotAllPassing extends Error {
 // Only a run where every check passed is kept; any FAIL is shown fresh and re-checked on the next request.
 const passingRun = unstable_cache(
   async (): Promise<CheckRunJson> => {
-    const run = await checkSelfRelay();
+    const run = await checkDeskRun();
     if (!run) throw new Error('Celo did not answer');
     if (!run.checks.every((c) => c.ok)) throw new NotAllPassing(run);
     return { checks: run.checks, at: run.at.toISOString() };
   },
-  ['self-relay-checks-v1'],
+  ['desk-run-checks-v1'],
   { revalidate: false },
 );
 
-export async function cachedSelfRelayChecks(): Promise<CheckRun | null> {
+export async function cachedRunChecks(): Promise<CheckRun | null> {
   try {
     const j = await passingRun();
     return { checks: j.checks, at: new Date(j.at) };

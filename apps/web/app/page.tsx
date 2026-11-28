@@ -258,7 +258,7 @@ export default async function Home() {
         />
       </ol>
 
-      <a className="box r-btn-run round-action" href="#run">
+      <a className="box r-btn-run round-action" href="/desk">
         <span className="disc" aria-hidden="true">
         <svg viewBox="0 0 48 48" aria-hidden="true" className="action-glyph">
           <path d="M14 8h14l8 8v14" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinejoin="round" />
@@ -269,7 +269,7 @@ export default async function Home() {
         </span>
         <span className="action-label">Run payroll</span>
       </a>
-      <a className="box r-btn-try round-action" href="#try">
+      <a className="box r-btn-try round-action" href="/desk#try">
         <span className="disc" aria-hidden="true">
         <svg viewBox="0 0 48 48" aria-hidden="true" className="action-glyph">
           <circle cx="22" cy="15" r="7" fill="none" stroke="currentColor" strokeWidth="2.4" />

@@ -334,6 +334,15 @@ export default function DeskApp(props: DeskProps) {
     }
   }
 
+  // Arriving from the proof page's "Try to pay someone not on the payslip" (/desk#try): ask Celo straight away.
+  const askedOnArrival = useRef(false);
+  useEffect(() => {
+    if (askedOnArrival.current || window.location.hash !== '#try') return;
+    askedOnArrival.current = true;
+    document.getElementById('try')?.scrollIntoView({ block: 'start' });
+    void askPayRun();
+  });
+
   // ---- the draft payslip, as base units
   const serverSession = props.ownerState?.session ?? null;
   const session = serverSession ? { ...serverSession, live: Date.parse(serverSession.expiry) > now } : null;
@@ -633,7 +642,7 @@ export default function DeskApp(props: DeskProps) {
 
           <HowItPays payRun={props.payRun} owner={props.owner} last={last} session={session} feeLimit={feeCap ? BigInt(feeCap.limit) : null} />
 
-          <section className="try" aria-label="Try to pay someone not on the payslip">
+          <section id="try" className="try" aria-label="Try to pay someone not on the payslip">
             <div className="try-row">
               <p><strong>Can the agent pay someone the owner didn’t sign for?</strong> Test it: we add a stranger to the owner’s signed payslip and ask Celo to pay it. Nothing is sent.</p>
               <button type="button" className="btn btn-quiet" onClick={askPayRun} disabled={tryState === 'asking'}>

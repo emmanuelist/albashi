@@ -8,7 +8,7 @@ import { unstable_cache } from 'next/cache';
 import { payRunAbi } from '../agent/abi.ts';
 import { payslipFromRunTx, runEvents } from '../agent/runner.ts';
 import type { Payslip } from '../agent/payslip.ts';
-import { PAYRUN, USDT } from './proof.ts';
+import { PAYRUN, USDT, settled } from './proof.ts';
 
 // forno occasionally drops a request from a serverless region; viem retries each call (3 tries, backing off) so one
 // hiccup in ten chunked reads doesn't hide the whole history.
@@ -49,8 +49,8 @@ type RunJson = Omit<Run, 'usdtSpent' | 'cngnReceived' | 'cngnPaid' | 'paid' | 'p
 // A mined run never changes, so each one is read once and kept.
 const runJson = unstable_cache(
   async (hash: Hash): Promise<RunJson> => {
-    const [tx, receipt] = await Promise.all([client.getTransaction({ hash }), client.getTransactionReceipt({ hash })]);
-    const block = await client.getBlock({ blockNumber: receipt.blockNumber });
+    const [tx, receipt] = await Promise.all([settled(() => client.getTransaction({ hash })), settled(() => client.getTransactionReceipt({ hash }))]);
+    const block = await settled(() => client.getBlock({ blockNumber: receipt.blockNumber }));
     const ev = runEvents(receipt.logs as Log[], PAYRUN);
     if (!ev.ran) throw new Error(`${hash} has no Ran event`);
     const decoded = payslipFromRunTx(tx.input, PAYRUN);
@@ -91,7 +91,7 @@ const RAN = parseAbiItem('event Ran(bytes32 indexed digest, address indexed owne
 // is read on every request.
 const CHUNK = 5_000n;
 const ranInChunk = (owner: Address, start: bigint, end: bigint) =>
-  client.getLogs({ address: PAYRUN, event: RAN, args: { owner }, fromBlock: start, toBlock: end }).then((logs) => logs.map((l) => l.transactionHash));
+  settled(() => client.getLogs({ address: PAYRUN, event: RAN, args: { owner }, fromBlock: start, toBlock: end })).then((logs) => logs.map((l) => l.transactionHash));
 const finishedChunk = unstable_cache(
   async (owner: Address, start: string): Promise<Hash[]> => ranInChunk(owner, BigInt(start), BigInt(start) + CHUNK - 1n),
   ['desk-ran-chunk-v1'],
@@ -101,7 +101,7 @@ const finishedChunk = unstable_cache(
 /** Every pay run this owner has had, newest first, from PayRun's Ran events. */
 export async function readRuns(owner: Address = DESK_OWNER): Promise<Run[] | null> {
   try {
-    const latest = await client.getBlockNumber();
+    const latest = await settled(() => client.getBlockNumber());
     const starts: bigint[] = [];
     for (let b = PAYRUN_DEPLOY_BLOCK; b <= latest; b += CHUNK) starts.push(b);
     const hashes: Hash[] = [];
@@ -111,7 +111,8 @@ export async function readRuns(owner: Address = DESK_OWNER): Promise<Run[] | nul
     }
     const unique = [...new Set(hashes)].reverse();
     return (await Promise.all(unique.map((h) => runJson(h)))).map(runFrom);
-  } catch {
+  } catch (e) {
+    console.error('desk: runs unreadable', (e as Error).message?.slice(0, 200));
     return null;
   }
 }

@@ -15,7 +15,7 @@ import {
   wat,
   watDay,
 } from './lib/proof';
-import { cachedSelfRelayChecks, cachedTxTime } from './lib/cached';
+import { cachedRunChecks, cachedTxTime } from './lib/cached';
 
 type Ref = { label: string; href: string };
 
@@ -43,8 +43,7 @@ const STEPS: Step[] = [
     n: '01',
     title: 'You sign the payslip',
     text: 'Who gets paid, how much cNGN each, the most USD₮ to spend, the lowest naira rate you accept, and a deadline. You keep a USD₮ float in the pay-run contract that only a payslip you signed can spend.',
-    proven: [tx('float deposit', EVIDENCE.floatDeposit), tx('pay-run contract', EVIDENCE.payRunDeploy)],
-    notBuilt: 'the app where you write and sign it (the first payslip was signed by a script)',
+    proven: [tx('signed on the desk', EVIDENCE.deskRun), tx('float deposit', EVIDENCE.floatDeposit), tx('pay-run contract', EVIDENCE.payRunDeploy)],
   },
   {
     n: '02',
@@ -56,7 +55,7 @@ const STEPS: Step[] = [
     n: '03',
     title: 'The agent converts and pays each line',
     text: 'The pay-run contract fills a firm Textile FX quote, checks the rate it got against your floor, and pays exactly the lines you signed. The agent sends the transaction itself, with Albashi’s attribution tag.',
-    proven: [tx('pay run', EVIDENCE.payRun)],
+    proven: [tx('pay run', EVIDENCE.payRun), tx('pay run from the desk', EVIDENCE.deskRun)],
   },
   {
     n: '04',
@@ -84,10 +83,12 @@ const PROOFS: { id: string; what: string; hash?: string; log?: string }[] = [
   { id: 'E-010', what: 'The first pay run: ₦700 and ₦800, exactly the signed lines, at ₦1,442.27 per USD₮ (signed floor ₦1,427.85)', hash: EVIDENCE.payRun },
   { id: 'E-011', what: 'The same payslip with a payee added was refused (NotSigned) before anything was signed or sent', log: PAYSLIP_REFUSAL.proof },
   { id: 'E-013', what: 'The agent registered its ERC-8004 identity, agent 10095', hash: EVIDENCE.erc8004 },
+  { id: 'E-015', what: 'The owner raised the agent’s daily network-fee cap to 3 CELO on its own wallet, tagged', hash: EVIDENCE.feeCap },
+  { id: 'E-016', what: 'A pay run signed by the owner on the desk in MetaMask: ₦750 and ₦800, exactly the signed lines, at ₦1,442.09 per USD₮ (signed floor ₦1,427.67)', hash: EVIDENCE.deskRun },
 ];
 
 const LIMITS = [
-  'One pay run so far, ₦1,500 to Albashi’s own test wallets. The payslip was signed by a script; the owner’s app isn’t built yet.',
+  'Two pay runs so far, both to Albashi’s own test wallets: ₦1,500 signed by a script (E-010), then ₦1,550 signed by the owner on the desk (E-016). No real freelancer has been paid yet.',
   'The refusal was checked against Celo mainnet’s state by the pay-run contract and by Altana’s relay, which would not sign it. No failed transaction was mined.',
   'The session grant goes through Altana’s relay, so it carries no attribution tag. Every transaction Albashi sends itself does.',
   'Altana’s wallet code (Porto) gives every session key a standing permission on its Orchestrator, used to pay relay fees. We haven’t audited it.',
@@ -96,7 +97,7 @@ const LIMITS = [
 ];
 
 export default async function Sections() {
-  const [run, ...times] = await Promise.all([cachedSelfRelayChecks(), ...PROOFS.map((p) => (p.hash ? cachedTxTime(p.hash as `0x${string}`) : Promise.resolve(null)))]);
+  const [run, ...times] = await Promise.all([cachedRunChecks(), ...PROOFS.map((p) => (p.hash ? cachedTxTime(p.hash as `0x${string}`) : Promise.resolve(null)))]);
 
   return (
     <>
@@ -128,13 +129,14 @@ export default async function Sections() {
       <section id="proof" className="sheet" aria-labelledby="proof-title">
         <h2 id="proof-title" className="sheet-title">Don’t take the page’s word for it.</h2>
         <p className="sheet-lede">
-          This page checked the payment its agent sent itself (E-005) against Celo mainnet; the result and when it ran are
-          below. The same checks run from the repo with no wallet and no keys.
+          This page checked the last pay run (E-016, signed by the owner on the desk) against Celo mainnet; the result and
+          when it ran are below. The repo’s script runs the same kind of checks on an earlier payment (E-005), with no wallet
+          and no keys.
         </p>
 
-        <div className="checks" role="group" aria-label="Live checks of E-005">
+        <div className="checks" role="group" aria-label="Live checks of E-016">
           <p className="checks-head">
-            <span>E-005 · {short(EVIDENCE.swapSelfRelay)}</span>
+            <span>E-016 · {short(EVIDENCE.deskRun)}</span>
             <span>{run ? `checked ${watDay(run.at)} ${wat(run.at)} WAT` : 'Celo did not answer'}</span>
           </p>
           {run ? (
@@ -149,7 +151,7 @@ export default async function Sections() {
             </ul>
           ) : (
             <p className="checks-down">
-              The checks could not reach Celo just now. Open <a href={celoscan(EVIDENCE.swapSelfRelay)}>the transaction on Celoscan</a>{' '}
+              The checks could not reach Celo just now. Open <a href={celoscan(EVIDENCE.deskRun)}>the transaction on Celoscan</a>{' '}
               or run them yourself below.
             </p>
           )}

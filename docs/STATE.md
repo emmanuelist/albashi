@@ -30,13 +30,13 @@ _Last verified: 2026-11-22 23:30 UTC (handoff; the user returns Saturday 28 Nov)
 | ERC-8004 registration file | Vercel | /.well-known/agent-registration.json | 200 |
 
 ## Broken or unverified
-- Proof page: the two round buttons on its first screen go nowhere (`#run`, `#try`)
 - MetaMask warns "phishing or wallet-draining" on albashi.vercel.app (not on MetaMask's public list; likely Blockaid; unreported)
 - No real person paid yet (our test wallets only); cNGN cash-out unverified
 - Revoke exists only as a spike script, not in the desk
 - PayRun not audited; refusal shown as a simulation against mainnet, not a mined revert
 - The session grant goes through Altana's relay, untagged
-- Owner wallet holds ~10.4 CELO the user sent for a re-registration that wasn't needed: return on request
+- Owner wallet holds ~10.4 CELO (26 Nov) the user sent for a re-registration that wasn't needed: the user chose to keep it there until after the hackathon (relay fees); return ~6.8 then. Agent gas 0.37 CELO: top up from the owner wallet when it runs low
+- AskBots self-funded review of /desk launched 26 Nov (10 responses, $1.10 from the user's wallet): turn responses into Saturday's fix list
 
 ## Open questions
 - Is the self-relaying agent EOA the event's "one agent wallet", and is self-relay fine for the Altana track? (Celo DevRel, asked 21 Nov, acknowledged 23 Nov: "will check"; the playground's own checker already sees its tag, E-012)

@@ -1,8 +1,10 @@
 // Server-side reads for the proof page. Every value comes from Celo mainnet or Textile's API at request
 // time; nothing here is invented. When a source is down the caller gets `null` and says so on screen.
-import { createPublicClient, erc20Abi, http, parseEventLogs, type Hash } from 'viem';
+import { createPublicClient, erc20Abi, http, parseEventLogs, recoverTypedDataAddress, type Hash } from 'viem';
 import { celo } from 'viem/chains';
 import { verifyTx } from '@celo/attribution-tags';
+import { payslipFromRunTx, runEvents } from '../agent/runner.ts';
+import { payslipDomain, payslipTypes } from '../agent/payslip.ts';
 
 const RPC = process.env.CELO_RPC_URL ?? 'https://forno.celo.org';
 const TEXTILE = 'https://api.textilecredit.com/v2';
@@ -12,6 +14,21 @@ const DECIMALS = 6n; // USD₮ and cNGN, verified with decimals() on forno (docs
 const REPO = 'https://github.com/emmanuelist/albashi/blob/main';
 
 const client = createPublicClient({ chain: celo, transport: http(RPC, { timeout: 8_000 }) });
+
+/**
+ * forno sometimes answers a mined transaction's receipt (or the transaction) with null, about one read in six on
+ * 2026-11-28; the same read a moment later succeeds. Reads of mined data are retried before the page says Celo is down.
+ */
+export async function settled<T>(read: () => Promise<T>, tries = 4): Promise<T> {
+  for (let i = 1; ; i++) {
+    try {
+      return await read();
+    } catch (e) {
+      if (i >= tries) throw e;
+      await new Promise((r) => setTimeout(r, 400 * i));
+    }
+  }
+}
 
 /** Token base units to a display string with two decimals. Display only: never fed back into a transaction. */
 export function formatUnits2(units: bigint): string {
@@ -113,9 +130,9 @@ export async function readMovement(hash: Hash): Promise<Movement | null> {
   const known = movements.get(hash);
   if (known) return known;
   try {
-    const receipt = await client.getTransactionReceipt({ hash });
+    const receipt = await settled(() => client.getTransactionReceipt({ hash }));
     if (receipt.status !== 'success') return null;
-    const block = await client.getBlock({ blockNumber: receipt.blockNumber });
+    const block = await settled(() => client.getBlock({ blockNumber: receipt.blockNumber }));
     const movement = { hash, at: new Date(Number(block.timestamp) * 1000), transfers: transfersFrom(receipt.logs) };
     movements.set(hash, movement);
     return movement;
@@ -140,6 +157,10 @@ export const EVIDENCE = {
   payRunGrant: '0x9d0edbbcab1024890e2898f89e35615a5971a99234d602e878a6f86ac0af1335',
   /** E-010: PayRun ran a signed payslip: one Textile swap, then each signed line paid in cNGN. Self-relayed, tagged. */
   payRun: '0xaaabd2dfa98b955f8e5edb3b9eabe1b7b0d750d4983bdb3152a30f5815b89bfc',
+  /** E-016: the first pay run signed by the owner on the deployed desk (MetaMask), run by the agent's route, tagged. */
+  deskRun: '0x7b5e0bb86b691472947a463461e92d0235c74256eaac8ae7d1b0e42af3251b94',
+  /** E-015: the owner raised the session's daily relay-fee cap to 3 CELO (self-call, tagged). */
+  feeCap: '0xf18922feece3195b4030dc937e4b987e0086ea0e03bbeb6e142c1ef8915ee28f',
   /** E-013: the agent registered its ERC-8004 identity (agent 10095), tagged. */
   erc8004: '0x025485429c8ddd3d78f4bc117f349ac935209868fb7f59455c8086ea8d179318',
 } as const satisfies Record<string, Hash>;
@@ -170,44 +191,54 @@ export const PAYSLIP_REFUSAL = {
   proof: `${REPO}/docs/evidence/proof-run-2026-11-22T07-32-07-970Z.json`,
 } as const;
 
-// ---- the README's read-only verification of E-005, run live (same checks as spike/verify.mjs)
+// ---- E-016 checked live: the pay run the owner signed on the desk, read back from Celo
 
 const ORCHESTRATOR = '0xaf140d0416a994aebb3fa6212b16ce6700f09751'; // Altana's (Porto) Orchestrator on Celo
-const AGENT = '0x9Fb5a16af64eEC7A640f2Aa1c7c6aC6E89f0dc79'; // the agent EOA that self-relayed E-005
-const OWNER = '0x0EcaaFc1Bd6f7033d6eb038d8Cbc8a55f900D4B1'; // the owner's Altana wallet in the spike
+const AGENT = '0x1Bce3F6267983dfAb58CED6261EF05a28E168ce8'; // the agent wallet on file with the event (D-011)
+const OWNER = '0x0EcaaFc1Bd6f7033d6eb038d8Cbc8a55f900D4B1'; // the demo agency's owner wallet
 export const ATTRIBUTION_CODE = 'celo_3f5cac8c49f6';
 
 export type Check = { what: string; ok: boolean; detail: string };
 export type CheckRun = { checks: Check[]; at: Date };
 
-let selfRelayRun: CheckRun | null = null; // a mined transaction can't change; keep a fully passing run
-
-export async function checkSelfRelay(): Promise<CheckRun | null> {
-  if (selfRelayRun) return selfRelayRun;
+/**
+ * Six checks on E-016 that anyone can repeat from a Celo node: who sent it and where, that it mined, the attribution
+ * tag, that the payslip inside carries the owner's own signature, and that PayRun paid exactly the signed lines.
+ */
+export async function checkDeskRun(): Promise<CheckRun | null> {
   try {
-    const hash = EVIDENCE.swapSelfRelay;
+    const hash = EVIDENCE.deskRun;
     const [tx, receipt, tag] = await Promise.all([
-      client.getTransaction({ hash }),
-      client.getTransactionReceipt({ hash }),
-      verifyTx({ client, hash }),
+      settled(() => client.getTransaction({ hash })),
+      settled(() => client.getTransactionReceipt({ hash })),
+      settled(() => verifyTx({ client, hash })),
     ]);
-    const cngnIn = parseEventLogs({ abi: erc20Abi, eventName: 'Transfer', logs: receipt.logs })
-      .filter((l) => l.address.toLowerCase() === CNGN.toLowerCase() && l.args.to.toLowerCase() === OWNER.toLowerCase())
-      .reduce((s, l) => s + l.args.value, 0n);
+    const decoded = payslipFromRunTx(tx.input, PAYRUN);
+    const signer = decoded
+      ? await recoverTypedDataAddress({ domain: payslipDomain(PAYRUN), types: payslipTypes, primaryType: 'Payslip', message: decoded.payslip, signature: decoded.signature }).catch(() => null)
+      : null;
+    const signedByOwner = !!decoded && !!signer && signer.toLowerCase() === OWNER.toLowerCase() && decoded.payslip.owner.toLowerCase() === OWNER.toLowerCase();
+    const ev = runEvents(receipt.logs, PAYRUN);
+    const lines = decoded?.payslip.lines ?? [];
+    const exact = lines.length > 0 && ev.paid.length === lines.length
+      && lines.every((l, i) => ev.paid.some((p) => Number(p.line) === i && p.to.toLowerCase() === l.to.toLowerCase() && p.amount === l.amount));
     const checks: Check[] = [
-      { what: 'sent by the agent’s own wallet, not a relay', ok: tx.from.toLowerCase() === AGENT.toLowerCase(), detail: short(tx.from) },
-      { what: 'sent to Altana’s Orchestrator', ok: tx.to?.toLowerCase() === ORCHESTRATOR, detail: short(tx.to ?? '0x') },
+      { what: 'sent by the agent’s own wallet', ok: tx.from.toLowerCase() === AGENT.toLowerCase(), detail: short(tx.from) },
+      { what: 'sent to Altana’s Orchestrator, acting as the owner’s wallet', ok: tx.to?.toLowerCase() === ORCHESTRATOR, detail: short(tx.to ?? '0x') },
       { what: 'mined successfully', ok: receipt.status === 'success', detail: `block ${receipt.blockNumber.toLocaleString('en-US')}` },
       {
         what: `attribution tag ${ATTRIBUTION_CODE} at the end of the calldata`,
         ok: Boolean(tag?.codes?.includes(ATTRIBUTION_CODE)),
         detail: tag?.codes?.join(', ') ?? 'none',
       },
-      { what: 'cNGN arrived in the owner’s Altana wallet', ok: cngnIn > 0n, detail: `${formatUnits2(cngnIn)} cNGN` },
+      { what: 'the payslip inside is signed by the owner’s wallet', ok: signedByOwner, detail: signer ? short(signer) : 'no payslip found' },
+      {
+        what: 'the payroll contract paid exactly the signed lines',
+        ok: exact,
+        detail: ev.paid.length ? ev.paid.map((p) => `₦${formatUnits2(p.amount)}`).join(' + ') : 'no payments',
+      },
     ];
-    const run = { checks, at: new Date() };
-    if (checks.every((c) => c.ok)) selfRelayRun = run;
-    return run;
+    return { checks, at: new Date() };
   } catch {
     return null;
   }
@@ -220,8 +251,8 @@ export async function readTxTime(hash: Hash): Promise<Date | null> {
   const known = txTimes.get(hash);
   if (known) return known;
   try {
-    const receipt = await client.getTransactionReceipt({ hash });
-    const block = await client.getBlock({ blockNumber: receipt.blockNumber });
+    const receipt = await settled(() => client.getTransactionReceipt({ hash }));
+    const block = await settled(() => client.getBlock({ blockNumber: receipt.blockNumber }));
     const at = new Date(Number(block.timestamp) * 1000);
     txTimes.set(hash, at);
     return at;
