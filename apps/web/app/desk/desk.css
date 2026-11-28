@@ -191,7 +191,7 @@
 }
 @media (max-width: 680px) {
   .dk-top { gap: 14px; }
-  .dk-brand { font-size: 0; gap: 0; }
+  .dk-word { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   .dk-tabs a { padding: 8px 10px; }
   .chip { font-size: 0.7812rem; padding: 0 10px; }
   .dk-wallet .btn { min-height: 40px; padding: 0 12px; font-size: 0.875rem; }
@@ -263,3 +263,12 @@
   .how-note, .check, .how-fine { margin-left: 18px; margin-right: 18px; }
 }
 .try { scroll-margin-top: 84px; }
+
+/* phones and tablets: every control is at least 44px tall (design rules §13) */
+@media (max-width: 1080px) {
+  .dk-tabs a { display: inline-flex; align-items: center; min-height: 44px; }
+  .dk-wallet .btn { min-height: 44px; }
+  .desk .ref { min-height: 44px; }
+  .btn-copy { min-height: 44px; }
+  .check-acts a { display: inline-flex; align-items: center; min-height: 44px; }
+}

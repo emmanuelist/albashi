@@ -118,10 +118,11 @@ function Slip({ n, to, name, amount, state, children, label }: { n: number | nul
         {children ?? (
           <>
             <span className="payee-name">{name ?? 'Unnamed payee'}</span>
-            <a className="payee" href={to ? celoscanAddr(to) : undefined} target="_blank" rel="noreferrer" title={to}>
+            <span className="payee" title={to}>
+              <span className="sr">Wallet </span>
               <span className="payee-long">{to}</span>
               <span className="payee-short">{to ? short(to) : ''}</span>
-            </a>
+            </span>
             <span className={`amt${declined ? ' struck' : ''}`}>₦{amount != null ? money(amount) : '–'}</span>
           </>
         )}
@@ -181,10 +182,10 @@ function walletError(e: unknown): string {
 
 // ---------------------------------------------------------------- how it pays, and how to check it
 
-function Copy({ text }: { text: string }) {
+function Copy({ text, what }: { text: string; what: string }) {
   const [done, setDone] = useState(false);
   return (
-    <button type="button" className="btn btn-ghost btn-copy" onClick={() => { navigator.clipboard?.writeText(text).then(() => { setDone(true); setTimeout(() => setDone(false), 1600); }, () => {}); }}>
+    <button type="button" className="btn btn-ghost btn-copy" aria-label={done ? `Copied ${what}` : `Copy ${what}`} onClick={() => { navigator.clipboard?.writeText(text).then(() => { setDone(true); setTimeout(() => setDone(false), 1600); }, () => {}); }}>
       {done ? 'Copied' : 'Copy'}
     </button>
   );
@@ -206,16 +207,16 @@ function HowItPays({ payRun, owner, last, session, feeLimit }: { payRun: Address
         {last && (
           <div>
             <dt>Last pay run</dt>
-            <dd><span className="mono hash">{last.hash}</span><span className="check-acts"><Copy text={last.hash} /><a href={celoscanTx(last.hash)} target="_blank" rel="noreferrer">Celoscan<Out className="ic-s" /></a></span></dd>
+            <dd><span className="mono hash">{last.hash}</span><span className="check-acts"><Copy text={last.hash} what="the last pay run’s transaction ID" /><a href={celoscanTx(last.hash)} target="_blank" rel="noreferrer" aria-label="Open the last pay run on Celoscan">Celoscan<Out className="ic-s" /></a></span></dd>
           </div>
         )}
         <div>
           <dt>Payroll contract (PayRun)</dt>
-          <dd><span className="mono hash">{payRun}</span><span className="check-acts"><Copy text={payRun} /><a href={celoscanAddr(payRun)} target="_blank" rel="noreferrer">Celoscan<Out className="ic-s" /></a><a href={`https://repo.sourcify.dev/42220/${payRun}`} target="_blank" rel="noreferrer">Source<Out className="ic-s" /></a></span></dd>
+          <dd><span className="mono hash">{payRun}</span><span className="check-acts"><Copy text={payRun} what="the payroll contract’s address" /><a href={celoscanAddr(payRun)} target="_blank" rel="noreferrer" aria-label="Open the payroll contract on Celoscan">Celoscan<Out className="ic-s" /></a><a href={`https://repo.sourcify.dev/42220/${payRun}`} target="_blank" rel="noreferrer" aria-label="Read the payroll contract’s verified source on Sourcify">Source<Out className="ic-s" /></a></span></dd>
         </div>
         <div>
           <dt>Owner’s wallet</dt>
-          <dd><span className="mono hash">{owner}</span><span className="check-acts"><Copy text={owner} /><a href={celoscanAddr(owner)} target="_blank" rel="noreferrer">Celoscan<Out className="ic-s" /></a></span></dd>
+          <dd><span className="mono hash">{owner}</span><span className="check-acts"><Copy text={owner} what="the owner’s wallet address" /><a href={celoscanAddr(owner)} target="_blank" rel="noreferrer" aria-label="Open the owner’s wallet on Celoscan">Celoscan<Out className="ic-s" /></a></span></dd>
         </div>
       </dl>
       <ul className="how-fine">
@@ -500,7 +501,7 @@ export default function DeskApp(props: DeskProps) {
       <header className="dk-top">
         <Link href="/" className="dk-brand" aria-label="Albashi, the proof page">
           <AlbashiMark className="dk-mark" />
-          ALBASHI
+          <span className="dk-word">ALBASHI</span>
         </Link>
         <nav className="dk-tabs" aria-label="Albashi">
           <Link href="/desk" aria-current="page">Desk</Link>
@@ -573,6 +574,7 @@ export default function DeskApp(props: DeskProps) {
                   <div><dt>Pays out</dt><dd className="mono">₦{money(owed)}</dd></div>
                   <div><dt>Costs about</dt><dd className="mono">{estUsdt !== null ? `$${money(estUsdt)}` : '–'}</dd></div>
                   <div><dt>Most it may spend</dt><dd className="mono">${money(maxUsdtIn)}</dd></div>
+                  <div><dt>Network fee</dt><dd>about 0.7 CELO, from the owner’s wallet</dd></div>
                   <div><dt>Valid for</dt><dd>1 hour after signing</dd></div>
                 </dl>
               </div>

@@ -71,6 +71,16 @@ npm view <tool> peerDependencies        # which versions a tool actually accepts
 10. **Never cut scope silently.** Cuts are the user's decision. Present the tradeoff on technical
     merit, and record an accepted cut in `docs/DECISIONS.md`.
 
+## Frontend
+
+- **`DESIGN-RULES.md` is the authority for every interface** (layout, type, spacing, colour, touch,
+  states), above any skill or tool, impeccable included. Build mobile-first at 375 px, and screenshot
+  375 and 1440 before committing a UI change. A deliberate exception is recorded in `docs/DECISIONS.md`.
+- The look lives in `DESIGN.md` and `apps/web/app/globals.css` (tokens). The desk's copy speaks payroll,
+  not contract: names before addresses, naira first, chain detail one tap away.
+- Run `node ~/.claude/skills/hackathon/scripts/ui-audit.mjs <url>` on the deployed pages before a
+  milestone closes; every FAIL is a finding.
+
 ## Verification before any gate
 
 All green before any milestone closes; CI runs the same commands on every push.
