@@ -82,7 +82,8 @@ a { color: inherit; text-decoration: none; }
 .rate {
   font-family: var(--display);
   font-weight: 500;
-  font-size: calc(316 * var(--u));
+  /* the lock-screen clock, capped: fluid type stops growing at 9rem instead of scaling with the window (DESIGN-RULES §7, §12) */
+  font-size: min(calc(316 * var(--u)), 9rem);
   line-height: 1;
   display: flex;
   align-items: center;
@@ -221,7 +222,7 @@ a.card-in:focus-visible { outline: calc(4 * var(--u)) solid #fff; outline-offset
     position: relative;
     justify-self: center;
     margin-top: calc(34 * var(--u));
-    font-size: calc(72 * var(--u));
+    font-size: clamp(2.75rem, 15vw, 3.5rem);
     transform: none;
     letter-spacing: 0;
   }
@@ -231,7 +232,7 @@ a.card-in:focus-visible { outline: calc(4 * var(--u)) solid #fff; outline-offset
     justify-self: center;
     margin-top: calc(10 * var(--u));
     padding: calc(2 * var(--u)) calc(10 * var(--u));
-    font-size: max(12px, calc(12 * var(--u)));
+    font-size: max(0.875rem, calc(12 * var(--u)));
     white-space: normal;
     text-align: center;
     border-radius: 999px;
@@ -433,6 +434,16 @@ main { background: linear-gradient(180deg, #1a1838 0, #1d1b2e 700px, #191826 100
   .step-n { font-size: 1.125rem; }
   .checks-list li { grid-template-columns: 3rem minmax(0, 1fr); }
   .check-detail { grid-column: 2; text-align: left; }
+  /* phones: running text at 16px, supporting labels at 14px, every link a 44px target (DESIGN-RULES §7, §13) */
+  .checks-list li, .proof { font-size: 1rem; }
+  .checks-head, .proof-id, .proof-when { font-size: 0.875rem; }
+  .proof-ref { font-size: 0.875rem; }
   .proof { grid-template-columns: 3.75rem minmax(0, 1fr); gap: 0.25rem 0.75rem; }
   .proof-when, .proof-ref { grid-column: 2; text-align: left; }
 }
+
+/* touch screens up to tablet: proof links are 44px targets (DESIGN-RULES §13) */
+@media (max-width: 1279px), (pointer: coarse) {
+  .proof-ref { display: flex; align-items: center; justify-content: flex-end; min-height: 44px; }
+}
+@media (max-width: 760px) { .proof-ref { justify-content: flex-start; } }
