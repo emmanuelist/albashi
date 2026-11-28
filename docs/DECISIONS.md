@@ -82,3 +82,9 @@ Append-only. To change a decision, add a new entry that supersedes it.
 **Context:** Deploys were manual `vercel --prod` runs from apps/web. The first git-triggered build served a 404 site because the project's Root Directory was "." with framework "Other".
 **Decision:** The Vercel project builds from GitHub with Root Directory `apps/web` and the Next.js preset; every push to main deploys production.
 **Consequences:** Every commit to main is a production deploy: keep main green. Docs-only commits also rebuild unless an Ignored Build Step is set.
+
+## D-014 · DESIGN-RULES.md is the interface authority; the desk's token and spacing refactor waits for the UI pass · 2026-11-28 · accepted
+**Context:** The hackathon skill (v2.11.3, 23 Nov) made its design rules the authority over every design tool and banned comp-led builds that scale a desktop picture. ui-audit.mjs found unnamed controls and small tap targets on the desk, and a 69px phone headline, 15px running text and small links on the proof page (built comp-led from comp-2.png).
+**Decision:** The rules are in the repo as DESIGN-RULES.md and AGENTS.md points to it. Fixed now: names, 44px targets, the fee before signing, the proof page's headline cap (9rem) and phone type. Deferred, by the user's choice: the desk's spacing (off-scale 14/18/22px), its fixed-rem type (not a named clamp() scale) and its token names (not the semantic set), to the UI pass at the 75% checkpoint, after the freelancer receipt.
+**Consequences:** Both live pages pass ui-audit.mjs with no FAIL or WARN (local run, 28 Nov). Until the UI pass the desk keeps its current tokens; new surfaces (the receipt) are built to the rules from the start.
+**Evidence:** commits 913c043, e4b3ce7.
