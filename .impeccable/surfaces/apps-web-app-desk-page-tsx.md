@@ -37,7 +37,7 @@ A counterfoil taking its gold PAID stamp the moment PayRun's Paid event for that
 
 ## Bar
 
-Syncly (hacks-winners-proj/neromtoobad/syncly/web): token discipline, every control's busy/error/disabled state, live polling, plain specific copy, one easing curve, reduced motion respected. The desk is judged side by side against its PayDesk at the finish.
+A past first-place payroll entry (reference kept in internal/design/bar/): token discipline, every control's busy/error/disabled state, live polling, plain specific copy, one easing curve, reduced motion respected. The desk is judged side by side against its PayDesk at the finish.
 
 ## Open decisions
 

@@ -88,3 +88,9 @@ Append-only. To change a decision, add a new entry that supersedes it.
 **Decision:** The rules are in the repo as DESIGN-RULES.md and AGENTS.md points to it. Fixed now: names, 44px targets, the fee before signing, the proof page's headline cap (9rem) and phone type. Deferred, by the user's choice: the desk's spacing (off-scale 14/18/22px), its fixed-rem type (not a named clamp() scale) and its token names (not the semantic set), to the UI pass at the 75% checkpoint, after the freelancer receipt.
 **Consequences:** Both live pages pass ui-audit.mjs with no FAIL or WARN (local run, 28 Nov). Until the UI pass the desk keeps its current tokens; new surfaces (the receipt) are built to the rules from the start.
 **Evidence:** commits 913c043, e4b3ce7.
+
+## D-015 · The M3 benchmark's "not doing" list · 2026-11-28 · accepted
+**Context:** Benchmark of 5cc6abb (four cold judges, re-critique 28/40): every judge's reason to vote against was evidence not shown where judges read, no video, and tiny traction. The user approved fixes 1-5 (PLAN M3).
+**Decision:** Not doing before the video: bulk paste / CSV of payslip lines and a payee picker; a withdraw button; re-granting the agent in the browser (Altana's grant needs a raw-digest signer, CONTEXT); slimming the editor's figures; a measurable-advantage number without an honest baseline; vendoring the contract libraries for plain-clone builds (the README gives the clone command instead).
+**Consequences:** These stay settled unless new evidence (a judge or reviewer naming one) reopens them. The demo video is recorded with the drive-desk recorder and says "signed by the owner's wallet", never MetaMask (user's choice).
+**Evidence:** internal/benchmarks/2026-11-28-5cc6abb.md; .impeccable/critique/2026-11-28T13-53-51Z__apps-web-app-desk-page-tsx.md.
