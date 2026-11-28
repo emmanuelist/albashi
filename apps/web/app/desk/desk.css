@@ -272,3 +272,15 @@
   .btn-copy { min-height: 44px; }
   .check-acts a { display: inline-flex; align-items: center; min-height: 44px; }
 }
+
+/* ---- stopping the agent: destructive, so it says what happens first */
+.btn-danger { background: transparent; border-color: rgba(241, 154, 138, 0.6); color: #f6c1b6; }
+.btn-danger:hover:not(:disabled) { background: rgba(241, 154, 138, 0.12); border-color: #f19a8a; color: #fff; }
+.stop { display: grid; gap: 12px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--dk-line); }
+.stop .btn { justify-self: start; }
+.stop-confirm { display: grid; gap: 8px; }
+.stop-confirm p { margin: 0; font-size: 0.9375rem; color: #ece6f0; }
+.stop-confirm strong { color: #fff; }
+.stop-acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.stop-done { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: baseline; margin: 14px 0 0; padding-top: 14px; border-top: 1px solid var(--dk-line); font-size: 0.9375rem; color: #f6e4c4; }
+.stop-done .ok { color: var(--dk-gold); align-self: center; }

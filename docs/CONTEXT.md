@@ -71,6 +71,9 @@ session has to re-derive it or trust training data. Read before touching an inte
 
 - **Altana track judging (livestream slide, 25 Nov):** "Outstanding UX: users should not feel that they are in web3"; "Real problems, with an innovative twist"; "New DeFi primitives for agentic finance". Altana XP counts what an Altana wallet does onchain (quests: give your agent a budget, 3,000 XP; each new session on a network, 300 XP); lookup on Altana's XP page. Self Agent ID is optional for every track except Verified Agent Payments (@CeloOrg in the stream chat, 25 Nov). Our two questions (1.2.0 tag position; self-relay acceptability) were posted in the stream chat and not answered on air; next: Thursday office hours (26 Nov 12:00 GMT) and the Altana Builders Telegram "Celo Hackathon" topic.
 
+- **Revoking from MetaMask is a self-call, not the SDK.** `revokeSession` needs a `Signer` with `signDigest(digest)` (raw hash), which MetaMask won't sign. The owner's account (Porto, EIP-7702) exposes `revoke(bytes32 keyHash)` (0xb75c7dc6), `onlyThis`: the owner's wallet sends it to its own address. Checked 2026-11-28: eth_call from the owner succeeds (~68.7k gas), from a stranger reverts `Unauthorized` (0x82b42900); on an anvil fork, after it `getKey` reverts `KeyDoesNotExist` and `canExecutePackedInfos` is empty. Fee read live by the desk: ~0.014 CELO. (source: cast, anvil fork)
+- **After a revoke, the agent needs a re-grant before any run, and its spend caps are gone too.** `scripts/renew-session.ts --live` (`register: false`, the key is still in the KeyStore) should re-authorize it (unverified after a revoke; verified after expiry, E-015), and the SDK's default 1 CELO/day fee cap returns, so run `scripts/raise-fee-cap.ts` after it. Do a live revoke only when the re-grant can follow (the user's OK; relay fee).
+
 ## Environment
 | Var | Purpose | Where to get it |
 |---|---|---|

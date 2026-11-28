@@ -2,7 +2,7 @@
 // last real run is in the HTML for anyone, with no wallet and no JavaScript; signing and running happen in DeskApp.
 import type { Metadata } from 'next';
 import { cachedRate } from '../lib/cached.ts';
-import { DESK_OWNER, readOwner, readRuns } from '../lib/desk.ts';
+import { DESK_OWNER, SESSION_KEY_HASH, readOwner, readRuns } from '../lib/desk.ts';
 import { PAYRUN } from '../lib/proof.ts';
 import DeskApp, { type DeskProps } from './desk-app.tsx';
 import './desk.css';
@@ -18,6 +18,7 @@ export default async function Desk() {
   const [runs, owner, rate] = await Promise.all([readRuns(), readOwner(), cachedRate()]);
   const props: DeskProps = {
     owner: DESK_OWNER,
+    sessionKeyHash: SESSION_KEY_HASH,
     payRun: PAYRUN,
     readAt: new Date().toISOString(),
     rate: rate ? { buyUnits: rate.buyUnits.toString(), readAt: rate.readAt.toISOString() } : null,

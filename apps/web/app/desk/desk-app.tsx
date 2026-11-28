@@ -5,7 +5,7 @@
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { createPublicClient, createWalletClient, custom, encodeFunctionData, erc20Abi, getAddress, http, isAddress, keccak256, toHex, type Address, type Hex } from 'viem';
+import { createPublicClient, createWalletClient, custom, encodeFunctionData, erc20Abi, getAddress, http, isAddress, keccak256, parseAbi, toHex, type Address, type Hex } from 'viem';
 import { celo } from 'viem/chains';
 import { toDataSuffix } from '@celo/attribution-tags';
 import { payslipDomain, payslipTypes, type Payslip } from '../agent/payslip.ts';
@@ -43,6 +43,8 @@ export type DeskProps = {
   ownerState: OwnerView | null;
   rate: { buyUnits: string; readAt: string } | null;
   readAt: string;
+  /** The agent's session key on the owner's wallet (E-009, E-011). */
+  sessionKeyHash: Hex;
 };
 
 type SlipState =
@@ -228,6 +230,85 @@ function HowItPays({ payRun, owner, last, session, feeLimit }: { payRun: Address
   );
 }
 
+// ---------------------------------------------------------------- stopping the agent
+
+// Porto's account (the owner's Altana wallet) removes a key with revoke(keyHash), callable only by the account
+// itself: the owner's own wallet sends it to its own address. Checked on a mainnet fork, 2026-11-28: afterwards
+// getKey reverts KeyDoesNotExist and the key's permissions are empty; from any other sender it reverts Unauthorized.
+const ACCOUNT_ABI = parseAbi(['function revoke(bytes32 keyHash)', 'function getKey(bytes32 keyHash) view returns ((uint40 expiry, uint8 keyType, bool isSuperAdmin, bytes publicKey) key)']);
+
+type StopState =
+  | { kind: 'idle' }
+  | { kind: 'confirm'; fee: bigint | null }
+  | { kind: 'busy'; text: string }
+  | { kind: 'stopped'; hash: Hex; at: Date }
+  | { kind: 'failed'; text: string };
+
+function StopAgent({ owner, keyHash, account, onStopped }: { owner: Address; keyHash: Hex; account: Address; onStopped: () => void }) {
+  const [st, setSt] = useState<StopState>({ kind: 'idle' });
+  const pub = useMemo(() => createPublicClient({ chain: celo, transport: http('https://forno.celo.org', { retryCount: 3 }) }), []);
+  const data = encodeFunctionData({ abi: ACCOUNT_ABI, functionName: 'revoke', args: [keyHash] });
+
+  async function ask() {
+    setSt({ kind: 'confirm', fee: null });
+    try {
+      const [gas, price] = await Promise.all([pub.estimateGas({ account: owner, to: owner, data }), pub.getGasPrice()]);
+      setSt({ kind: 'confirm', fee: gas * price });
+    } catch {
+      setSt({ kind: 'failed', text: 'Celo says this wallet can’t stop the agent right now: the permission may already be gone. Nothing was sent.' });
+    }
+  }
+
+  async function stop() {
+    const w = eth();
+    if (!w) return;
+    setSt({ kind: 'busy', text: 'Confirm in your wallet…' });
+    try {
+      const wallet = createWalletClient({ account, chain: celo, transport: custom(w), dataSuffix: toDataSuffix(ATTRIBUTION_CODE) });
+      const hash = await wallet.sendTransaction({ to: owner, data });
+      setSt({ kind: 'busy', text: 'Waiting for Celo to confirm it…' });
+      const receipt = await pub.waitForTransactionReceipt({ hash });
+      if (receipt.status !== 'success') { setSt({ kind: 'failed', text: 'Celo didn’t accept it, so the agent still has its permission. Try again.' }); return; }
+      // Don't take the receipt's word for it: read the wallet and confirm the key is gone.
+      setSt({ kind: 'busy', text: 'Checking your wallet on Celo…' });
+      const gone = await pub.readContract({ address: owner, abi: ACCOUNT_ABI, functionName: 'getKey', args: [keyHash] }).then((k) => k.expiry === 0, () => true);
+      if (!gone) { setSt({ kind: 'failed', text: 'The transaction was confirmed, but the wallet still lists the agent’s key. Check it on Celoscan before relying on it.' }); return; }
+      const block = await pub.getBlock({ blockNumber: receipt.blockNumber }).catch(() => null);
+      setSt({ kind: 'stopped', hash, at: block ? new Date(Number(block.timestamp) * 1000) : new Date() });
+      onStopped();
+    } catch (e) {
+      setSt({ kind: 'failed', text: walletError(e) });
+    }
+  }
+
+  if (st.kind === 'stopped') {
+    return (
+      <p className="stop-done" role="status"><Check className="ic ok" />Stopped at <span className="mono">{wat(st.at)}</span> WAT. The agent’s permission is gone from your wallet (checked on Celo). <a href={celoscanTx(st.hash)} target="_blank" rel="noreferrer">Transaction<Out className="ic-s" /></a></p>
+    );
+  }
+  return (
+    <div className="stop">
+      {st.kind === 'idle' && <button type="button" className="btn btn-danger" onClick={ask}>Stop the agent</button>}
+      {(st.kind === 'confirm' || st.kind === 'busy') && (
+        <div className="stop-confirm" role="alertdialog" aria-labelledby="stop-q">
+          <p id="stop-q"><strong>Stop the agent now?</strong> It loses its permission on your wallet at once and can’t pay anyone, including payslips you’ve already signed, until you give it permission again. Your payroll balance stays where it is.</p>
+          <p className="meta">One transaction from your wallet. Network fee about <span className="mono">{st.kind === 'confirm' && st.fee !== null ? (Number(st.fee) / 1e18).toFixed(4) : '…'}</span> CELO.</p>
+          <div className="stop-acts">
+            <button type="button" className="btn btn-danger" onClick={stop} disabled={st.kind === 'busy' || st.fee === null}>{st.kind === 'busy' ? st.text : 'Stop the agent now'}</button>
+            <button type="button" className="btn btn-ghost" onClick={() => setSt({ kind: 'idle' })} disabled={st.kind === 'busy'}>Keep it running</button>
+          </div>
+        </div>
+      )}
+      {st.kind === 'failed' && (
+        <>
+          <p className="refusal" role="alert"><Cross className="ic" />{st.text}</p>
+          <button type="button" className="btn btn-ghost" onClick={() => setSt({ kind: 'idle' })}>Back</button>
+        </>
+      )}
+    </div>
+  );
+}
+
 // ---------------------------------------------------------------- the desk
 
 type DraftLine = { name: string; to: string; amount: string };
@@ -367,7 +448,7 @@ export default function DeskApp(props: DeskProps) {
   const blockers: string[] = [];
   if (!isOwner) blockers.push('Connect the owner’s wallet to sign.');
   else if (!chainOk) blockers.push('Switch your wallet to Celo.');
-  if (!session) blockers.push('The agent holds no session on this wallet.');
+  if (!session) blockers.push('The agent has no permission on this wallet (it was stopped or never given one). Give it permission again before the next run.');
   else if (!session.live) blockers.push(`The agent’s session ended ${watDay(new Date(session.expiry))} ${wat(new Date(session.expiry))} WAT. The owner renews it before the next run.`);
   // The session's relay-fee cap on the owner's wallet (native CELO, per day). A run's fee was 0.667 CELO on
   // 2026-11-22 (docs/CONTEXT.md); refuse up front when less than that is left, rather than after signing.
@@ -670,7 +751,10 @@ export default function DeskApp(props: DeskProps) {
                 <div><dt>{session.live ? 'Allowed until' : 'Ended'}</dt><dd className={session.live ? '' : 'warn'}><span className="mono">{watDay(new Date(session.expiry))} {wat(new Date(session.expiry))}</span> WAT</dd></div>
                 {feeCap && <div><dt>Network fees</dt><dd><span className="mono">{money(BigInt(feeCap.spentToday) / 10n ** 12n)} of {money(BigInt(feeCap.limit) / 10n ** 12n)}</span> CELO today</dd></div>}
               </dl>
-            ) : <p className="meta">{props.ownerState ? 'The agent holds no permission on this wallet.' : 'Celo didn’t answer; the agent’s permission can’t be read right now.'}</p>}
+            ) : <p className="meta">{props.ownerState ? 'The agent has no permission on this wallet, so it can’t pay anyone.' : 'Celo didn’t answer; the agent’s permission can’t be read right now.'}</p>}
+            {session && (isOwner && chainOk && account
+              ? <StopAgent owner={props.owner} keyHash={props.sessionKeyHash} account={account} onStopped={() => setTimeout(() => router.refresh(), 1500)} />
+              : <p className="meta">The owner can stop the agent at any time, in one transaction from their wallet.</p>)}
           </section>
           <section className="panel">
             <h2 className="panel-title">Payroll balance</h2>
